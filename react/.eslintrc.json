@@ -1,0 +1,36 @@
+{	
+    "extends": ["standard", "standard-react"],	
+    "plugins": [],	
+    "rules": {	
+        "quotes": [2, "double"],	
+        "semi": [2, "always"],	
+        "space-before-function-paren": [2, "never"],	
+        "indent": ["error", 4],	
+        "prefer-template": 2,	
+        "one-var": [2, "always"],	
+        "no-var": "error",	
+        "prefer-const": ["error"],	
+        "jsx-quotes": [2, "prefer-double"],	
+        "react/jsx-indent": ["error", 4],	
+        "react/jsx-indent-props": ["error", 4],
+        "react/jsx-no-bind": [2, {	
+            "ignoreDOMComponents": false,	
+            "ignoreRefs": false,	
+            "allowArrowFunctions": false,	
+            "allowFunctions": false,	
+            "allowBind": false	
+        }],	
+        "react/no-unused-prop-types": [0],	
+        "react/prop-types": [2],	
+        "no-multi-spaces": [2, {	
+            "ignoreEOLComments": true	
+        }]	
+    },	
+    "globals": {	
+        "describe": false,	
+        "it": false,	
+        "beforeEach": false,	
+        "afterEach": false
+    },
+	"parser": "babel-eslint"
+} 

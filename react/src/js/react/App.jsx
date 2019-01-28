@@ -13,14 +13,14 @@ import Header from "./misc/Header";
 export default class App extends Reflux.Component {
     render() {
         return (
-			<div>
-				<Header />
-				<BrowserRouter>
-					<Switch>
-						<Route path="*" component={PageNotFound} />
-					</Switch>
-				</BrowserRouter>
-			</div>
+            <div>
+                <Header />
+                <BrowserRouter>
+                    <Switch>
+                        <Route path="*" component={PageNotFound} />
+                    </Switch>
+                </BrowserRouter>
+            </div>
         );
     }
 }
