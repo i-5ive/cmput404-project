@@ -11,7 +11,7 @@ module.exports = {
         // allows React-Router
         historyApiFallback: true,
         port: PORT,
-        host: "0.0.0.0"
+        host: "localhost"
     },
     module: {
         rules: [
@@ -21,15 +21,6 @@ module.exports = {
                 use: {
                     loader: "babel-loader"
                 }
-            },
-            {
-                test: /\.xlsx$/,
-                use: [
-                    {
-                        loader: "arraybuffer-loader",
-                        options: {}
-                    }
-                ]
             },
             {
                 test: /\.html$/,
