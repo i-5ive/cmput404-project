@@ -159,7 +159,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # Node Modules (use npm install)
-/node_modules
+**/node_modules/
 
 # code coverage reports
 coverage/
