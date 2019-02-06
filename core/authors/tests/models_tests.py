@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from core.users.models import Author
+from core.authors.models import Author
 
 
 class AuthorModelTest(TestCase):
