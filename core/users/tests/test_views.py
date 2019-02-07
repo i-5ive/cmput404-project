@@ -51,3 +51,89 @@ class GetAllUsersTestCase(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)  # should just be me :D
+
+
+class GetDetailUserTestCase(APITestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = User.objects.create(username='admin', email='admin@admin.com', password='AdminPaSsWord!',
+                                         is_superuser=True)
+
+        for i in range(0, NUM_USERS):
+            User.objects.create(username='test{}'.format(i), email='test{}@example.com'.format(i), password='test1234')
+
+    def test_get_detail_as_admin(self):
+        view = UserViewSet.as_view({'get': 'retrieve'})
+        request = self.factory.get(reverse('users-detail', kwargs={'pk': 2}))
+        force_authenticate(request, user=self.admin)
+        response = view(request, pk=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'id': 2,
+                                         'username': 'test0',
+                                         'email': 'test0@example.com',
+                                         'first_name': '',
+                                         'last_name': ''})
+
+    def test_get_detail_for_me(self):
+        view = UserViewSet.as_view({'get': 'retrieve'})
+        request = self.factory.get(reverse('users-detail', kwargs={'pk': 2}))
+        force_authenticate(request, user=get_user_model().objects.get(pk=2))
+        response = view(request, pk=2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'id': 2,
+                                         'username': 'test0',
+                                         'email': 'test0@example.com',
+                                         'first_name': '',
+                                         'last_name': ''})
+
+    def test_get_detail_as_anon(self):
+        view = UserViewSet.as_view({'get': 'retrieve'})
+        request = self.factory.get(reverse('users-detail', kwargs={'pk': 2}))
+        response = view(request, pk=2)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        print(response.data)
+
+
+class CreateUserTestCase(APITestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = User.objects.create(username='admin', email='admin@admin.com', password='AdminPaSsWord!',
+                                         is_superuser=True)
+        self.minimal_valid_data = {
+            "username": "test1",
+            "email": "test1@example.com",
+            "password": get_user_model().objects.make_random_password()
+        }
+        self.valid_data = {
+            "username": "test1",
+            "email": "test1@example.com",
+            "password": get_user_model().objects.make_random_password(),
+            "first_name": "Test",
+            "last_name": "User"
+        }
+        self.invalid_data = {
+            "username": "1",
+            "password": "",
+            "email": "not valid email"
+        }
+
+    def test_create_user_minimal_valid_data(self):
+        view = UserViewSet.as_view({'post': 'create'})
+        request = self.factory.post(reverse('users-list'), data=self.minimal_valid_data, format='json')
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        for key, value in self.minimal_valid_data.items():
+            if key != 'password':
+                self.assertEqual(response.data[key], value)
+
+    def test_create_user_valid_data(self):
+        view = UserViewSet.as_view({'post': 'create'})
+        request = self.factory.post(reverse('users-list'), data=self.valid_data, format='json')
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        print(response.data)
+        for key, value in self.valid_data.items():
+            if key != 'password':
+                self.assertEqual(response.data[key], value)
