@@ -92,7 +92,6 @@ class GetDetailUserTestCase(APITestCase):
         request = self.factory.get(reverse('users-detail', kwargs={'pk': 2}))
         response = view(request, pk=2)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        print(response.data)
 
 
 class CreateUserTestCase(APITestCase):
@@ -133,7 +132,6 @@ class CreateUserTestCase(APITestCase):
         request = self.factory.post(reverse('users-list'), data=self.valid_data, format='json')
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        print(response.data)
         for key, value in self.valid_data.items():
             if key != 'password':
                 self.assertEqual(response.data[key], value)
