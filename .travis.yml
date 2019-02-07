@@ -9,7 +9,7 @@ matrix:
       install:
         - pip install -r requirements.txt
       script:
-        - pytest
+        - pytest --cov=core
     - language: node_js
       node_js:
         - "lts/carbon"
