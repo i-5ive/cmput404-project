@@ -6,7 +6,8 @@ from core.users.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('id', 'password', 'username', 'email', 'first_name', 'last_name',)
+        extra_kwargs = {'password': {'write_only': True}}
 
     # Inspired from https://stackoverflow.com/a/29867704 - cpury 2019/02/06
     def create(self, validated_data):

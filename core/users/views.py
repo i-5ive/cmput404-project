@@ -1,21 +1,23 @@
 # Create your views here.
-from django.contrib.auth import get_user_model  # If used custom user model
-from rest_framework import permissions
-from rest_framework import viewsets
-from rest_framework.generics import CreateAPIView
+from django.contrib.auth import get_user_model
+from rest_framework import viewsets, permissions
 
-from core.users.models import User
 from .serializers import UserSerializer
+
+User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (permissions.AllowAny,)
 
-
-class CreateUserView(CreateAPIView):
-    model = get_user_model()
-    permission_classes = [
-        permissions.AllowAny  # Or anon users can't register
-    ]
-    serializer_class = UserSerializer
+    def get_queryset(self):
+        """
+        If the user is an admin, they can get all users, otherwise only their specific User object will be returned
+        https://stackoverflow.com/a/22767325 - argaen 2019/02/06
+        :return:
+        """
+        if self.request.user.is_superuser:
+            return User.objects.all()
+        else:
+            return User.objects.filter(id=self.request.user.id)
