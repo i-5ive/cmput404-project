@@ -1,0 +1,13 @@
+.headerProfile {
+	float: right;
+	
+	.headerNotifications {
+		font-size: 15pt;
+		transform: rotateZ(38deg);
+	}
+
+	.notificationsBadge > .badge {
+		background-color: red;
+		float: right;
+	}
+}

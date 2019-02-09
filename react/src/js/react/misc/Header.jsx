@@ -1,16 +1,10 @@
 import React from "react";
-import Reflux from "reflux";
 
-import AuthStore from "../auth/AuthStore";
+import { Navbar, Nav, NavItem } from "react-bootstrap";
 
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from "react-bootstrap";
+import HeaderProfileDetails from "./HeaderProfileDetails";
 
-export default class Header extends Reflux.Component {
-    constructor() {
-        super();
-        this.store = AuthStore;
-    }
-
+export default class Header extends React.Component {
     render() {
         return (
             <Navbar inverse>
@@ -21,26 +15,13 @@ export default class Header extends Reflux.Component {
                 </Navbar.Header>
                 <Nav>
                     <NavItem eventKey={1}>
-                        Link
+                        Home
                     </NavItem>
                     <NavItem eventKey={2}>
-                        Link
+                        Discover
                     </NavItem>
-                    {
-                        this.state.isLoggedIn && (
-                            <NavItem eventKey={3}>
-                                Logged In
-                            </NavItem>
-                        )
-                    }
-                    <NavDropdown eventKey={3} title="Dropdown" id="basic-nav-dropdown">
-                        <MenuItem eventKey={3.1}>Action</MenuItem>
-                        <MenuItem eventKey={3.2}>Another action</MenuItem>
-                        <MenuItem eventKey={3.3}>Something else here</MenuItem>
-                        <MenuItem divider />
-                        <MenuItem eventKey={3.4}>Separated link</MenuItem>
-                    </NavDropdown>
                 </Nav>
+                <HeaderProfileDetails />
             </Navbar>
         );
     }
