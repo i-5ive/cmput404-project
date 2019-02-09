@@ -13,6 +13,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
+from core.authors.models import Author
 from core.users.views import UserViewSet
 
 NUM_USERS = 5
@@ -126,6 +127,7 @@ class CreateUserTestCase(APITestCase):
         for key, value in self.minimal_valid_data.items():
             if key != 'password':
                 self.assertEqual(response.data[key], value)
+        self.assert_author_created(pk=response.data['id'])
 
     def test_create_user_valid_data(self):
         view = UserViewSet.as_view({'post': 'create'})
@@ -135,3 +137,18 @@ class CreateUserTestCase(APITestCase):
         for key, value in self.valid_data.items():
             if key != 'password':
                 self.assertEqual(response.data[key], value)
+        self.assert_author_created(pk=response.data['id'])
+
+    def test_create_user_invalid_data(self):
+        view = UserViewSet.as_view({'post': 'create'})
+        request = self.factory.post(reverse('users-list'), data=self.invalid_data, format='json')
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def assert_author_created(self, pk=None):
+        """
+        Assert that an author was created with a specified user
+        :param pk:
+        :return:
+        """
+        self.assertIsNotNone(Author.objects.filter(user=pk))

@@ -1,8 +1,12 @@
 import uuid
 
+from django.contrib.auth import get_user_model
 from django.db import models
 
 # Create your models here.
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 from core.users.models import User
 
 
@@ -23,3 +27,18 @@ class Author(models.Model):
 
     def __str__(self):
         return self.user.email
+
+
+@receiver(post_save, sender=get_user_model())
+def create_author_profile(sender, instance, created, **kwargs):
+    """
+    Create an author profile when a user signs up.
+    https://stackoverflow.com/a/12615339 - Michael Bylstra 02/09/2019
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    :return:
+    """
+    if created:
+        author, new = Author.objects.get_or_create(user=instance)
