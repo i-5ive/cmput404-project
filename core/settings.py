@@ -24,7 +24,7 @@ SECRET_KEY = 'mtl$5lb%^%=!kk7f^shyp0)^^!+n_y_9&yq10m_tvl1mtz18hs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = if Debug ["*"] else []
+ALLOWED_HOSTS = if DEBUG ["*"] else []
 
 # Application definition
 
