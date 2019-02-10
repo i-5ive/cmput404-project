@@ -1,7 +1,7 @@
 import uuid
 
-# from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 from django.db.models.signals import post_save
@@ -18,7 +18,28 @@ class Posts(models.Model):
     title = models.CharField(max_length=100) # can this be blank?
     text_content = models.TextField(blank=True, null=True)
     image_content = models.ImageField(blank=True, null=True)
+    published_time = models.DateTimeField(auto_now_add=True, blank=True)
+    unlisted = models.BooleanField(default=False)
+    visible_to = ArrayField(models.CharField(max_length=100), blank=True, null=True)
+
+    VISIBILITY_CHOICES = (
+        ('PUBLIC', 'Public'),
+        ('FOAF', 'Friend of a Friend'),
+        ('FRIENDS', 'Friends'),
+        ('PRIVATE', 'Private'),
+        ('SERVERONLY', 'Local Friend')
+    )
+
+    visibility = models.CharField(
+        max_length=2,
+        choices=VISIBILITY_CHOICES,
+        default='PUBLIC'
+    )
+
+    # TODO Comments!
+
 
 
     # Optional Fields
     description = models.CharField(max_length=100, blank=True, null=True)
+    categories = ArrayField(models.CharField(max_length=200), blank=True, null=True)
