@@ -24,6 +24,7 @@ matrix:
 
       install:
         # installs the packages specified in package.json
+        - cd react
         - npm install
 
       before_script:
