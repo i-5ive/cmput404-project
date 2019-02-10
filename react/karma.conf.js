@@ -14,8 +14,7 @@ webpackConfig.module.rules.push({
         options: { esModules: true }
     },
     include: [
-        path.resolve("src/js/react"),
-        path.resolve("src/js/services")
+        path.resolve("src/js/react")
     ]
 });
 
