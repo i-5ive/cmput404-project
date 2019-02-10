@@ -4,23 +4,28 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
 from core.authors.models import Author
 
-class Posts(models.Model):
+
+class CommonData(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    content_type = models.CharField(max_length=30)
+    published_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+    
+class Posts(CommonData):
     post_id = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
     source_url = models.URLField()
     origin_url = models.URLField()
-    content_type = models.CharField(max_length=30)
     title = models.CharField(max_length=100) # can this be blank?
+    #combine into one?
     text_content = models.TextField(blank=True, null=True)
     image_content = models.ImageField(blank=True, null=True)
-    published_time = models.DateTimeField(auto_now_add=True, blank=True)
     unlisted = models.BooleanField(default=False)
-    visible_to = ArrayField(models.CharField(max_length=100), blank=True, null=True)
+    # visible_to is a list of authors
+    visible_to = ArrayField(models.CharField(max_length=100), default=list)
 
     VISIBILITY_CHOICES = (
         ('PUBLIC', 'Public'),
@@ -31,15 +36,17 @@ class Posts(models.Model):
     )
 
     visibility = models.CharField(
-        max_length=2,
+        max_length=10,
         choices=VISIBILITY_CHOICES,
         default='PUBLIC'
     )
 
-    # TODO Comments!
-
-
-
     # Optional Fields
     description = models.CharField(max_length=100, blank=True, null=True)
-    categories = ArrayField(models.CharField(max_length=200), blank=True, null=True)
+    categories = ArrayField(models.CharField(max_length=200), default=list)
+
+class Comments(CommonData):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    content_type = models.CharField(max_length=30, default="text/markdown")
+    post = models.ForeignKey(Posts, related_name='comments', on_delete=models.CASCADE)
+    comment = models.TextField()
