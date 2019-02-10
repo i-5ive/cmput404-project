@@ -14,14 +14,12 @@ webpackConfig.module.rules.push({
         options: { esModules: true }
     },
     include: [
-        path.resolve("src/js/react"),
-        path.resolve("src/js/services")
+        path.resolve("src/js/react")
     ]
 });
 
 module.exports = function(config) {
     config.set({
-
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: "",
 
@@ -47,28 +45,28 @@ module.exports = function(config) {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ["mocha", "coverage-istanbul"],
+        reporters: ["progress", "mocha", "coverage-istanbul"],
         coverageIstanbulReporter: {
             reports: [ "lcov", "text-summary" ],
-            fixWebpackSourcePaths: true,
+            fixWebpackSourcePaths: true
 
             // enforces code coverage
-            thresholds: {
-                each: {
-                    statements: 85,
-                    lines: 85,
-                    branches: 85,
-                    functions: 85,
-                    overrides: {
-                        "src/js/react/reservation/ReturnProcessor.jsx": {
-                            statements: 0,
-                            lines: 0,
-                            branches: 0,
-                            functions: 0
-                        }
-                    }
-                }
-            }
+            // thresholds: {
+            //     each: {
+            //         statements: 85,
+            //         lines: 85,
+            //         branches: 85,
+            //         functions: 85,
+            //         overrides: {
+            //             "filename/example.jsx": {
+            //                 statements: 0,
+            //                 lines: 0,
+            //                 branches: 0,
+            //                 functions: 0
+            //             }
+            //         }
+            //     }
+            // }
         },
 
         // web server port

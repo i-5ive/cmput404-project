@@ -14,19 +14,23 @@ matrix:
       node_js:
         - "lts/carbon"
 
-      addons:
-        chrome: stable
+      sources:
+      - google-chrome
+      packages:
+      - google-chrome-stable
 
       env:
         - DJANGO_VERSION=2.1.2 DB=postgresql DISPLAY=:99.0 CHROME_BIN=/usr/bin/google-chrome DJANGO_HOST=http://127.0.0.1:8000/api
 
       install:
         # installs the packages specified in package.json
+        - cd react
         - npm install
 
       before_script:
         # Allows us to run chrome in travis
-        - sh -e /etc/init.d/xvfb start
+        - Xvfb :99 &
+        - sleep 3 # give xvfb some time to start
 
       script:
         # enforces front-end code styling
