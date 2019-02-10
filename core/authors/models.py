@@ -28,6 +28,13 @@ class Author(models.Model):
     def __str__(self):
         return self.user.email
 
+class Follow(models.Model):
+	follower = models.URLField()
+	followed = models.URLField()
+	friends = models.BooleanField(default=False)
+	
+	def __str__(self):
+		return self.follower + " is following " + self.followed
 
 @receiver(post_save, sender=get_user_model())
 def create_author_profile(sender, instance, created, **kwargs):
