@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('core.users.urls')),
     path('author/', include('core.authors.urls')),
+    path('posts/', include('core.posts.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('docs/', include_docs_urls(title='API Documentation'))
 
