@@ -28,6 +28,7 @@ class PostsModelTest(TestCase):
             'author': Author.objects.get(user=self.u1.id)
         })
         self.assertFalse(post.comments.all().exists())
+
         comment = Comments.objects.create(**{
             'comment': 'Hello World',
             'post': Posts.objects.get(id=post.id),
