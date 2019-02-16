@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.documentation import include_docs_urls
 
-import core.authors.views.handle_follow_request as friend_request
+from core.authors.views import handle_follow_request as friend_request
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +25,6 @@ urlpatterns = [
     path('author/', include('core.authors.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('docs/', include_docs_urls(title='API Documentation')),
-	path('friendrequest/', friend_request)
+    path('friendrequest/', friend_request, name='friendrequest')
 
 ]

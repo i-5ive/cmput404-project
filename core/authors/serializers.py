@@ -11,7 +11,11 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
     user = UserSerializer()
 
-class FriendAuthorSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Author
-		fields = ('id', 'host', 'displayName', 'url')
+class AuthorSummarySerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.URLField()
+    host = serializers.URLField()
+    id = serializers.URLField()
+
+    class Meta:
+        model = Author
+        fields = ('id', 'host', 'displayName', 'url')

@@ -29,19 +29,18 @@ class Author(models.Model):
         return self.user.email
 
 class Follow(models.Model):
-	follower = models.URLField()
-	followed = models.URLField()
-	friends = models.BooleanField(default=False)
-	
-	def __str__(self):
-		return self.follower + " is following " + self.followed
+    follower = models.URLField()
+    followed = models.URLField()
+    
+    def __str__(self):
+        return self.follower + " is following " + self.followed
 
 class FriendRequest(models.Model):
-	requester = models.URLField()
-	friend = models.URLField()
-	
-	def __str__(self):
-		return self.requester + " wants to follow " + self.friend
+    requester = models.URLField()
+    friend = models.URLField()
+    
+    def __str__(self):
+        return self.requester + " wants to follow " + self.friend
 
 @receiver(post_save, sender=get_user_model())
 def create_author_profile(sender, instance, created, **kwargs):
