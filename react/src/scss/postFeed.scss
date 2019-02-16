@@ -1,7 +1,7 @@
 @import "variables.scss";
 
 .post-feed {
-    background-color: var(--very-light-grey);
+    background-color: $very-light-grey;
     border-radius: 5px;
     max-width: 40em;
     margin: 0px auto;
