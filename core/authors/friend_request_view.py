@@ -17,7 +17,7 @@ def get_author_details(raw_object):
     data.is_valid(raise_exception=True)
     return data.validated_data
 
-def parse_request_body(request):
+def validate_request_body(request):
     body = request.data
         
     if body["query"] != "friendrequest":
@@ -62,7 +62,7 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
 @api_view(['POST'])
 def handle_follow_request(request):
     try:
-        author, friend, authorId, friendId, externalAuthor, externalFriend = parse_request_body(request)
+        author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
         authorUrl = author["url"]
         friendUrl = friend["url"]
     except Exception as e:
