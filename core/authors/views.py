@@ -3,104 +3,90 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
 from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
+from core.authors.friend_request_view import get_author_details
 
-from core.authors.util import get_author_id
+from core.authors.util import get_author_id, get_author_url
 from core.hostUtil import is_external_host
+
+def parse_friend_request_response(body, pk):
+    success = True
+    message = "Your response has been recorded"
+    friend_request = None
+    friend_data = None
+
+    if body["query"] != "friendResponse":
+        success = False
+        message = "The query value was not correct"
+    elif not isinstance(body["approve"], bool):
+        success = False
+        message = "The approve value was not a boolean"
+    else:
+        friend_data = get_author_details(body["friend"])
+        friend_request = FriendRequest.objects.filter(requester=friend_data["id"], friend=get_author_url(pk))
+
+    return (success, message, friend_request, friend_data)
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
-# TODO: move friend stuff into a separate file
-def are_authors_friends(author_one, author_two):
-    return Follow.objects.filter(follower=author_one, friend=author_two).exists() and Follow.objects.filter(follower=author_two, friend=author_one).exists()
-    
-def get_author_details(raw_object):
-    data = AuthorSummarySerializer(data=raw_object)
-    data.is_valid(raise_exception=True)
-    return data.validated_data
-
-def parse_request_body(request):
-    body = json.loads(request.body.decode("utf8"))
+    @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
+    def get_friend_requests(self, request, pk):
+        if (not Author.objects.filter(pk=pk).exists()):
+            return Response("Invalid author ID specified", status=404)
         
-    if body["query"] != "friendrequest":
-        return Response({
-            "query": "friendrequest",
-            "success": False,
-            "message": "The query value was not correct"
-        }, status=400)
-    
-    author = get_author_details(body["author"])
-    friend = get_author_details(body["friend"])
-    
-    authorId = get_author_id(author["id"])
-    friendId = get_author_id(friend["id"])
-    
-    externalAuthor = is_external_host(author["host"])
-    externalFriend = is_external_host(friend["host"])
+        requests = FriendRequest.objects.filter(friend=get_author_url(pk))
+        formatted_requests = []
+        for pending_request in requests:
+            formatted_requests.append({
+                'displayName': pending_request.requester_name,
+                'id': pending_request.requester,
+                'host': pending_request.requester.split("/author/")[0],
+                'url': pending_request.requester
+            })
+        return Response(formatted_requests, status=200)
 
-    return (author, friend, authorId, friendId, externalAuthor, externalFriend)
-
-def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, authorUrl, friendUrl):
-    success = True
-    message = "Friend request sent"
-
-    if (externalAuthor and externalFriend):
-        success = False
-        message = "Neither user belongs to this server"
-    elif (authorId == friendId):
-        success = False
-        message = "The requesting user was the same as the followed user"
-    elif (FriendRequest.objects.filter(requester=authorUrl, friend=friendUrl).exists() or FriendRequest.objects.filter(friend=authorUrl, requester=friendUrl).exists()):
-        success = False
-        message = "The two authors already have a friend request pending"
-    elif (not externalAuthor and not Author.objects.filter(id=authorId).exists()) or (not externalFriend and not Author.objects.filter(id=friendId).exists()):
-        success = False
-        message = "At least one of the two authors are not external and do not exist on this server"
-    elif (Follow.objects.filter(follower=authorUrl, followed=friendUrl).exists()):
-        success = False
-        message = "The requester is already following this friend"
-    return (success, message)
-
-@api_view(['POST'])
-def handle_follow_request(request):
-    try:
-        author, friend, authorId, friendId, externalAuthor, externalFriend = parse_request_body(request)
-        authorUrl = author["url"]
-        friendUrl = friend["url"]
-    except:
-        return Response({
-                "query": "friendrequest",
+    @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')
+    def handle_friend_request_response(self, request, pk):
+        if (not Author.objects.filter(pk=pk).exists()):
+            return Response("Invalid author ID specified", status=404)
+        
+        try:
+            message = "The request body could not be parsed"
+            body = json.loads(request.body.decode("utf8"))
+            success, message, friend_request, friend_data = parse_friend_request_response(body)
+        except:
+            return Response({
+                "query": "friendResponse",
                 "success": False,
-                "message": "The body did not contain all of the required parameters"
+                "message": message
             }, status=400)
-    
-    success, message = validate_friend_details(authorId, friendId, externalAuthor, externalFriend, authorUrl, friendUrl)
+        
+        if not success:
+            return Response({
+                "query": "friendResponse",
+                "success": False,
+                "message": message
+            }, status=400)
+        if not friend:
+            return Response({
+                "query": "friendResponse",
+                "success": False,
+                "message": "Could not find a friend request from the specified author"
+            }, status=404)
 
-    if not success:
-        return Response({
-            "query": "friendrequest",
-            "success": False,
-            "message": message
-        }, status=400)
+        if (body["approve"]):
+            Follow.objects.create(follower=get_author_url(pk), followed=friend_data["url"])
 
-    # TODO: update other server if remote host
-    
-    reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
-    if not reverseFollow.exists():
-        request = FriendRequest.objects.create(requester=authorUrl, friend=friendUrl)
-        request.save()
-
-    follow = Follow.objects.create(follower=authorUrl, followed=friendUrl)
-    follow.save()
-
-    return Response({
-        "query": "friendrequest",
-        "success": True,
-        "message": message
-    }, status=200)
+        friend_request.delete()
+        response = {
+            "message": "Your response has been recorded",
+            "success": success,
+            "query": message
+        }
+        return Response(response, status=200)

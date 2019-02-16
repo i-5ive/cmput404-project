@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.documentation import include_docs_urls
 
-from core.authors.views import handle_follow_request as friend_request
+from core.authors.friend_request_view import handle_follow_request as friend_request
 
 urlpatterns = [
     path('admin/', admin.site.urls),
