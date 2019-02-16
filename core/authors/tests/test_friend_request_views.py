@@ -349,3 +349,110 @@ class PendingFriendRequestViewsTest(TestCase):
             'host': author2Url.split("/author/")[0],
             'url': author2Url
         })
+
+def get_respond_to_requests_path(userId):
+    view = AuthorViewSet()
+    view.basename = "author"
+    view.request = None
+    return view.reverse_action("friend_requests_respond", args=[userId])
+
+def get_respond_to_request_body(author1, approve, query="friendResponse"):
+    return json.dumps({
+        "query": query,
+        "friend": {
+            "id": "http://127.0.0.1/author/" + str(author1),
+            "host": "http://127.0.0.1",
+            "displayName": "Some random name 2",
+            "url": "http://127.0.0.1/author/" + str(author1)
+        },
+        "approve": approve
+    })
+
+class RespondFriendRequestViewsTest(TestCase):
+
+    def setUp(self):
+        self.author1 = setupUser("one")
+        self.author2 = setupUser("two")
+        self.author3 = setupUser("three")
+
+    def test_invalid_user(self):
+        deletedId = self.author1.id
+        self.author1.delete()
+        body = get_respond_to_request_body(deletedId, True)
+        response = self.client.post(get_respond_to_requests_path(str(deletedId)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+
+    def test_invalid_query(self):
+        body = get_respond_to_request_body(self.author1.id, True, "Not correct")
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_success(self):
+        body = get_respond_to_request_body(self.author1.id, 25)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+    
+    def test_no_request_from_friend(self):
+        body = get_respond_to_request_body(self.author2.id, False)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+
+    def test_request_from_other_friend(self):
+        author1Url = get_author_url(str(self.author1.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+
+        body = get_respond_to_request_body(self.author2.id, False)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+
+    def test_successful_approve_response(self):
+        author1Url = get_author_url(str(self.author1.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+
+        body = get_respond_to_request_body(self.author3.id, True)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(FriendRequest.objects.all()), 0)
+        self.assertIsNotNone(Follow.objects.get(follower=author1Url, followed=author3Url))
+
+    def test_successful_reject_response(self):
+        author1Url = get_author_url(str(self.author1.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+
+        body = get_respond_to_request_body(self.author3.id, False)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(FriendRequest.objects.all()), 0)
+        self.assertEqual(len(Follow.objects.all()), 0)
+
+    def test_successful_reject_response_multiple_requests(self):
+        author1Url = get_author_url(str(self.author1.id))
+        author2Url = get_author_url(str(self.author2.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author2Url, friend=author1Url, requester_name="test name 2")
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+
+        body = get_respond_to_request_body(self.author3.id, False)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(FriendRequest.objects.all()), 1)
+        self.assertIsNotNone(FriendRequest.objects.get(friend=author1Url, requester=author2Url))
+        self.assertEqual(len(Follow.objects.all()), 0)
+
+    def test_successful_approve_response_multiple_requests(self):
+        author1Url = get_author_url(str(self.author1.id))
+        author2Url = get_author_url(str(self.author2.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author2Url, friend=author1Url, requester_name="test name 2")
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+
+        body = get_respond_to_request_body(self.author3.id, True)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(FriendRequest.objects.all()), 1)
+        self.assertIsNotNone(FriendRequest.objects.get(friend=author1Url, requester=author2Url))
+        self.assertEqual(len(Follow.objects.all()), 1)
+        self.assertIsNotNone(Follow.objects.get(follower=author1Url, followed=author3Url))

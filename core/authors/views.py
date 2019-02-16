@@ -54,13 +54,18 @@ class AuthorViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')
     def handle_friend_request_response(self, request, pk):
         if (not Author.objects.filter(pk=pk).exists()):
-            return Response("Invalid author ID specified", status=404)
+            return Response({
+                "query": "friendResponse",
+                "success": False,
+                "message": "Invalid author ID specified"
+            }, status=404)
         
         try:
             message = "The request body could not be parsed"
             body = json.loads(request.body.decode("utf8"))
-            success, message, friend_request, friend_data = parse_friend_request_response(body)
-        except:
+            success, message, friend_request, friend_data = parse_friend_request_response(body, pk)
+        except Exception as e:
+            print(e)
             return Response({
                 "query": "friendResponse",
                 "success": False,
@@ -73,7 +78,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": message
             }, status=400)
-        if not friend:
+        if not friend_request:
             return Response({
                 "query": "friendResponse",
                 "success": False,
