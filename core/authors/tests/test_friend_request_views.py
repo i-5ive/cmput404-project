@@ -63,9 +63,7 @@ class FriendRequestViewTestCase(TestCase):
         host_mock.return_value = False
 
         body = get_local_authors_body(self.author3, self.author1)
-        #body = json.loads(body)
         del body["author"]
-        #body = json.dumps(body)
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
         self.assertEqual(response.status_code, 400)
@@ -82,9 +80,7 @@ class FriendRequestViewTestCase(TestCase):
         host_mock.return_value = False
 
         body = get_local_authors_body(self.author3, self.author1)
-        #body = json.loads(body)
         del body["friend"]
-        #body = json.dumps(body)
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
         self.assertEqual(response.status_code, 400)
