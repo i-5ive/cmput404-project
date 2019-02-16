@@ -62,10 +62,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
         
         try:
             message = "The request body could not be parsed"
-            body = json.loads(request.body.decode("utf8"))
+            body = request.data
             success, message, friend_request, friend_data = parse_friend_request_response(body, pk)
-        except Exception as e:
-            print(e)
+        except:
             return Response({
                 "query": "friendResponse",
                 "success": False,

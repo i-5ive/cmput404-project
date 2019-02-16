@@ -13,7 +13,7 @@ from unittest.mock import patch
 from core.authors.util import get_author_url
 
 def get_local_authors_body(author1, author2, query="friendrequest"):
-    return json.dumps({
+    return {
         "query": query,
         "author": {
             "id": "http://127.0.0.1/author/" + str(author1.id),
@@ -27,7 +27,7 @@ def get_local_authors_body(author1, author2, query="friendrequest"):
             "displayName": "Some random name 2",
             "url": "http://127.0.0.1/author/" + str(author2.id)
         }
-    })
+    }
 
 def setupUser(username):
     user = User.objects.create(username=username)
@@ -63,9 +63,9 @@ class FriendRequestViewTestCase(TestCase):
         host_mock.return_value = False
 
         body = get_local_authors_body(self.author3, self.author1)
-        body = json.loads(body)
+        #body = json.loads(body)
         del body["author"]
-        body = json.dumps(body)
+        #body = json.dumps(body)
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
         self.assertEqual(response.status_code, 400)
@@ -82,9 +82,9 @@ class FriendRequestViewTestCase(TestCase):
         host_mock.return_value = False
 
         body = get_local_authors_body(self.author3, self.author1)
-        body = json.loads(body)
+        #body = json.loads(body)
         del body["friend"]
-        body = json.dumps(body)
+        #body = json.dumps(body)
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
         self.assertEqual(response.status_code, 400)
@@ -157,10 +157,9 @@ class FriendRequestViewTestCase(TestCase):
         self.assertEqual(len(FriendRequest.objects.all()), 1)
         self.assertEqual(len(Follow.objects.all()), 1)
 
-        jsonBody = json.loads(body)
-        self.assertIsNotNone(FriendRequest.objects.get(requester=jsonBody["author"]["url"], friend=jsonBody["friend"]["url"]))
-        self.assertIsNotNone(Follow.objects.get(follower=jsonBody["author"]["url"], followed=jsonBody["friend"]["url"]))
-        self.assertIsNotNone(FriendRequest.objects.get(requester_name=jsonBody["author"]["displayName"]))
+        self.assertIsNotNone(FriendRequest.objects.get(requester=body["author"]["url"], friend=body["friend"]["url"]))
+        self.assertIsNotNone(Follow.objects.get(follower=body["author"]["url"], followed=body["friend"]["url"]))
+        self.assertIsNotNone(FriendRequest.objects.get(requester_name=body["author"]["displayName"]))
 
     @patch("core.hostUtil.is_external_host")
     @patch("core.authors.util.get_author_id")

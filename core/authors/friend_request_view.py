@@ -18,7 +18,7 @@ def get_author_details(raw_object):
     return data.validated_data
 
 def parse_request_body(request):
-    body = json.loads(request.body.decode("utf8"))
+    body = request.data
         
     if body["query"] != "friendrequest":
         return Response({
@@ -65,7 +65,7 @@ def handle_follow_request(request):
         author, friend, authorId, friendId, externalAuthor, externalFriend = parse_request_body(request)
         authorUrl = author["url"]
         friendUrl = friend["url"]
-    except:
+    except Exception as e:
         return Response({
                 "query": "friendrequest",
                 "success": False,
