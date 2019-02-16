@@ -370,6 +370,10 @@ class RespondFriendRequestViewsTest(TestCase):
         self.author2 = setupUser("two")
         self.author3 = setupUser("three")
 
+    def test_get(self):
+        response = self.client.get(get_respond_to_requests_path(str(self.author1.id)))
+        self.assertEqual(response.status_code, 405)
+
     def test_invalid_user(self):
         deletedId = self.author1.id
         self.author1.delete()
