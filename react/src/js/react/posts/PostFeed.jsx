@@ -22,9 +22,7 @@ export default class PostFeed extends React.Component {
     }
 
     /**
-     * Handles a user's login attempt
-     * @param {String} username - the username that a user is attempting to log in with
-     * @param {String} password - the password that a user is attempting to log in with
+     * GET's to the database
      */
     getPosts() {
         //TODO: actually connect this to the database

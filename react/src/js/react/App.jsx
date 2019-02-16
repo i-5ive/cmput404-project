@@ -3,8 +3,7 @@ import Reflux from "reflux";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import PageNotFound from "./help/PageNotFound";
-import PostFeed from "./posts/PostFeed";
-import NewPostButton from "./posts/NewPostButton";
+import PostPage from "./posts/PostPage";
 import Header from "./misc/Header";
 
 
@@ -19,8 +18,7 @@ export default class App extends Reflux.Component {
                 <Header />
                 <BrowserRouter>
                     <Switch>
-                        <PostFeed/>
-                        <NewPostButton/>
+                        <PostPage/>
                     </Switch>
                 </BrowserRouter>
             </div>

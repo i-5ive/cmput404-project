@@ -9,9 +9,12 @@ export default class NewPostButton extends React.Component {
     // <img src="../../icons/new-post.svg" alt="Make a new post">
     render() {
         return (
-            <button className="new-post-button" type="button">
-                NewPostButton
-            </button>
+            <div>
+                <i className="fa fa-pencil-square-o"/>
+                <button className="new-post-button" type="button">
+                    NewPostButton
+                </button>
+            </div>
         );
     }
 }
