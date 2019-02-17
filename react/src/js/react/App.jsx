@@ -8,6 +8,7 @@ import Reflux from "reflux";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import PageNotFound from "./help/PageNotFound";
+import CreatePost from "./posts/CreatePost";
 import Header from "./misc/Header";
 
 export default class App extends Reflux.Component {
@@ -17,6 +18,7 @@ export default class App extends Reflux.Component {
                 <Header />
                 <BrowserRouter>
                     <Switch>
+                        <Route exact path="/home" component={CreatePost} />
                         <Route path="*" component={PageNotFound} />
                     </Switch>
                 </BrowserRouter>

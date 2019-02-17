@@ -13,6 +13,7 @@ webpackConfig.module.rules.push({
         loader: "istanbul-instrumenter-loader",
         options: { esModules: true }
     },
+    enforce: "post",
     include: [
         path.resolve("src/js/react")
     ]
