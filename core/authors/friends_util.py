@@ -1,7 +1,6 @@
 from core.authors.models import Follow
 
 def get_friends_set(authorUrl):
-    print("why are u here")
     followers = Follow.objects.filter(followed=authorUrl).values()
     followed = Follow.objects.filter(follower=authorUrl).values()
     followersSet = set()

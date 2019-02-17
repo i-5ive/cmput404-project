@@ -31,8 +31,7 @@ def handle_friends_post(request, pk):
     try:
         authorUrl = get_author_url(pk)
         success, message = parse_is_friends_with_any(request.data, authorUrl)
-    except Exception as e:
-        print(e)
+    except:
         return Response({
             "query": "friends",
             "author": authorUrl,
