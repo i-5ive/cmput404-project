@@ -20,9 +20,7 @@ class Posts(CommonData):
     source_url = models.URLField()
     origin_url = models.URLField()
     title = models.CharField(max_length=100) # can this be blank?
-    #combine into one?
-    text_content = models.TextField(blank=True, null=True)
-    image_content = models.ImageField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
     unlisted = models.BooleanField(default=False)
     # visible_to is a list of authors
     visible_to = ArrayField(models.CharField(max_length=100), default=list)
