@@ -48,9 +48,6 @@ class GetAllUsersTestCase(APITestCase):
     def test_get_all_users_as_user(self):
         view = UserViewSet.as_view({'get': 'list'})
         request = self.factory.get(reverse('users-list'))
-        xd = User.objects.all()
-        for sample in xd:
-            print(sample.pk)
         force_authenticate(request, user=get_user_model().objects.get(username="test2"))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
