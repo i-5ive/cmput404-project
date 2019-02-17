@@ -5,7 +5,7 @@ import { shallow } from "enzyme";
 
 describe("Post Tests", () => {
     it("renders via shallow", () => {
-        const page = shallow(Post />);
+        const page = shallow(<Post />);
 
         //expect(page.text()).to.contain("Page Not Found!");
     });

@@ -36,6 +36,7 @@ export default class PostFeed extends React.Component {
         //   });
 
         //TODO: remove the 2 lines below. It is fake data so Mandy can make the UI
+        //TODO: get the post id from the json object and pass it to the post object
         this.setState({posts: ["thing", "thing2"]});
         this.setState({promiseDone: true});
     }
@@ -48,7 +49,7 @@ export default class PostFeed extends React.Component {
         return (
             <div className="post-feed">
                 {this.state.posts.map(post => (
-                    <Post className={post} key={post}/>
+                    <Post className="post" key={post} postId={post}/>
                 ))}
             </div>
         );

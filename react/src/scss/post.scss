@@ -1,3 +1,45 @@
-.post {
-    color: red;
+.post-wrapper {
+    border:2px solid black;
+    border-radius: 5px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+}
+
+.post-title {
+    margin-bottom: 0px;
+}
+
+.comment-wrapper {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+}
+
+.comment-feild {
+    display:inline-block;
+    width: 100%;
+}
+
+.comment-input {
+    max-width: 92%;
+    width: 92%;
+    display:inline-block;
+    float: left;
+}
+
+.send-comment-button {
+    float: right;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+textarea {
+    -ms-overflow-style: none;  // IE 10+
+    overflow: -moz-scrollbars-none;  // Firefox
+}
+textarea::-webkit-scrollbar {
+    display: none;  // Safari and Chrome
 }
