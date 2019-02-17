@@ -94,3 +94,21 @@ class AuthorViewSet(viewsets.ModelViewSet):
             "query": message
         }
         return Response(response, status=200)
+
+    @action(methods=['get'], detail=True, url_path='friends', url_name='friends')
+    def get_friends(self, request, pk):
+        if (not Author.objects.filter(pk=pk).exists()):
+            return Response("Invalid author ID specified", status=404)
+        
+        authorUrl = get_author_url(pk)
+        followers = Follow.objects.filter(followed=authorUrl).values()
+        followed = Follow.objects.filter(follower=authorUrl).values()
+        friends = set()
+        for follow in followers:
+            friends.add(follow["follower"])
+        for follow in followed:
+            friends.add(follow["followed"])
+        return Response({
+            "query": "friends",
+            "authors": list(friends)
+        }, status=200)

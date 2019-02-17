@@ -40,7 +40,7 @@ export default class FriendsStore extends Reflux.Store {
             errorLoadingRequests: false
         });
 
-        RestUtil.sendGET(`author/${user.id}/friendRequests/`).then((requests) => {
+        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((requests) => {
             this.setState({
                 friendRequests: requests,
                 loadingRequests: false
