@@ -36,22 +36,25 @@ class GetAllUsersTestCase(APITestCase):
         force_authenticate(request, user=self.admin)
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), NUM_USERS + 1)  # add one for admin :D
+        self.assertEqual(response.data["count"], NUM_USERS + 1)  # add one for admin :D
 
     def test_get_all_users_as_anon(self):
         view = UserViewSet.as_view({'get': 'list'})
         request = self.factory.get(reverse('users-list'))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)  # 200 OK since and empty list is returned.
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(response.data["count"], 0)
 
     def test_get_all_users_as_user(self):
         view = UserViewSet.as_view({'get': 'list'})
         request = self.factory.get(reverse('users-list'))
-        force_authenticate(request, user=get_user_model().objects.get(pk=2))
+        xd = User.objects.all()
+        for sample in xd:
+            print(sample.pk)
+        force_authenticate(request, user=get_user_model().objects.get(username="test2"))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # should just be me :D
+        self.assertEqual(response.data["count"], 1)  # should just be me :D
 
 
 class GetDetailUserTestCase(APITestCase):
@@ -62,15 +65,15 @@ class GetDetailUserTestCase(APITestCase):
                                          is_superuser=True)
 
         for i in range(0, NUM_USERS):
-            User.objects.create(username='test{}'.format(i), email='test{}@example.com'.format(i), password='test1234')
+            User.objects.create(pk=i+1, username='test{}'.format(i), email='test{}@example.com'.format(i), password='test1234')
 
     def test_get_detail_as_admin(self):
         view = UserViewSet.as_view({'get': 'retrieve'})
-        request = self.factory.get(reverse('users-detail', kwargs={'pk': 2}))
+        request = self.factory.get(reverse('users-detail', kwargs={'pk': 1}))
         force_authenticate(request, user=self.admin)
-        response = view(request, pk=2)
+        response = view(request, pk=1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {'id': 2,
+        self.assertEqual(response.data, {'id': 1,
                                          'username': 'test0',
                                          'email': 'test0@example.com',
                                          'first_name': '',
@@ -78,11 +81,11 @@ class GetDetailUserTestCase(APITestCase):
 
     def test_get_detail_for_me(self):
         view = UserViewSet.as_view({'get': 'retrieve'})
-        request = self.factory.get(reverse('users-detail', kwargs={'pk': 2}))
-        force_authenticate(request, user=get_user_model().objects.get(pk=2))
-        response = view(request, pk=2)
+        request = self.factory.get(reverse('users-detail', kwargs={'pk': 1}))
+        force_authenticate(request, user=get_user_model().objects.get(pk=1))
+        response = view(request, pk=1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {'id': 2,
+        self.assertEqual(response.data, {'id': 1,
                                          'username': 'test0',
                                          'email': 'test0@example.com',
                                          'first_name': '',
