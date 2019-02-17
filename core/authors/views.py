@@ -1,4 +1,3 @@
-import json
 from django.shortcuts import render
 
 # Create your views here.
@@ -10,10 +9,10 @@ from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
 from core.authors.friend_request_view import get_author_details
 
-from core.authors.util import get_author_id, get_author_url
-from core.hostUtil import is_external_host
+from core.authors.util import get_author_url
+from core.authors.friends_view import handle_friends_get, handle_friends_post
 
-def parse_friend_request_response(body, pk):
+def validate_friend_request_response(body, pk):
     success = True
     message = "Your response has been recorded"
     friend_request = None
@@ -63,7 +62,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             message = "The request body could not be parsed"
             body = request.data
-            success, message, friend_request, friend_data = parse_friend_request_response(body, pk)
+            success, message, friend_request, friend_data = validate_friend_request_response(body, pk)
         except:
             return Response({
                 "query": "friendResponse",
@@ -95,20 +94,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
         }
         return Response(response, status=200)
 
-    @action(methods=['get'], detail=True, url_path='friends', url_name='friends')
-    def get_friends(self, request, pk):
+    @action(methods=['get', 'post'], detail=True, url_path='friends', url_name='friends')
+    def friends(self, request, pk):
         if (not Author.objects.filter(pk=pk).exists()):
             return Response("Invalid author ID specified", status=404)
         
-        authorUrl = get_author_url(pk)
-        followers = Follow.objects.filter(followed=authorUrl).values()
-        followed = Follow.objects.filter(follower=authorUrl).values()
-        friends = set()
-        for follow in followers:
-            friends.add(follow["follower"])
-        for follow in followed:
-            friends.add(follow["followed"])
-        return Response({
-            "query": "friends",
-            "authors": list(friends)
-        }, status=200)
+        if (request.method == "POST"):
+            return handle_friends_post(request, pk)
+
+        return handle_friends_get(request, pk)
