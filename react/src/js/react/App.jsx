@@ -6,7 +6,6 @@ import PageNotFound from "./help/PageNotFound";
 import PostPage from "./posts/PostPage";
 import Header from "./misc/Header";
 
-
 /**
  * Entry-point for the react code in the app.
  * Allows us to map various URLs to page-components
@@ -18,7 +17,8 @@ export default class App extends Reflux.Component {
                 <Header />
                 <BrowserRouter>
                     <Switch>
-                        <PostPage/>
+                        <Route exact path="/feed" component={PostPage} />
+                        <Route path="*" component={PageNotFound} />
                     </Switch>
                 </BrowserRouter>
             </div>

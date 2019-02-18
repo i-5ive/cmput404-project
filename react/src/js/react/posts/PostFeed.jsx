@@ -7,7 +7,6 @@ import Post from "./Post";
  * From here it will dynamically create components for all the posts
  */
 export default class PostFeed extends React.Component {
-
     constructor(props) {
         super(props);
         this.getPosts = this.getPosts.bind(this);
@@ -18,15 +17,15 @@ export default class PostFeed extends React.Component {
     }
 
     componentDidMount() {
-        this.getPosts()
+        this.getPosts();
     }
 
     /**
      * GET's to the database
      */
     getPosts() {
-        //TODO: actually connect this to the database
-        //TODO: currently this will only work locally, perhaps we have to fix that?
+        // TODO: actually connect this to the database
+        // TODO: currently this will only work locally, perhaps we have to fix that?
 
         // fetch("http://localhost:8000/api/posts")
         //   .then(res => res.json())
@@ -35,21 +34,19 @@ export default class PostFeed extends React.Component {
         //       this.setState({promiseDone: true});
         //   });
 
-        //TODO: remove the 2 lines below. It is fake data so Mandy can make the UI
-        //TODO: get the post id from the json object and pass it to the post object
-        this.setState({posts: ["thing", "thing2"]});
-        this.setState({promiseDone: true});
+        // TODO: remove the 2 lines below. It is fake data so Mandy can make the UI
+        // TODO: get the post id from the json object and pass it to the post object
+        this.setState({ posts: ["thing", "thing2"] });
+        this.setState({ promiseDone: true });
     }
 
-
-
     render() {
-        //TODO: if we want to be good we could return a loading screen instead of null
-        if(!this.state.promiseDone){return null}
+        // TODO: if we want to be good we could return a loading screen instead of null
+        if (!this.state.promiseDone) { return null; }
         return (
             <div className="post-feed">
                 {this.state.posts.map(post => (
-                    <Post className="post" key={post} postId={post}/>
+                    <Post className="post" key={post} postId={post} />
                 ))}
             </div>
         );
