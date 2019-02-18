@@ -4,7 +4,7 @@ from core.users.models import User
 
 def setupUser(username, password="", approve=True):
     user = User.objects.create(username=username)
-    if (password != ""):
+    if password:
         user.set_password(password)
         user.save()
 
