@@ -6,7 +6,8 @@ class PostsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Posts
         fields = ('post_id', 'author', 'source_url', 'origin_url', 'content_type', 
-            'text_content','image_content', 'title', 'description', 'published_time')
+                    'content', 'title', 'description', 'published_time')
+
 
 class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
