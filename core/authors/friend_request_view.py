@@ -1,5 +1,3 @@
-import json
-
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -21,11 +19,7 @@ def validate_request_body(request):
     body = request.data
         
     if body["query"] != "friendrequest":
-        return Response({
-            "query": "friendrequest",
-            "success": False,
-            "message": "The query value was not correct"
-        }, status=400)
+        raise ValueError
     
     author = get_author_details(body["author"])
     friend = get_author_details(body["friend"])
@@ -65,7 +59,7 @@ def handle_follow_request(request):
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
         authorUrl = author["url"]
         friendUrl = friend["url"]
-    except Exception as e:
+    except:
         return Response({
                 "query": "friendrequest",
                 "success": False,
@@ -85,11 +79,9 @@ def handle_follow_request(request):
     
     reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
     if not reverseFollow.exists():
-        request = FriendRequest.objects.create(requester=authorUrl, friend=friendUrl, requester_name=author["displayName"])
-        request.save()
+        FriendRequest.objects.create(requester=authorUrl, friend=friendUrl, requester_name=author["displayName"])
 
-    follow = Follow.objects.create(follower=authorUrl, followed=friendUrl)
-    follow.save()
+    Follow.objects.create(follower=authorUrl, followed=friendUrl)
 
     return Response({
         "query": "friendrequest",

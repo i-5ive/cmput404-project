@@ -1,20 +1,14 @@
-import json
-
 from django.test import TestCase
 from django.urls import reverse
 
-from core.authors.models import Author, Follow
-from core.users.models import User
+from core.authors.models import Follow
 from core.authors.views import AuthorViewSet
 
 import unittest
 from unittest.mock import patch
 
 from core.authors.util import get_author_url
-
-def setupUser(username):
-    user = User.objects.create(username=username)
-    return Author.objects.get(user=user)
+from core.authors.tests.util import setupUser
 
 def get_friends_path(userId):
     view = AuthorViewSet()
