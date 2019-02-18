@@ -11,6 +11,7 @@ import unittest
 from unittest.mock import patch
 
 from core.authors.util import get_author_url
+from core.authors.tests.util import setupUser
 
 def get_local_authors_body(author1, author2, query="friendrequest"):
     return {
@@ -28,10 +29,6 @@ def get_local_authors_body(author1, author2, query="friendrequest"):
             "url": "http://127.0.0.1/author/" + str(author2.id)
         }
     }
-
-def setupUser(username):
-    user = User.objects.create(username=username)
-    return Author.objects.get(user=user)
 
 class FriendRequestViewTestCase(TestCase):
 
