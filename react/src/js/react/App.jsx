@@ -14,7 +14,7 @@ import Header from "./misc/Header";
 export default class App extends Reflux.Component {
     render() {
         return (
-            <div>
+            <div className="core-app-view">
                 <Header />
                 <BrowserRouter>
                     <Switch>

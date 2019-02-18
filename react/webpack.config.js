@@ -77,5 +77,10 @@ module.exports = {
             filename: "./index.html"
         }),
         new webpack.EnvironmentPlugin(["DJANGO_HOST"])
-    ]
+    ],
+	node: {
+		fs: "empty",
+		net: "empty",
+		tls: "empty"
+	}
 };

@@ -2,8 +2,10 @@ import React from "react";
 import Reflux from "reflux";
 
 import AuthStore from "../auth/AuthStore";
+import NotificationsPopover from "../friends/NotificationsPopover";
+import NotificationsBadge from "../friends/NotificationsBadge";
 
-import { Nav, NavItem, Badge, OverlayTrigger, Popover } from "react-bootstrap";
+import { Nav, NavItem, OverlayTrigger, Popover } from "react-bootstrap";
 
 export default class HeaderProfileDetails extends Reflux.Component {
     constructor() {
@@ -11,9 +13,11 @@ export default class HeaderProfileDetails extends Reflux.Component {
         this.store = AuthStore;
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextState.isLoggedIn !== this.state.isLoggedIn;
+    }
+
     renderNotifications() {
-        // TODO: only render the Badge if there is atleast one notification
-        // TODO: render the number of notifications
         return (
             <OverlayTrigger
                 trigger="click"
@@ -23,20 +27,14 @@ export default class HeaderProfileDetails extends Reflux.Component {
                         id="notifications-popover"
                         title="Notifications"
                     >
-                        WOWWWWW A DROPDOWN!
+                        <NotificationsPopover />
                     </Popover>
                 }
                 rootClose
             >
                 <span className="notificationsBadge">
                     <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
-                    {
-                        true && (
-                            <Badge pill="true" variant="danger">
-                                0
-                            </Badge>
-                        )
-                    }
+                    <NotificationsBadge />
                 </span>
             </OverlayTrigger>
         );

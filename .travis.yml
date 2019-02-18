@@ -1,56 +1,39 @@
+dist: xenial
+sudo: true
+cache: pip
 
-language: node_js
+matrix:
+  include:
+    - language: python
+      python: "3.7"
+      install:
+        - pip install -r requirements.txt
+      script:
+        - pytest --cov=core
+    - language: node_js
+      node_js:
+        - "lts/carbon"
 
-node_js:
-  - "lts/carbon"
+      sources:
+      - google-chrome
+      packages:
+      - google-chrome-stable
 
-addons:
-  postgresql: "9.5"
-  chrome: stable
+      env:
+        - DJANGO_VERSION=2.1.2 DB=postgresql DISPLAY=:99.0 CHROME_BIN=/usr/bin/google-chrome DJANGO_HOST=http://127.0.0.1:8000/api
 
-env:
-  - DJANGO_VERSION=2.1.2 DB=postgresql DISPLAY=:99.0 CHROME_BIN=/usr/bin/google-chrome DJANGO_HOST=http://127.0.0.1:8000/api
+      install:
+        # installs the packages specified in package.json
+        - cd react
+        - npm install
 
-install:
-  # installs the packages specified in package.json
-  - npm install
-  # Sets python to use v3.6.3 when
-  - pyenv global 3.6.3
-  - pip install --upgrade pip
-  # installs the packages specified in requirements.txt
-  - pip install -r requirements.txt
+      before_script:
+        # Allows us to run chrome in travis
+        - Xvfb :99 &
+        - sleep 3 # give xvfb some time to start
 
-before_script:
-  # Allows us to run chrome in travis
-  - sh -e /etc/init.d/xvfb start
-  # creates a new database called outdoors_club_db
-  - psql -c "CREATE DATABASE outdoors_club_db"
-  # runs django migrations and creates worker
-  - python src/django/manage.py migrate
-  - python src/django/manage.py createworkers
-
-script:
-  # runs the Django/backend unit tests with a coverage reporter
-  - coverage run --source='src/django/api/views/' --omit='src/django/api/views/PayPalView.py' src/django/manage.py test api
-  # checks that coverage meets the requirments (>70%, aim for >85%)
-  - coverage report --fail-under=85
-  # enforces front-end code styling
-  - npm run-script lint
-  # runs the front-end unit tests and coverage
-  - npm test -- --single-run
-
-
-# Below are the requirements to run automation on travis-ci
-# travis-ci is unrelaiable, so this doesn't work 100% of the time
-
-# # installs selenium
-# - ./node_modules/.bin/selenium-standalone install
-# # starts selenium in the background
-# - ./node_modules/.bin/selenium-standalone start &
-# # builds and runs the dist in the background
-# - npm run-script build
-# - node server.js &
-# # runs the django server in the background
-# - python ./src/django/manage.py runserver &
-# # runs the webdriver integration tests
-# - ./node_modules/.bin/wdio wdio.conf.js
+      script:
+        # enforces front-end code styling
+        - npm run-script lint
+        # runs the front-end unit tests and coverage
+        - npm test -- --single-run
