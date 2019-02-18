@@ -15,7 +15,6 @@ class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     displayName = models.CharField(max_length=80)
     # TODO URL
-    # TODO Friends
     # TODO Host
 
     # Optional Fields
@@ -28,6 +27,20 @@ class Author(models.Model):
     def __str__(self):
         return self.user.email
 
+class Follow(models.Model):
+    follower = models.URLField()
+    followed = models.URLField()
+    
+    def __str__(self):
+        return self.follower + " is following " + self.followed
+
+class FriendRequest(models.Model):
+    requester = models.URLField()
+    friend = models.URLField()
+    requester_name = models.CharField(max_length=80, blank=True, null=True)
+    
+    def __str__(self):
+        return self.requester + " wants to follow " + self.friend
 
 @receiver(post_save, sender=get_user_model())
 def create_author_profile(sender, instance, created, **kwargs):
