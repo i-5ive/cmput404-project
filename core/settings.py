@@ -10,7 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
+import environ
 import os
+
+ROOT_DIR = environ.Path(__file__) - 2  # (cmput404-project/core/settings.py - 2 = cmput404-project/)
+APPS_DIR = ROOT_DIR.path('cmput404-project')
+
+env = environ.Env()
+
+# Set this to true if .env needs to be read
+READ_DOT_ENV_FILE = env.bool('DJANGO_READ_DOT_ENV_FILE', default=False)
+if READ_DOT_ENV_FILE:
+    # OS environment variables take precedence over variables from .env
+    env.read_env(str(ROOT_DIR.path('.env')))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,7 +53,7 @@ INSTALLED_APPS = [
 
     'core.users',
     'core.authors',
-
+    'core.posts'
 ]
 
 MIDDLEWARE = [
@@ -78,10 +90,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': env.db('DATABASE_URL', default='postgres://cmput404:abramiscool123!@cmput404-dev.c1dsguk3kuvt.us-west-2.rds.amazonaws.com:5432/404posts'),
 }
 
 # Password validation
@@ -108,7 +117,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
 }
 
 LOGIN_REDIRECT_URL = '/'
