@@ -1,6 +1,31 @@
 import Reflux from "reflux";
 
+import cookie from "cookie";
+import _ from "lodash";
+
 import Actions from "./AuthActions";
+import RestUtil from "../util/RestUtil";
+import FriendsActions from "../friends/FriendsActions";
+import {SERVER_URL} from "../constants/ServerConstants";
+
+const getLoginStateFromCookies = () => {
+    const cookies = cookie.parse(document.cookie),
+        username = cookies["core-username"],
+        id = cookies["core-userid"];
+    if (!username || !id) {
+        return null;
+    }
+    // TODO: get displayName
+    return {
+        username: username,
+        userInfo: {
+            id: id,
+            host: SERVER_URL,
+            displayName: "",
+            url: `${SERVER_URL}/author/${id}`
+        }
+    };
+};
 
 /**
  * This store keeps track of the state of components that deal with user authentication
@@ -18,6 +43,68 @@ export default class AuthStore extends Reflux.Store {
         }
     }
 
+    onResetRegistrationNotifications() {
+        this.setState({
+            isSuccessfullyRegistered: false,
+            registerErrorMessage: null
+        });
+    }
+
+    onResetLoginNotifications() {
+        this.setState({
+            loginErrorMessage: null
+        });
+    }
+
+    _onLogin(userInfo) {
+        FriendsActions.loadFriendRequests(userInfo);
+    }
+
+    /**
+     * Parses cookies to update the user's login state
+     */
+    onParseLoginCookies() {
+        const state = getLoginStateFromCookies();
+        if (state) {
+            Object.assign(state, {
+                isLoggedIn: true
+            });
+            this.setState(state);
+            this._onLogin(state.userInfo);
+        }
+    }
+
+    /**
+     * Handles a user registering for a new account
+     * @param {String} username - the username of the account
+     * @param {String} password - the password of the account
+     */
+    onHandleRegistration(username, password) {
+        this.setState({
+            isRegistering: true,
+            isSuccessfullyRegistered: false,
+            registerErrorMessage: null
+        });
+
+        RestUtil.sendPOST("users/", {
+            username: username,
+            password: password,
+            email: ""
+        }).then((res) => {
+            this.setState({
+                isRegistering: false,
+                isSuccessfullyRegistered: true
+            });
+        }).catch((err) => {
+            const message = _.get(err, "response.data.username[0]") || _.get(err, "response.data.password[0]", "An error happened while creating your account.");
+            this.setState({
+                isRegistering: false,
+                registerErrorMessage: message
+            });
+            console.error(err);
+        });
+    }
+
     /**
      * Handles a user's login attempt
      * @param {String} username - the username that a user is attempting to log in with
@@ -25,14 +112,28 @@ export default class AuthStore extends Reflux.Store {
      */
     onHandleLogin(username, password) {
         this.setState({
-            isLoggingIn: true
+            isLoggingIn: true,
+            isLoggedIn: false,
+            loginErrorMessage: null
         });
 
-        // TODO: wait for request made to server
-        this.setState({
-            isLoggingIn: false,
-            isLoggedIn: true,
-            username: username
+        RestUtil.sendPOST("login/", {
+            query: "login",
+            username: username,
+            password: password
+        }).then(() => {
+            const loginState = getLoginStateFromCookies();
+            this.setState(Object.assign(loginState, {
+                isLoggingIn: false,
+                isLoggedIn: true
+            }));
+            this._onLogin(loginState.userInfo);
+        }).catch((err) => {
+            this.setState({
+                isLoggingIn: false,
+                loginErrorMessage: _.get(err, "response.data.message", "An error occurred while logging in.")
+            });
+            console.error(err);
         });
     }
 }

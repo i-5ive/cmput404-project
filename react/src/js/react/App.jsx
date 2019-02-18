@@ -4,22 +4,30 @@
  */
 
 import React from "react";
-import Reflux from "reflux";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 
 import PageNotFound from "./help/PageNotFound";
 import Header from "./misc/Header";
+import LoginView from "./auth/LoginView";
+import RegisterView from "./auth/RegisterView";
 
-export default class App extends Reflux.Component {
+import AuthActions from "./auth/AuthActions";
+
+export default class App extends React.Component {
+
+    componentDidMount() {
+        AuthActions.parseLoginCookies();
+    }
+
     render() {
         return (
             <div className="core-app-view">
                 <Header />
-                <BrowserRouter>
-                    <Switch>
-                        <Route path="*" component={PageNotFound} />
-                    </Switch>
-                </BrowserRouter>
+                <Switch>
+                    <Route path="/login" component={LoginView} />
+                    <Route path="/register" component={RegisterView} />
+                    <Route path="*" component={PageNotFound} />
+                </Switch>
             </div>
         );
     }
