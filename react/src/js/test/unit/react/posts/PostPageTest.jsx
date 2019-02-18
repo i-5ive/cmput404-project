@@ -1,13 +1,13 @@
 import React from "react";
 import { expect } from "chai";
+import PostPage from "react/posts/PostPage";
 import PostFeed from "react/posts/PostFeed";
-import Post from "react/posts/Post";
 import { shallow } from "enzyme";
 
-describe("PostFeed Tests", () => {
+describe("PostPage Tests", () => {
     it("renders via shallow", () => {
-        const page = shallow(<PostFeed />);
+        const page = shallow(<PostPage />);
 
-        expect(page.contains(<Post/>));
+        expect(page.contains(<PostFeed/>));
     });
 });

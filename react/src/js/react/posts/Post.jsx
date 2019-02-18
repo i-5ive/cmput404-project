@@ -17,13 +17,15 @@ export default class Post extends React.Component {
 
         var textarea = document.getElementById(this.props.postId);
 
-        textarea.addEventListener('keydown', autosize);
+        if (textarea) {
+            textarea.addEventListener('keydown', autosize);
 
-        function autosize(){
-            var that = this;
-            setTimeout(function(){
-                that.style.cssText = 'height:' + that.scrollHeight + 'px';
-            },0);
+            function autosize(){
+                var that = this;
+                setTimeout(function(){
+                    that.style.cssText = 'height:' + that.scrollHeight + 'px';
+                },0);
+            }
         }
     }
 
