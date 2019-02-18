@@ -9,7 +9,7 @@ from core.authors.models import Author
 
 class CommonData(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    content_type = models.CharField(max_length=30)
+    content_type = models.CharField(max_length=30, default="text/markdown")
     published_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -45,6 +45,5 @@ class Posts(CommonData):
 
 class Comments(CommonData):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    content_type = models.CharField(max_length=30, default="text/markdown")
     post = models.ForeignKey(Posts, related_name='comments', on_delete=models.CASCADE)
     comment = models.TextField()
