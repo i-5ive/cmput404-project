@@ -19,7 +19,7 @@ class HeaderProfileDetails extends Reflux.Component {
     }
 
     _onSignInClicked = () => {
-        this.props.history.push("/login")
+        this.props.history.push("/login");
     };
 
     renderNotifications() {

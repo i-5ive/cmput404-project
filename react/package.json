@@ -8,7 +8,8 @@
     "lint": "eslint \"./src/js/**/*\"",
     "lintfix": "eslint \"./src/js/**/*\" --fix",
     "build": "webpack -p --mode production --progress",
-    "test": "karma start"
+    "test": "karma start",
+    "testcafe": "./node_modules/.bin/testcafe firefox ./src/automation/tests/*.js"
   },
   "keywords": [],
   "author": "i-5ive",
@@ -28,8 +29,7 @@
     "react-router": "^3.2.1",
     "react-router-dom": "^4.3.1",
     "react-select": "^2.1.1",
-    "reflux": "^6.4.1",
-    "request-promise": "^4.2.2"
+    "reflux": "^6.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -74,6 +74,7 @@
     "sass-loader": "^7.1.0",
     "sinon": "^6.3.5",
     "style-loader": "^0.23.1",
+    "testcafe": "^1.0.1",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14"

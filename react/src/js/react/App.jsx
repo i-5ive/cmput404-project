@@ -14,7 +14,6 @@ import RegisterView from "./auth/RegisterView";
 import AuthActions from "./auth/AuthActions";
 
 export default class App extends React.Component {
-
     componentDidMount() {
         AuthActions.parseLoginCookies();
     }

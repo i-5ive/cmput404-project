@@ -6,7 +6,8 @@ import _ from "lodash";
 import Actions from "./AuthActions";
 import RestUtil from "../util/RestUtil";
 import FriendsActions from "../friends/FriendsActions";
-import {SERVER_URL} from "../constants/ServerConstants";
+import { SERVER_URL } from "../constants/ServerConstants";
+import CookieUtil from "../util/CookieUtil";
 
 const getLoginStateFromCookies = () => {
     const cookies = cookie.parse(document.cookie),
@@ -15,13 +16,13 @@ const getLoginStateFromCookies = () => {
     if (!username || !id) {
         return null;
     }
-    // TODO: get displayName
+    // TODO: is this how displayName should be handled?
     return {
         username: username,
         userInfo: {
             id: id,
             host: SERVER_URL,
-            displayName: "",
+            displayName: username,
             url: `${SERVER_URL}/author/${id}`
         }
     };
@@ -134,6 +135,19 @@ export default class AuthStore extends Reflux.Store {
                 loginErrorMessage: _.get(err, "response.data.message", "An error occurred while logging in.")
             });
             console.error(err);
+        });
+    }
+
+    /**
+     * Handles the user logging out of the application
+     */
+    onHandleLogout() {
+        CookieUtil.deleteCookie("core-username");
+        CookieUtil.deleteCookie("core-userid");
+        this.setState({
+            isLoggedIn: false,
+            username: null,
+            userInfo: null
         });
     }
 }

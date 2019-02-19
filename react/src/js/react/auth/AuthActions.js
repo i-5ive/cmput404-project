@@ -5,7 +5,8 @@ const Actions = Reflux.createActions([
     "parseLoginCookies",
     "handleRegistration",
     "resetRegistrationNotifications",
-    "resetLoginNotifications"
+    "resetLoginNotifications",
+    "handleLogout"
 ]);
 
 export default Actions;
