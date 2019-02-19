@@ -44,10 +44,23 @@ export default class PostFeed extends React.Component {
         // TODO: if we want to be good we could return a loading screen instead of null
         if (!this.state.promiseDone) { return null; }
         return (
-            <div className="post-feed">
-                {this.state.posts.map(post => (
-                    <Post className="post" key={post} postId={post} />
-                ))}
+            <div>
+                <div className="filter-posts-wrapper">
+                    <p className="filter-posts-text">
+                        I want to see:
+                    </p>
+                    <input type="checkbox" name="Friends" value="Friends" />
+                    <label htmlFor="Friends">Friends</label>
+                    <input type="checkbox" name="FOAF" value="FOAF" />
+                    <label htmlFor="FOAF">FOAF</label>
+                    <input type="checkbox" name="Public" value="Public" />
+                    <label htmlFor="Public">Public</label>
+                </div>
+                <div className="post-feed">
+                    {this.state.posts.map(post => (
+                        <Post className="post" key={post} postId={post} />
+                    ))}
+                </div>
             </div>
         );
     }
