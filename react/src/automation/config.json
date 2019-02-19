@@ -1,0 +1,7 @@
+{
+	"siteUrl": "http://127.0.0.1:8081",
+	"corsHeaders": {
+        "access-control-allow-credentials": true,
+        "access-control-allow-origin": "http://127.0.0.1:8081"
+    }
+}
