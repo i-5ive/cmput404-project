@@ -1,5 +1,8 @@
 import axios from "axios";
 
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+axios.defaults.xsrfCookieName = "csrftoken";
+
 import { SERVER_URL } from "../constants/ServerConstants";
 
 export default class RestUtil {

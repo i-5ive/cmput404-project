@@ -58,6 +58,7 @@ export default class AuthStore extends Reflux.Store {
     }
 
     _onLogin(userInfo) {
+        // TODO: any actions to perform after logging in
         FriendsActions.loadFriendRequests(userInfo);
     }
 
