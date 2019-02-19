@@ -6,8 +6,7 @@ import { getURL } from "../util/ClientFunctions";
 
 const loginPage = new CredentialsPage();
 
-const logger = RequestLogger({
-});
+const requestLogger = RequestLogger();
 
 const CREDENTIALS_ERROR_MESSAGE = "The entered credentials are invalid.";
 
@@ -25,26 +24,26 @@ fixture `Tests the login page`
         await loginPage.testDisablingSubmit(t);
     });
     
-    test.requestHooks(logger, credentialsErrorMock)("logging in with credentials that are incorrect", async (t) => {
+    test.requestHooks(requestLogger, credentialsErrorMock)("logging in with credentials that are incorrect", async (t) => {
         await t.typeText(loginPage.username, "a_taken_username")
             .typeText(loginPage.password, "a")
             .click(loginPage.submitButton)
-            .expect(logger.contains(record => record.request.url.includes("/login/") && record.response.statusCode === 400)).ok();
+            .expect(requestLogger.contains(record => record.request.url.includes("/login/") && record.response.statusCode === 400)).ok();
         
         await t.expect(loginPage.errorAlert.visible).eql(true)
             .expect(loginPage.errorAlert.innerText).eql(CREDENTIALS_ERROR_MESSAGE);
     });
 
-    test.requestHooks(logger, serverErrorMock)("logging in with a server-side error", async (t) => {
+    test.requestHooks(requestLogger, serverErrorMock)("logging in with a server-side error", async (t) => {
         await t.typeText(loginPage.username, "a_taken_username")
             .typeText(loginPage.password, "a")
             .click(loginPage.submitButton)
-            .expect(logger.contains(record => record.request.url.includes("/login/") && record.response.statusCode === 500)).ok();
+            .expect(requestLogger.contains(record => record.request.url.includes("/login/") && record.response.statusCode === 500)).ok();
         
         await t.expect(loginPage.errorAlert.visible).eql(true);
     });
 
-    test.requestHooks(logger, successMock)("successfully logging into an existing account", async (t) => {
+    test.requestHooks(requestLogger, successMock)("successfully logging into an existing account", async (t) => {
         const COOKIE_USERNAME = "user",
             COOKIE_USERID = "abc-defg-hij";
         
@@ -56,7 +55,7 @@ fixture `Tests the login page`
         await t.typeText(loginPage.username, COOKIE_USERNAME)
             .typeText(loginPage.password, "a")
             .click(loginPage.submitButton)
-            .expect(logger.contains(record => record.request.url.includes("/login/") && record.response.statusCode === 200)).ok({timeout: 8000});
+            .expect(requestLogger.contains(record => record.request.url.includes("/login/") && record.response.statusCode === 200)).ok({timeout: 8000});
         
         await t.expect(getURL()).notContains("/login", {timeout: 8000});
     });
