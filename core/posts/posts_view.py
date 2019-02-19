@@ -12,7 +12,8 @@ from core.authors.util import get_author_id
 
 def delete_post(request):
     post_id = request.data["post_id"]
-    Posts.objects.get(post_id=post_id).delete()
+    # Use post_id to delete all related image posts too
+    Posts.objects.filter(post_id=post_id).delete()
     return True, "Post deleted"
     
 
