@@ -2,7 +2,8 @@ import Reflux from "reflux";
 
 const Actions = Reflux.createActions([
     "loadFriendRequests",
-    "sendFriendRequest"
+    "sendFriendRequest",
+    "respondToFriendRequest"
 ]);
 
 export default Actions;

@@ -1,0 +1,27 @@
+.friendRequest {
+    display: flex;
+
+    .name {
+        word-break: break-all;
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    .buttons {
+        margin-left: auto;
+
+       button:first-of-type {
+            margin-right: 1em;
+        }
+    }
+}
+
+#notifications-popover {
+    max-width: unset;
+    min-width: 30vw;
+    width: auto;
+
+    .popover-title {
+        font-size: 15pt;
+    }
+}
