@@ -1,12 +1,9 @@
-from django.test import Client, TestCase
-from django.urls import reverse
-
-import unittest
 import json
-from unittest.mock import patch
+
+from django.test import Client, TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-
+from core.posts.models import Posts
 from core.authors.util import get_author_id
 from core.authors.tests.util import setupUser
 
@@ -65,4 +62,18 @@ class PostViewsTest(TestCase):
         pass
     
     def test_delete_post(self):
-        pass
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild"
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/handleposts/', {'query': 'createpost', 'post_data': post_data})
+
+        post = Posts.objects.get(author=author_id)
+        response = self.client.post('/handleposts/', {'query': 'deletepost', 'post_id': post.post_id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["message"], "Post deleted")
+        self.assertEqual(len(Posts.objects.filter(id=post.id)), 0)
+
+

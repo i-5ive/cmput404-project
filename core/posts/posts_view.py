@@ -11,7 +11,10 @@ from core.posts.serializers import PostsSerializer
 from core.authors.util import get_author_id
 
 def delete_post(request):
-    pass
+    post_id = request.data["post_id"]
+    Posts.objects.get(post_id=post_id).delete()
+    return True, "Post deleted"
+    
 
 def create_post(request):
     success = True
@@ -60,8 +63,8 @@ def handle_posts(request):
         
     if query == "createpost":
         success, message = create_post(request)
-
-    #TODO Delete Post
+    elif query == "deletepost":
+        success, message = delete_post(request)
 
     if success: 
         code = 200
