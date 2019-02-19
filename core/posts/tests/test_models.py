@@ -14,8 +14,8 @@ class PostsModelTest(TestCase):
     def test_create_post(self):
         post = Posts.objects.create(**{
             'title': 'Hello World',
-            'source_url': "http://www.chaitali.com/",
-            'origin_url': "http://www.cry.com/",
+            'source': "http://www.chaitali.com/",
+            'origin': "http://www.cry.com/",
             'author': Author.objects.get(user=self.u1.id)
         })
         self.assertIsNotNone(post)
@@ -23,8 +23,8 @@ class PostsModelTest(TestCase):
     def test_add_comment(self):
         post = Posts.objects.create(**{
             'title': 'Hello World',
-            'source_url': "http://www.chaitali.com/",
-            'origin_url': "http://www.cry.com/",
+            'source': "http://www.chaitali.com/",
+            'origin': "http://www.cry.com/",
             'author': Author.objects.get(user=self.u1.id)
         })
         self.assertFalse(post.comments.all().exists())

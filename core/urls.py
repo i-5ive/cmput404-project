@@ -18,6 +18,7 @@ from django.urls import path, include
 from rest_framework.documentation import include_docs_urls
 
 from core.authors.friend_request_view import handle_follow_request as friend_request
+from core.posts.posts_view import handle_posts as handle_posts
 from core.authors.login_view import login
 
 urlpatterns = [
@@ -25,6 +26,7 @@ urlpatterns = [
     path('users/', include('core.users.urls')),
     path('author/', include('core.authors.urls')),
     path('posts/', include('core.posts.urls')),
+    path('handleposts/', handle_posts, name='handleposts'),
     path('api-auth/', include('rest_framework.urls')),
     path('docs/', include_docs_urls(title='API Documentation')),
     path('friendrequest/', friend_request, name='friendrequest'),
