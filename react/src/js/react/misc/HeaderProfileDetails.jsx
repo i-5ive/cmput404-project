@@ -1,5 +1,6 @@
 import React from "react";
 import Reflux from "reflux";
+import { withRouter } from "react-router-dom";
 
 import AuthStore from "../auth/AuthStore";
 import NotificationsPopover from "../friends/NotificationsPopover";
@@ -7,7 +8,7 @@ import NotificationsBadge from "../friends/NotificationsBadge";
 
 import { Nav, NavItem, OverlayTrigger, Popover } from "react-bootstrap";
 
-export default class HeaderProfileDetails extends Reflux.Component {
+class HeaderProfileDetails extends Reflux.Component {
     constructor() {
         super();
         this.store = AuthStore;
@@ -16,6 +17,10 @@ export default class HeaderProfileDetails extends Reflux.Component {
     shouldComponentUpdate(nextProps, nextState) {
         return nextState.isLoggedIn !== this.state.isLoggedIn;
     }
+
+    _onSignInClicked = () => {
+        this.props.history.push("/login");
+    };
 
     renderNotifications() {
         return (
@@ -54,7 +59,11 @@ export default class HeaderProfileDetails extends Reflux.Component {
                     }
                 </NavItem>
             ]
-        ) : <NavItem>Sign In</NavItem>;
+        ) : (
+            <NavItem key="signIn" onClick={this._onSignInClicked}>
+                Sign In
+            </NavItem>
+        );
         return (
             <div className="headerProfile">
                 <Nav>
@@ -66,3 +75,5 @@ export default class HeaderProfileDetails extends Reflux.Component {
         );
     }
 }
+
+export default withRouter(HeaderProfileDetails);
