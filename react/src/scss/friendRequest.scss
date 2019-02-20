@@ -25,4 +25,9 @@
     .popover-title {
         font-size: 15pt;
     }
+
+    .popover-content {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
 }
