@@ -41,9 +41,9 @@ export default class FriendsStore extends Reflux.Store {
             errorLoadingRequests: false
         });
 
-        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((requests) => {
+        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((res) => {
             this.setState({
-                friendRequests: requests,
+                friendRequests: res.data,
                 loadingRequests: false
             });
         }).catch((err) => {
@@ -95,7 +95,7 @@ export default class FriendsStore extends Reflux.Store {
             errorSendingResponse: false
         });
 
-        RestUtil.sendPOST(`author/${userId}/friendrequest/respond/`, {
+        RestUtil.sendPOST(`author/${userId}/friendrequests/respond/`, {
             query: "friendResponse",
             approve: approve,
             friend: request

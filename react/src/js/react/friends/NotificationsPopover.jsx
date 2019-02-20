@@ -20,13 +20,11 @@ export default class NotificationsPopover extends Reflux.Component {
     }
 
     render() {
+        if (this.state.friendRequests.length === 0) {
+            return <h5>You have no friend requests.</h5>;
+        }
         return (
             <div>
-                {
-                    this.state.friendRequests.length === 0 && (
-                        <h5>You have no friend requests.</h5>
-                    )
-                }
                 {
                     this.state.errorSendingResponse && (
                         <Alert bsStyle="danger">
