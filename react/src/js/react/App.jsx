@@ -9,16 +9,15 @@ import RegisterView from "./auth/RegisterView";
 
 import AuthActions from "./auth/AuthActions";
 
+/**
+ * Entry-point for the react code in the app.
+ * Allows us to map various URLs to page-components
+ */
 export default class App extends React.Component {
     componentDidMount() {
         AuthActions.parseLoginCookies();
     }
 
-/**
- * Entry-point for the react code in the app.
- * Allows us to map various URLs to page-components
- */
-export default class App extends Reflux.Component {
     render() {
         return (
             <div className="core-app-view">
