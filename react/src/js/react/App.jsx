@@ -12,6 +12,7 @@ import LoginView from "./auth/LoginView";
 import RegisterView from "./auth/RegisterView";
 
 import AuthActions from "./auth/AuthActions";
+import ProfileView from "./profile/ProfileView";
 
 export default class App extends React.Component {
     componentDidMount() {
@@ -25,6 +26,7 @@ export default class App extends React.Component {
                 <Switch>
                     <Route path="/login" component={LoginView} />
                     <Route path="/register" component={RegisterView} />
+                    <Route path="/profile/:id" component={ProfileView} />
                     <Route path="*" component={PageNotFound} />
                 </Switch>
             </div>

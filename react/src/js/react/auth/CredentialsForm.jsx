@@ -4,14 +4,14 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 
-const USERNAME_REGEX = /[^a-zA-Z0-9_]/,
+import {INVERSE_ALPHANUMERIC_REGEX} from "../constants/RegexConstants";
 
-    validateUsername = (field) => {
+const validateUsername = (field) => {
         if (field.length >= 150) {
             return "Your username is too long. It must be less than 150 characters.";
         } else if (field.length === 0) {
             return "Your username can't be empty.";
-        } else if (field.match(USERNAME_REGEX)) {
+        } else if (field.match(INVERSE_ALPHANUMERIC_REGEX)) {
             return "Your username can only contain alphanumeric characters and underscores.";
         }
         return null;

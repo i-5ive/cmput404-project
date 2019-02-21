@@ -8,3 +8,9 @@ The boilerplate code for setting up React and Django was written by Bennett Hreh
 Files Included:
  - Most if not all of the configuration files (`.babelrc`, `.eslintrc.json`, `package.json`, etc)
  - index.html, index.js, and App.jsx
+
+## External Code
+Github Activity Feed - MIT License
+https://github.com/caseyscarborough/github-activity
+
+TODO: stackoverflow references in code should be placed here

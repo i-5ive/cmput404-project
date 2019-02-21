@@ -1,0 +1,35 @@
+.profileHeader {
+    display: flex;
+    word-break: break-all;
+
+    & > *:first-child {
+        margin: auto;
+    }
+
+    .details {
+        width: 75vw;
+
+        .name {
+            text-align: center;
+        }
+    }
+
+    .detailsFooter {
+        display: flex;
+
+        .github {
+            margin-top: auto;
+            margin-bottom: auto;
+            margin-right: auto;
+        }
+    }
+
+}
+
+.formNamesRow {
+    display: flex;
+
+    & > div:first-child {
+        margin-right: 3em;
+    }
+}
