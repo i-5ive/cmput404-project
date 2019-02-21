@@ -1,0 +1,17 @@
+.credentialsPage {
+    width: 30%;
+    margin: auto;
+
+    button {
+        width: 100%;
+    }
+
+    .credentialsSwitchAction {
+        float: right;
+        margin-top: 1.2em;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
