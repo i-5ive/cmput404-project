@@ -4,7 +4,7 @@ import update from "immutability-helper";
 
 import Actions from "./ProfileActions";
 import RestUtil from "../util/RestUtil";
-import {POSTS_PAGE_SIZE} from "../constants/PostConstants";
+import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
 
 /**
  * This store keeps track of the state of components that deal with a user profile
@@ -38,11 +38,11 @@ export default class ProfileStore extends Reflux.Store {
 
         RestUtil.sendGET(`author/${id}/`).then((res) => {
             // TODO: remove this
-            /*Object.assign(res.data, {
+            /* Object.assign(res.data, {
                 displayName: "Mock Username aiowejoaiwejoiawieio",
                 bio: "Averylogn".repeat(50),
                 github: "https://github.com/amalik2"
-            })*/
+            }) */
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,

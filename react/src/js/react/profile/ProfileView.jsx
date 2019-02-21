@@ -1,12 +1,14 @@
 import React from "react";
 
+import PropTypes from "prop-types";
+
 import ProfileHeaderView from "./ProfileHeaderView";
 import ProfileStreamView from "./ProfileStreamView";
 
 /**
  * Renders the view of a user's profile
  */
-export default (props) => {
+const ProfileView = (props) => {
     const id = props.match.params.id;
     return (
         <div>
@@ -19,3 +21,9 @@ export default (props) => {
         </div>
     );
 };
+
+ProfileView.propTypes = {
+    match: PropTypes.object
+};
+
+export default ProfileView;

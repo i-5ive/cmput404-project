@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 
-import {INVERSE_ALPHANUMERIC_REGEX} from "../constants/RegexConstants";
+import { INVERSE_ALPHANUMERIC_REGEX } from "../constants/RegexConstants";
 
 const validateUsername = (field) => {
         if (field.length >= 150) {

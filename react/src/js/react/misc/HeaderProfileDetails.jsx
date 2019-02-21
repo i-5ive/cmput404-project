@@ -5,8 +5,9 @@ import { withRouter } from "react-router-dom";
 import AuthStore from "../auth/AuthStore";
 import NotificationsPopover from "../friends/NotificationsPopover";
 import NotificationsBadge from "../friends/NotificationsBadge";
+import AuthActions from "../auth/AuthActions";
 
-import { Nav, NavItem, OverlayTrigger, Popover } from "react-bootstrap";
+import { Nav, NavItem, OverlayTrigger, Popover, NavDropdown, MenuItem } from "react-bootstrap";
 
 class HeaderProfileDetails extends Reflux.Component {
     constructor() {
@@ -20,6 +21,15 @@ class HeaderProfileDetails extends Reflux.Component {
 
     _onSignInClicked = () => {
         this.props.history.push("/login");
+    };
+
+    _onProfileClicked = () => {
+        this.props.history.push(`/profile/${this.state.userInfo.id}`);
+    };
+
+    _onSignOutClicked = () => {
+        AuthActions.handleLogout();
+        this.props.history.push("/");
     };
 
     renderNotifications() {
@@ -53,11 +63,10 @@ class HeaderProfileDetails extends Reflux.Component {
                         this.renderNotifications()
                     }
                 </NavItem>,
-                <NavItem key="name">
-                    {
-                        this.state.username
-                    }
-                </NavItem>
+                <NavDropdown title={this.state.username} id="profile-dropdown">
+                    <MenuItem onClick={this._onProfileClicked}>Profile</MenuItem>
+                    <MenuItem onClick={this._onSignOutClicked}>Sign Out</MenuItem>
+                </NavDropdown>
             ]
         ) : (
             <NavItem key="signIn" onClick={this._onSignInClicked}>

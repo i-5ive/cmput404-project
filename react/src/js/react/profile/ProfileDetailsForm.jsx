@@ -5,32 +5,31 @@ import { FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 
 import ProfileStore from "./ProfileStore";
 import ProfileActions from "./ProfileActions";
-import {NAME_REGEX, EMAIL_REGEX, GITHUB_REGEX, ALPHANUMERIC_REGEX} from "../constants/RegexConstants";
+import { NAME_REGEX, EMAIL_REGEX, GITHUB_REGEX, ALPHANUMERIC_REGEX } from "../constants/RegexConstants";
 
 const nameValidator = (value, maxLength, allowEmpty = true) => {
-    if (value.length === 0) {
-        if (!allowEmpty) {
-            return "Your name can not be empty.";
+        if (value.length === 0) {
+            if (!allowEmpty) {
+                return "Your name can not be empty.";
+            }
+        } else if (value.length > maxLength) {
+            return `Your name can be no more than ${maxLength} characters long.`;
+        } else if (!value.match(NAME_REGEX)) {
+            return "Your name must contain only alphanumeric characters, spaces, underscores and dashes.";
+        } else if (!value.match(ALPHANUMERIC_REGEX)) {
+            return "Your name must contain at least one alphanumeric character.";
         }
-    } else if (value.length > maxLength) {
-        return `Your name can be no more than ${maxLength} characters long.`;
-    } else if (!value.match(NAME_REGEX)) {
-        return "Your name must contain only alphanumeric characters, spaces, underscores and dashes.";
-    } else if (!value.match(ALPHANUMERIC_REGEX)) {
-        return "Your name must contain at least one alphanumeric character."
-    }
-    return null;
-};
+        return null;
+    },
 
-const getValidationState = (message) => {
-    return message ? "error" : null;
-};
+    getValidationState = (message) => {
+        return message ? "error" : null;
+    };
 
 /**
  * Renders the form that allows editing a profile
  */
 export default class ProfileDetailsForm extends Reflux.Component {
-
     constructor(props) {
         super(props);
         this.store = ProfileStore;
@@ -86,12 +85,12 @@ export default class ProfileDetailsForm extends Reflux.Component {
 
     _validateBio(value) {
         if (value.length > 1024) {
-            return "Your description can be no more than 1024 characters."
+            return "Your description can be no more than 1024 characters.";
         }
         return null;
     }
 
-    renderElement(id, errorMessage, label, placeholder, value, onChange, inputType="text", autoFocus=false, componentClass=undefined) {
+    renderElement(id, errorMessage, label, placeholder, value, onChange, inputType = "text", autoFocus = false, componentClass = undefined) {
         return (
             <FormGroup controlId={id} validationState={getValidationState(errorMessage)}>
                 <ControlLabel>{label}</ControlLabel>
@@ -113,7 +112,6 @@ export default class ProfileDetailsForm extends Reflux.Component {
                 }
             </FormGroup>
         );
-        
     }
 
     render() {
@@ -132,7 +130,7 @@ export default class ProfileDetailsForm extends Reflux.Component {
                         "Enter the name that you want other users to see", this.state.editProfileDetails.displayName,
                         this._onDisplayNameChange, "text", true)
                 }
-               
+
                 {
                     this.renderElement("firstName", validity.firstName, "First name",
                         "Enter your first name", this.state.editProfileDetails.firstName,

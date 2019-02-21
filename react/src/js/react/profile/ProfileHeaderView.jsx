@@ -13,7 +13,6 @@ import EditProfileModal from "./EditProfileModal";
  * Renders the part of the profile page that displays details about an author
  */
 export default class ProfileHeaderView extends Reflux.Component {
-
     constructor(props) {
         super(props);
         this.stores = [ProfileStore, AuthStore];
@@ -74,7 +73,7 @@ export default class ProfileHeaderView extends Reflux.Component {
             if (this.state.profileDetails.lastName) {
                 name += ` ${this.state.profileDetails.lastName}`;
             }
-            name += ")"
+            name += ")";
         }
         return (
             <h4 className="name">
@@ -94,12 +93,12 @@ export default class ProfileHeaderView extends Reflux.Component {
             );
         } else if (this.state.isLoadingProfile || !this.state.profileDetails) {
             return <LoadingComponent />;
-        } 
+        }
         return (
             <div className="details">
                 <EditProfileModal visible={this.state.modalVisible}
-                                id={this.props.id}
-                                onClose={this._onHideModal} />
+                    id={this.props.id}
+                    onClose={this._onHideModal} />
                 {
                     this.renderName()
                 }

@@ -2,10 +2,12 @@ import React from "react";
 
 import { Tabs, Tab } from "react-bootstrap";
 
+import PropTypes from "prop-types";
+
 import ProfileGithubStream from "./ProfileGithubStream";
 import ProfilePostsStream from "./ProfilePostsStream";
 
-export default (props) => {
+const ProfileStreamView = (props) => {
     return (
         <Tabs defaultActiveKey="posts" id="profile-stream-tabs">
             <Tab eventKey="posts" title="Posts">
@@ -17,3 +19,9 @@ export default (props) => {
         </Tabs>
     );
 };
+
+ProfileStreamView.propTypes = {
+    id: PropTypes.string
+};
+
+export default ProfileStreamView;

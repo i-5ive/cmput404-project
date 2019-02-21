@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React from "react";
 import Reflux from "reflux";
 
@@ -35,6 +37,6 @@ export default class ProfileGithubStream extends Reflux.Component {
         } else if (!this.state.profileDetails.github) {
             return <div>This user has not enabled github integration.</div>;
         }
-        return <div id="feed" />
+        return <div id="feed" />;
     }
 }

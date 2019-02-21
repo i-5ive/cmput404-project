@@ -1,7 +1,7 @@
 import React from "react";
 import Reflux from "reflux";
 
-import { Alert, Modal, ModalBody, ModalHeader, ModalFooter, ModalTitle, Button, Form, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import { Alert, Modal, ModalBody, ModalHeader, ModalFooter, ModalTitle, Button } from "react-bootstrap";
 
 import LoadingComponent from "../misc/LoadingComponent";
 import ProfileStore from "./ProfileStore";
@@ -12,7 +12,6 @@ import ProfileDetailsForm from "./ProfileDetailsForm";
  * Renders the modal that allows editing the currently selected profile
  */
 export default class EditProfileModal extends Reflux.Component {
-
     constructor(props) {
         super(props);
         this.store = ProfileStore;
@@ -59,8 +58,8 @@ export default class EditProfileModal extends Reflux.Component {
                         Exit
                     </Button>
                     <Button bsStyle="primary"
-                            onClick={this._onSaveClicked}
-                            disabled={this.state.isSavingProfile || !this.state.canSaveProfile}>
+                        onClick={this._onSaveClicked}
+                        disabled={this.state.isSavingProfile || !this.state.canSaveProfile}>
                         Save
                     </Button>
                 </ModalFooter>
