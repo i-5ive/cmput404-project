@@ -4,14 +4,29 @@ import json
 from core.authors.models import Author
 from core.hostUtil import is_external_host, get_host_url
 
+## Gets the unique ID of a local or external author. If external, returns the URL. If local, returns just the uuid
+## @param {String} url - the unique URL of the author
+## @return {String} - the unique ID used to refer to the author
 def get_author_id(url):
     if (is_external_host(url)):
         return url
     return url.split("author/")[1]
 
+## Gets the unique URL of the specified local author
+## @param {String} id - the author's unique ID
+## @return {String} - the unique URL to the author
 def get_author_url(id):
     return get_host_url() + "/author/" + id
 
+## Gets a summary of each specified author
+## @param {List<String>} authorUrls - a list of author URLs to get details from (can be both external and internal)
+## @return {List<Object>} - a summary of each author, in the form:
+## {
+##      url: String
+##      displayName: String
+##      id: String
+##      host: String
+## }
 def get_author_summaries(authorUrls):
     summaries = []
     localAuthors = []
