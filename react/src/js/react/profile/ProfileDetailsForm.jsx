@@ -116,9 +116,7 @@ export default class ProfileDetailsForm extends Reflux.Component {
         
     }
 
-    // TODO: validation
     render() {
-        console.error(this.state.editProfileDetails);
         const validity = {
             displayName: this._validateDisplayName(this.state.editProfileDetails.displayName),
             firstName: this._validateName(this.state.editProfileDetails.firstName),
@@ -159,7 +157,7 @@ export default class ProfileDetailsForm extends Reflux.Component {
                 {
                     this.renderElement("bio", validity.bio, "Description",
                         "Enter a description about you to show in your profile", this.state.editProfileDetails.bio,
-                        this._onBioChange, "text", false, "textArea")
+                        this._onBioChange, "text", false, "textarea")
                 }
             </div>
         );

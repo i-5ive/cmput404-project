@@ -67,6 +67,24 @@ export default class ProfileHeaderView extends Reflux.Component {
         return null;
     }
 
+    renderName() {
+        let name = this.state.profileDetails.displayName;
+        if (this.state.profileDetails.firstName) {
+            name += ` (${this.state.profileDetails.firstName}`;
+            if (this.state.profileDetails.lastName) {
+                name += ` ${this.state.profileDetails.lastName}`;
+            }
+            name += ")"
+        }
+        return (
+            <h4 className="name">
+                {
+                    name
+                }
+            </h4>
+        );
+    }
+
     render() {
         if (this.state.errorLoadingProfile) {
             return (
@@ -82,11 +100,9 @@ export default class ProfileHeaderView extends Reflux.Component {
                 <EditProfileModal visible={this.state.modalVisible}
                                 id={this.props.id}
                                 onClose={this._onHideModal} />
-                <h4 className="name">
-                    {
-                        this.state.profileDetails.displayName
-                    }
-                </h4>
+                {
+                    this.renderName()
+                }
                 <p>
                     {
                         this.state.profileDetails.bio

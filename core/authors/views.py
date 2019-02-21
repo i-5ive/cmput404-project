@@ -6,8 +6,10 @@ from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
 from core.authors.friend_request_view import get_author_details
 
-from core.authors.util import get_author_url
+from core.authors.util import get_author_url, get_author_summaries
 from core.authors.friends_view import handle_friends_get, handle_friends_post
+from core.hostUtil import get_host_url
+from core.authors.friends_util import get_friends
 
 def validate_friend_request_response(body, pk):
     success = True
@@ -30,6 +32,32 @@ def validate_friend_request_response(body, pk):
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+
+    def retrieve(self, request, pk):
+        try:
+            author = Author.objects.get(pk=pk)
+        except:
+            return Response("Invalid author ID specified", status=404)
+
+        url = get_author_url(pk)
+        data = {
+            "id": url,
+            "host": get_host_url(),
+            "displayName": author.displayName or author.user.username,
+            "url": url,
+            "friends": get_author_summaries(get_friends(url))
+        }
+        if (author.github):
+            data["github"] = author.github
+        if (author.user.first_name):
+            data["firstName"] = author.user.first_name
+        if (author.user.last_name):
+            data["lastName"] = author.user.last_name
+        if (author.user.email):
+            data["email"] = author.user.email
+        if (author.bio):
+            data["bio"] = author.bio
+        return Response(data)
 
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
     def get_friend_requests(self, request, pk):
@@ -100,3 +128,31 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return handle_friends_post(request, pk)
 
         return handle_friends_get(request, pk)
+
+    @action(methods=['post'], detail=True, url_path='update', url_name='update')
+    def update_profile(self, request, pk):
+        author = Author.objects.filter(pk=pk)
+        if (not author.exists()):
+            return Response("Invalid author ID specified", status=404)
+        try:
+            author = author[0]
+            author.displayName = request.data["displayName"]
+            author.user.first_name = request.data["firstName"]
+            author.user.last_name = request.data["lastName"]
+            if (request.data["email"]):
+                email = request.data["email"].split("@")
+                if (len(email) != 2):
+                    raise ValueError
+                author.user.email = request.data["email"]
+            author.bio = request.data["bio"]
+            if (request.data["github"] and ("https://github.com/" not in request.data["github"] and "https://www.github.com/" not in request.data["github"])):
+                raise ValueError
+            author.github = request.data["github"]
+            author.user.full_clean()
+            author.full_clean()
+            author.user.save()
+            author.save()
+        except:
+            return Response("The request body had missing or invalid values", status=400)
+
+        return Response("The profile was successfully updated")

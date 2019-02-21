@@ -38,11 +38,11 @@ export default class ProfileStore extends Reflux.Store {
 
         RestUtil.sendGET(`author/${id}/`).then((res) => {
             // TODO: remove this
-            Object.assign(res.data, {
+            /*Object.assign(res.data, {
                 displayName: "Mock Username aiowejoaiwejoiawieio",
                 bio: "Averylogn".repeat(50),
                 github: "https://github.com/amalik2"
-            })
+            })*/
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,
@@ -101,7 +101,7 @@ export default class ProfileStore extends Reflux.Store {
             errorSavingProfile: false
         });
 
-        RestUtil.sendPOST(`author/${id}/updateProfile/`, data).then(() => {
+        RestUtil.sendPOST(`author/${id}/update/`, data).then(() => {
             const newProfile = update(this.state.profileDetails, {
                 $merge: data
             });
@@ -118,36 +118,6 @@ export default class ProfileStore extends Reflux.Store {
             console.error(err);
         });
     }
-
-    /**
-     * Load details about a user's github activity
-     * @param {String} githubLink - the url of the user's github profile
-     */
-    /*onLoadGithubDetails(githubLink) {
-        this.setState({
-            isLoadingGithub: true,
-            errorLoadingGithub: false,
-            github: null
-        });
-        const username = githubLink.split(".com/")[1];
-        const githubUrl = `https://api.github.com/users/${username}/events`
-        RestUtil.sendGET(githubUrl, {}, true).then((res) => {
-            this.setState({
-                isLoadingGithub: false,
-                github: {
-                    activity: res.data,
-                    username: username,
-                    avatar: res.data[0] && res.data[0].actor.avatar_url
-                }
-            });
-        }).catch((err) => {
-            this.setState({
-                errorLoadingGithub: true,
-                isLoadingGithub: false
-            });
-            console.error(err);
-        });
-    }*/
 
     /**
      * Handles the user opening the modal that allows editing profile details

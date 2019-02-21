@@ -20,7 +20,7 @@ class Author(models.Model):
 
     # Optional Fields
     github = models.URLField(blank=True, null=True)
-    bio = models.TextField(max_length=1024, blank=True, null=True)
+    bio = models.CharField(max_length=1024, blank=True, null=True)
 
     def get_display_name(self):
         return self.displayName

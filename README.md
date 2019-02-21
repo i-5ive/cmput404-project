@@ -14,3 +14,6 @@ Github Activity Feed - MIT License
 https://github.com/caseyscarborough/github-activity
 
 TODO: stackoverflow references in code should be placed here
+
+Python unit testing
+https://docs.python.org/3/library/unittest.mock.html
