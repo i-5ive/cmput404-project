@@ -37,12 +37,6 @@ export default class ProfileStore extends Reflux.Store {
         });
 
         RestUtil.sendGET(`author/${id}/`).then((res) => {
-            // TODO: remove this
-            /* Object.assign(res.data, {
-                displayName: "Mock Username aiowejoaiwejoiawieio",
-                bio: "Averylogn".repeat(50),
-                github: "https://github.com/amalik2"
-            }) */
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,
