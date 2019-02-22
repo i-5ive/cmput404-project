@@ -10,7 +10,11 @@ const Actions = Reflux.createActions([
     "setLastName",
     "setEmailAddress",
     "setGithubLink",
-    "setBio"
+    "setBio",
+    "loadFriendStatus",
+    "unfriendUser",
+    "cancelFriendRequest",
+    "sendFriendRequest"
 ]);
 
 export default Actions;

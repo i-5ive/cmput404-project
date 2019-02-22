@@ -34,7 +34,14 @@
     }
 }
 
-/** TODO: this should probably just be done at the App.jsx component instead */
-.profileStreamTabs {
-    margin-left: 2em;
+.friendSummary {
+    margin-top: 1em;
+    display: flex;
+    width: 20em;
+
+    h5 {
+        margin-top: auto;
+        margin-bottom: auto;
+        margin-left: auto;
+    }
 }

@@ -35,7 +35,7 @@ export default class ProfileGithubStream extends Reflux.Component {
         if (!this.state.profileDetails) {
             return <LoadingComponent />;
         } else if (!this.state.profileDetails.github) {
-            return <div>This user has not enabled github integration.</div>;
+            return <h5>This user has not enabled github integration.</h5>;
         }
         return <div id="feed" />;
     }

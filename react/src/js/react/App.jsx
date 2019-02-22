@@ -23,13 +23,15 @@ export default class App extends React.Component {
         return (
             <div className="core-app-view">
                 <Header />
-                <Switch>
-                    <Route path="/login" component={LoginView} />
-                    <Route exact path="/feed" component={PostFeed} />
-                    <Route path="/register" component={RegisterView} />
-                    <Route path="/profile/:id" component={ProfileView} />
-                    <Route path="*" component={PageNotFound} />
-                </Switch>
+                <div className="core-app-body">
+                    <Switch>
+                        <Route path="/login" component={LoginView} />
+                        <Route exact path="/feed" component={PostFeed} />
+                        <Route path="/register" component={RegisterView} />
+                        <Route path="/profile/:id" component={ProfileView} />
+                        <Route path="*" component={PageNotFound} />
+                    </Switch>
+                </div>
             </div>
         );
     }

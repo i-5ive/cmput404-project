@@ -33,7 +33,11 @@ export default class ProfileStore extends Reflux.Store {
             successfullyLoadedProfile: false,
             errorLoadingProfile: false,
             github: null,
-            posts: []
+            posts: [],
+            isFriendsWithUser: null,
+            sentFriendRequestToUser: null,
+            profileActionSuccess: null,
+            profileActionError: null
         });
 
         RestUtil.sendGET(`author/${id}/`).then((res) => {
@@ -193,6 +197,108 @@ export default class ProfileStore extends Reflux.Store {
         });
         this.setState({
             editProfileDetails: details
+        });
+    }
+
+    /**
+     * Loads the friend status between two users
+     * @param {String} profileId - the ID of the profile being viewed
+     * @param {String} viewerId - the ID of the user viewing the profile (must be a local user)
+     */
+    // TODO: implement the four below endpoints
+    // TODO: display profileActionError/profileActionSuccess some how to the user
+    onLoadFriendStatus(profileId, viewerId) {
+        this.setState({
+            isLoadingFriendStatus: true,
+            errorLoadingFriendStatus: false
+        });
+        RestUtil.sendPOST(`author/${viewerId}/friendStatus/`, {
+            author: profileId
+        }).then((res) => {
+            this.setState({
+                isLoadingFriendStatus: false,
+                isFriendsWithUser: res.data.isFriendsWithUser,
+                sentFriendRequestToUser: res.data.sentFriendRequestToUser
+            });
+        }).catch((err) => {
+            this.setState({
+                isLoadingFriendStatus: false,
+                errorLoadingFriendStatus: true
+            });
+            console.error(err);
+        });
+    }
+
+    onUnfriendUser(author, requester) {
+        this.setState({
+            isProfileActionDisabled: true,
+            profileActionError: null,
+            profileActionSuccess: null
+        });
+        RestUtil.sendPOST("unfriend/", {
+            author: author,
+            requester: requester
+        }).then(() => {
+            this.setState({
+                isProfileActionDisabled: false,
+                profileActionSuccess: "This user is no friends with you",
+                isFriendsWithUser: false
+            });
+        }).catch((err) => {
+            this.setState({
+                isProfileActionDisabled: false,
+                profileActionError: "An error occurred while unfriending this user"
+            });
+            console.error(err);
+        });
+    }
+
+    onCancelFriendRequest(author, requester) {
+        this.setState({
+            isProfileActionDisabled: true,
+            profileActionError: null,
+            profileActionSuccess: null
+        });
+        RestUtil.sendPOST("cancelrequest/", {
+            author: author,
+            requester: requester
+        }).then(() => {
+            this.setState({
+                isProfileActionDisabled: false,
+                profileActionSuccess: "You have cancelled your friend request.",
+                sentFriendRequestToUser: false
+            });
+        }).catch((err) => {
+            this.setState({
+                isProfileActionDisabled: false,
+                profileActionError: "An error occurred while cancelling your friend request."
+            });
+            console.error(err);
+        });
+    }
+
+    onSendFriendRequest(friend, requester) {
+        this.setState({
+            isProfileActionDisabled: true,
+            profileActionError: null,
+            profileActionSuccess: null
+        });
+        RestUtil.sendPOST("friendrequest/", {
+            author: requester,
+            friend: friend,
+            query: "friendrequest"
+        }).then(() => {
+            this.setState({
+                isProfileActionDisabled: false,
+                profileActionSuccess: "You have cancelled your friend request.",
+                sentFriendRequestToUser: false
+            });
+        }).catch((err) => {
+            this.setState({
+                isProfileActionDisabled: false,
+                profileActionError: "An error occurred while cancelling your friend request."
+            });
+            console.error(err);
         });
     }
 }

@@ -24,11 +24,15 @@ export default class ProfileHeaderView extends Reflux.Component {
     shouldComponentUpdate(nextProps, nextState) {
         return (this.state.modalVisible !== nextState.modalVisible) ||
                 (this.state.profileDetails !== nextState.profileDetails) ||
-                (this.state.isLoadingProfile !== nextState.isLoadingProfile);
+                (this.state.isLoadingProfile !== nextState.isLoadingProfile) ||
+                (this.state.isFriendsWithUser !== nextState.isFriendsWithUser);
     }
 
     componentDidMount() {
         ProfileActions.loadProfileDetails(this.props.id);
+        if (this.state.userInfo && this.state.userInfo.id) {
+            ProfileActions.loadFriendStatus(this.props.id, this.state.userInfo.id);
+        }
     }
 
     _onShowModal = () => {
@@ -44,6 +48,18 @@ export default class ProfileHeaderView extends Reflux.Component {
         });
     };
 
+    _onUnfriendClicked = () => {
+        ProfileActions.unfriendUser(this.props.id, this.state.userInfo.id);
+    };
+
+    _onCancelRequestClicked = () => {
+        ProfileActions.cancelFriendRequest(this.props.id, this.state.userInfo.id);
+    };
+
+    _onSendRequestClicked = () => {
+        ProfileActions.sendFriendRequest(this.props.id, this.state.userInfo.id);
+    };
+
     renderGithubLink() {
         if (!this.state.profileDetails.github) {
             return null;
@@ -53,17 +69,6 @@ export default class ProfileHeaderView extends Reflux.Component {
                 Github Profile
             </a>
         );
-    }
-
-    renderEditButton() {
-        if (this.state.userInfo && this.state.userInfo.id === this.props.id) {
-            return (
-                <Button bsStyle="primary" onClick={this._onShowModal}>
-                    Edit
-                </Button>
-            );
-        }
-        return null;
     }
 
     renderName() {
@@ -82,6 +87,37 @@ export default class ProfileHeaderView extends Reflux.Component {
                 }
             </h4>
         );
+    }
+
+    renderActionButton() {
+        if (this.state.userInfo) {
+            let text, onClick;
+            if (this.state.userInfo.id === this.props.id) {
+                text = "Edit";
+                onClick = this._onShowModal;
+            } else if (!this.state.errorLoadingFriendStatus) {
+                if (this.state.isFriendsWithUser) {
+                    text = "Unfriend";
+                    onClick = this._onUnfriendClicked;
+                } else if (this.state.sentFriendRequestToUser) {
+                    text = "Cancel friend request";
+                    onClick = this._onCancelRequestClicked;
+                } else {
+                    text = "Send friend request";
+                    onClick = this._onSendRequestClicked;
+                }
+            } else {
+                return null;
+            }
+            return (
+                <Button bsStyle="primary" onClick={onClick} disabled={this.state.isProfileActionDisabled}>
+                    {
+                        text
+                    }
+                </Button>
+            );
+        }
+        return null;
     }
 
     render() {
@@ -112,7 +148,7 @@ export default class ProfileHeaderView extends Reflux.Component {
                         this.renderGithubLink()
                     }
                     {
-                        this.renderEditButton()
+                        this.renderActionButton()
                     }
                 </div>
                 <hr />

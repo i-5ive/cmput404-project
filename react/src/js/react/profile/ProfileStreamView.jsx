@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 
 import ProfileGithubStream from "./ProfileGithubStream";
 import ProfilePostsStream from "./ProfilePostsStream";
+import ProfileFriendsList from "./ProfileFriendsList";
 
 const ProfileStreamView = (props) => {
     return (
@@ -15,6 +16,9 @@ const ProfileStreamView = (props) => {
             </Tab>
             <Tab eventKey="github" title="Github">
                 <ProfileGithubStream />
+            </Tab>
+            <Tab eventKey="friends" title="Friends">
+                <ProfileFriendsList />
             </Tab>
         </Tabs>
     );

@@ -15,9 +15,7 @@ const ProfileView = (props) => {
             <div className="profileHeader">
                 <ProfileHeaderView id={id} />
             </div>
-            <div className="profileStreamTabs">
-                <ProfileStreamView id={id} />
-            </div>
+            <ProfileStreamView id={id} />
         </div>
     );
 };
