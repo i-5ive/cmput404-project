@@ -13,7 +13,6 @@ const Actions = Reflux.createActions([
     "setBio",
     "loadFriendStatus",
     "unfriendUser",
-    "cancelFriendRequest",
     "sendFriendRequest"
 ]);
 

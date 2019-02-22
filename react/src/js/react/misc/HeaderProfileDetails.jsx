@@ -24,7 +24,7 @@ class HeaderProfileDetails extends Reflux.Component {
     };
 
     _onProfileClicked = () => {
-        this.props.history.push(`/profile/${this.state.userInfo.id}`);
+        this.props.history.push(`/profile/${this.state.userId}`);
     };
 
     _onSignOutClicked = () => {

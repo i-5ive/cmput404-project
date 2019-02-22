@@ -8,6 +8,7 @@ import ProfileStore from "./ProfileStore";
 import LoadingComponent from "../misc/LoadingComponent";
 import AuthStore from "../auth/AuthStore";
 import EditProfileModal from "./EditProfileModal";
+import {createSummaryQuery, getAuthorUrl} from "../util/AuthorUtil";
 
 /**
  * Renders the part of the profile page that displays details about an author
@@ -25,7 +26,7 @@ export default class ProfileHeaderView extends Reflux.Component {
         return (this.state.modalVisible !== nextState.modalVisible) ||
                 (this.state.profileDetails !== nextState.profileDetails) ||
                 (this.state.isLoadingProfile !== nextState.isLoadingProfile) ||
-                (this.state.isFriendsWithUser !== nextState.isFriendsWithUser);
+                (this.state.isProfileActionDisabled !== nextState.isProfileActionDisabled);
     }
 
     componentDidMount() {
@@ -49,15 +50,13 @@ export default class ProfileHeaderView extends Reflux.Component {
     };
 
     _onUnfriendClicked = () => {
-        ProfileActions.unfriendUser(this.props.id, this.state.userInfo.id);
-    };
-
-    _onCancelRequestClicked = () => {
-        ProfileActions.cancelFriendRequest(this.props.id, this.state.userInfo.id);
+        const author = createSummaryQuery(getAuthorUrl(this.props.id), this.state.profileDetails.displayName);
+        ProfileActions.unfriendUser(author, this.state.userInfo);
     };
 
     _onSendRequestClicked = () => {
-        ProfileActions.sendFriendRequest(this.props.id, this.state.userInfo.id);
+        const author = createSummaryQuery(getAuthorUrl(this.props.id), this.state.profileDetails.displayName);
+        ProfileActions.sendFriendRequest(author, this.state.userInfo);
     };
 
     renderName() {
@@ -88,9 +87,9 @@ export default class ProfileHeaderView extends Reflux.Component {
                 if (this.state.isFriendsWithUser) {
                     text = "Unfriend";
                     onClick = this._onUnfriendClicked;
-                } else if (this.state.sentFriendRequestToUser) {
-                    text = "Cancel friend request";
-                    onClick = this._onCancelRequestClicked;
+                } else if (this.state.isFollowingUser) {
+                    text = "Unfollow";
+                    onClick = this._onUnfriendClicked;
                 } else {
                     text = "Send friend request";
                     onClick = this._onSendRequestClicked;
@@ -105,6 +104,30 @@ export default class ProfileHeaderView extends Reflux.Component {
                     }
                 </Button>
             );
+        }
+        return null;
+    }
+
+    renderActionNotification() {
+        let style, text;
+        if (this.state.profileActionError) {
+            return (
+                <Alert bsStyle="danger">
+                    {
+                        this.state.profileActionError
+                    }
+                </Alert>
+            );
+        } else if (this.state.profileActionSuccess) {
+            return (
+                <Alert bsStyle="success">
+                    {
+                        this.state.profileActionSuccess
+                    }
+                </Alert>
+            );
+        } else if (this.state.isProfileActionDisabled) {
+            return <LoadingComponent />;
         }
         return null;
     }
@@ -133,6 +156,9 @@ export default class ProfileHeaderView extends Reflux.Component {
                     }
                 </p>
                 <div className="detailsFooter">
+                    {
+                        this.renderActionNotification()
+                    }
                     {
                         this.renderActionButton()
                     }

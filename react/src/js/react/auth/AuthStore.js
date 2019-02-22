@@ -17,14 +17,16 @@ const getLoginStateFromCookies = () => {
         return null;
     }
     // TODO: is this how displayName should be handled?
+    const url = `${SERVER_URL}/author/${id}`;
     return {
         username: username,
         userInfo: {
-            id: id,
+            id: url,
             host: SERVER_URL,
             displayName: username,
-            url: `${SERVER_URL}/author/${id}`
-        }
+            url: url
+        },
+        userId: id
     };
 };
 
