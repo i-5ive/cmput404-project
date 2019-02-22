@@ -63,9 +63,9 @@ class HeaderProfileDetails extends Reflux.Component {
                         this.renderNotifications()
                     }
                 </NavItem>,
-                <NavDropdown title={this.state.username} id="profile-dropdown">
-                    <MenuItem onClick={this._onProfileClicked}>Profile</MenuItem>
-                    <MenuItem onClick={this._onSignOutClicked}>Sign Out</MenuItem>
+                <NavDropdown key="profile-dropdown-item" title={this.state.username} id="profile-dropdown">
+                    <MenuItem key="profile" onClick={this._onProfileClicked}>View Profile</MenuItem>
+                    <MenuItem key="signOut" onClick={this._onSignOutClicked}>Sign Out</MenuItem>
                 </NavDropdown>
             ]
         ) : (

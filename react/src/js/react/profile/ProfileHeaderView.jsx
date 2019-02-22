@@ -60,17 +60,6 @@ export default class ProfileHeaderView extends Reflux.Component {
         ProfileActions.sendFriendRequest(this.props.id, this.state.userInfo.id);
     };
 
-    renderGithubLink() {
-        if (!this.state.profileDetails.github) {
-            return null;
-        }
-        return (
-            <a href={this.state.profileDetails.github} className="github" target="_blank">
-                Github Profile
-            </a>
-        );
-    }
-
     renderName() {
         let name = this.state.profileDetails.displayName;
         if (this.state.profileDetails.firstName) {
@@ -144,9 +133,6 @@ export default class ProfileHeaderView extends Reflux.Component {
                     }
                 </p>
                 <div className="detailsFooter">
-                    {
-                        this.renderGithubLink()
-                    }
                     {
                         this.renderActionButton()
                     }
