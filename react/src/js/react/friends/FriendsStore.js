@@ -4,15 +4,6 @@ import Actions from "./FriendsActions";
 
 import RestUtil from "../util/RestUtil";
 
-const makeUserQueryObject = (user) => {
-    return {
-        id: user.id,
-        host: user.host,
-        displayName: user.displayName,
-        url: user.url
-    };
-};
-
 /**
  * This store keeps track of the state of components that deal with user friend requests
  */
@@ -63,8 +54,8 @@ export default class FriendsStore extends Reflux.Store {
 
         RestUtil.sendPOST("friendrequest/", {
             query: "friendrequest",
-            author: makeUserQueryObject(user),
-            friend: makeUserQueryObject(friend)
+            author: user,
+            friend: friend
         }).then(() => {
             this.setState({
                 sendingFriendRequest: false,

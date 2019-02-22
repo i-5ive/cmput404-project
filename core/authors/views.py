@@ -61,7 +61,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
     def get_friend_requests(self, request, pk):
-        if (not Author.objects.filter(pk=pk).exists()):
+        try:
+            author = Author.objects.get(pk=pk)
+        except:
             return Response("Invalid author ID specified", status=404)
         
         requests = FriendRequest.objects.filter(friend=get_author_url(pk))
@@ -77,7 +79,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')
     def handle_friend_request_response(self, request, pk):
-        if (not Author.objects.filter(pk=pk).exists()):
+        try:
+            author = Author.objects.get(pk=pk)
+        except:
             return Response({
                 "query": "friendResponse",
                 "success": False,
@@ -121,7 +125,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get', 'post'], detail=True, url_path='friends', url_name='friends')
     def friends(self, request, pk):
-        if (not Author.objects.filter(pk=pk).exists()):
+        try:
+            author = Author.objects.get(pk=pk)
+        except:
             return Response("Invalid author ID specified", status=404)
         
         if (request.method == "POST"):
@@ -131,11 +137,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True, url_path='update', url_name='update')
     def update_profile(self, request, pk):
-        author = Author.objects.filter(pk=pk)
-        if (not author.exists()):
-            return Response("Invalid author ID specified", status=404)
         try:
-            author = author[0]
+            author = Author.objects.get(pk=pk)
+        except:
+            return Response("Invalid author ID specified", status=404)
+
+        try:
             author.displayName = request.data["displayName"]
             author.user.first_name = request.data["firstName"]
             author.user.last_name = request.data["lastName"]
@@ -156,3 +163,29 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("The request body had missing or invalid values", status=400)
 
         return Response("The profile was successfully updated")
+
+    ## Gets whether the author is following the one specified in the body
+    @action(methods=['post'], detail=True, url_path='follows', url_name='is_following')
+    def check_is_following(self, request, pk):
+        try:
+            Author.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "Invalid author ID url parameter specified"
+            }, status=404)
+        
+        try:
+            followed = request.data["author"]
+            if ("/author/" not in followed):
+                followed = get_author_url(followed)
+            follow = Follow.objects.filter(follower=get_author_url(pk), followed=followed)
+        except:
+            return Response({
+                "success": False,
+                "message": "The author field was incorrect"
+            }, status=400)
+        
+        return Response({
+            "isFollowingUser": follow.exists()
+        }, status=200)

@@ -26,13 +26,25 @@ export default class ProfileHeaderView extends Reflux.Component {
         return (this.state.modalVisible !== nextState.modalVisible) ||
                 (this.state.profileDetails !== nextState.profileDetails) ||
                 (this.state.isLoadingProfile !== nextState.isLoadingProfile) ||
-                (this.state.isProfileActionDisabled !== nextState.isProfileActionDisabled);
+                (this.state.isProfileActionDisabled !== nextState.isProfileActionDisabled) ||
+                (this.state.isLoadingFollowStatus !== nextState.isLoadingFollowStatus);
+    }
+
+    _isLoggedInUser() {
+        return (this.state.userId === this.props.id) || (this.state.userInfo && this.state.userInfo.id && this.props.id === this.state.userInfo.id);
     }
 
     componentDidMount() {
         ProfileActions.loadProfileDetails(this.props.id);
-        if (this.state.userInfo && this.state.userInfo.id) {
-            ProfileActions.loadFriendStatus(this.props.id, this.state.userInfo.id);
+        if (!this._isLoggedInUser() && this.state.userId) {
+            ProfileActions.loadFollowStatus(this.props.id, this.state.userId);
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        // handles user coming immediately to a profile (from entering the direct url) without visiting some other page first
+        if (this.state.userId && !prevState.userId && !this._isLoggedInUser()) {
+            ProfileActions.loadFollowStatus(this.props.id, this.state.userId);
         }
     }
 
@@ -49,9 +61,9 @@ export default class ProfileHeaderView extends Reflux.Component {
         });
     };
 
-    _onUnfriendClicked = () => {
+    _onUnfollowClicked = () => {
         const author = createSummaryQuery(getAuthorUrl(this.props.id), this.state.profileDetails.displayName);
-        ProfileActions.unfriendUser(author, this.state.userInfo);
+        ProfileActions.unfollowUser(author, this.state.userInfo);
     };
 
     _onSendRequestClicked = () => {
@@ -83,13 +95,10 @@ export default class ProfileHeaderView extends Reflux.Component {
             if (this.state.userInfo.id === this.props.id) {
                 text = "Edit";
                 onClick = this._onShowModal;
-            } else if (!this.state.errorLoadingFriendStatus) {
-                if (this.state.isFriendsWithUser) {
-                    text = "Unfriend";
-                    onClick = this._onUnfriendClicked;
-                } else if (this.state.isFollowingUser) {
+            } else if (!this.state.errorLoadingFollowStatus && !this.state.isLoadingFollowStatus) {
+                if (this.state.isFollowingUser) {
                     text = "Unfollow";
-                    onClick = this._onUnfriendClicked;
+                    onClick = this._onUnfollowClicked;
                 } else {
                     text = "Send friend request";
                     onClick = this._onSendRequestClicked;
@@ -109,7 +118,6 @@ export default class ProfileHeaderView extends Reflux.Component {
     }
 
     renderActionNotification() {
-        let style, text;
         if (this.state.profileActionError) {
             return (
                 <Alert bsStyle="danger">
@@ -128,6 +136,12 @@ export default class ProfileHeaderView extends Reflux.Component {
             );
         } else if (this.state.isProfileActionDisabled) {
             return <LoadingComponent />;
+        } else if (this.state.errorLoadingFollowStatus) {
+            return (
+                <Alert bsStyle="danger">
+                    An error occurred while loading your follow status with this author
+                </Alert>
+            );
         }
         return null;
     }

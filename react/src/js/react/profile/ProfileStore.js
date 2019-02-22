@@ -34,12 +34,12 @@ export default class ProfileStore extends Reflux.Store {
             errorLoadingProfile: false,
             github: null,
             posts: [],
-            isFriendsWithUser: null,
             sentFriendRequestToUser: null,
             profileActionSuccess: null,
             profileActionError: null,
             isFollowingUser: null,
-            isProfileActionDisabled: false
+            isProfileActionDisabled: false,
+            errorLoadingFollowStatus: null
         });
 
         RestUtil.sendGET(`author/${id}/`).then((res) => {
@@ -203,53 +203,51 @@ export default class ProfileStore extends Reflux.Store {
     }
 
     /**
-     * Loads the friend status between two users
+     * Loads the follow status between two users
      * @param {String} profileId - the ID of the profile being viewed
      * @param {String} viewerId - the ID of the user viewing the profile (must be a local user)
      */
-    // TODO: implement the 2 below endpoints
-    onLoadFriendStatus(profileId, viewerId) {
+    onLoadFollowStatus(profileId, viewerId) {
         this.setState({
-            isLoadingFriendStatus: true,
-            errorLoadingFriendStatus: false
+            errorLoadingFollowStatus: false,
+            isLoadingFollowStatus: true
         });
-        RestUtil.sendPOST(`author/${viewerId}/friendStatus/`, {
+        RestUtil.sendPOST(`author/${viewerId}/follows/`, {
             author: profileId
         }).then((res) => {
             this.setState({
-                isLoadingFriendStatus: false,
-                isFriendsWithUser: res.data.isFriendsWithUser,
-                isFollowingUser: res.data.isFollowingUser
+                isFollowingUser: res.data.isFollowingUser,
+                isLoadingFollowStatus: false
             });
         }).catch((err) => {
             this.setState({
-                isLoadingFriendStatus: false,
-                errorLoadingFriendStatus: true
+                errorLoadingFollowStatus: true,
+                isLoadingFollowStatus: true
             });
             console.error(err);
         });
     }
 
-    onUnfriendUser(author, requester) {
+    onUnfollowUser(author, requester) {
         this.setState({
             isProfileActionDisabled: true,
             profileActionError: null,
             profileActionSuccess: null
         });
-        RestUtil.sendPOST("unfriend/", {
+        RestUtil.sendPOST("unfollow/", {
             author: author,
-            requester: requester
+            requester: requester,
+            query: "unfollow"
         }).then(() => {
             this.setState({
                 isProfileActionDisabled: false,
-                profileActionSuccess: "This user is no longer friends with you",
-                isFriendsWithUser: false,
+                profileActionSuccess: "You are no longer following this user",
                 isFollowingUser: false
             });
         }).catch((err) => {
             this.setState({
                 isProfileActionDisabled: false,
-                profileActionError: "An error occurred while unfriending this user"
+                profileActionError: "An error occurred while unfollowing this user"
             });
             console.error(err);
         });

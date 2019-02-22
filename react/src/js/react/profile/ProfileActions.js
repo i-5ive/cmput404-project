@@ -11,8 +11,8 @@ const Actions = Reflux.createActions([
     "setEmailAddress",
     "setGithubLink",
     "setBio",
-    "loadFriendStatus",
-    "unfriendUser",
+    "loadFollowStatus",
+    "unfollowUser",
     "sendFriendRequest"
 ]);
 
