@@ -8,7 +8,7 @@ import ProfileStore from "./ProfileStore";
 import LoadingComponent from "../misc/LoadingComponent";
 import AuthStore from "../auth/AuthStore";
 import EditProfileModal from "./EditProfileModal";
-import {createSummaryQuery, getAuthorUrl} from "../util/AuthorUtil";
+import { createSummaryQuery, getAuthorUrl } from "../util/AuthorUtil";
 
 /**
  * Renders the part of the profile page that displays details about an author

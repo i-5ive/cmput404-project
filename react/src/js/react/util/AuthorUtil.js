@@ -22,7 +22,7 @@ export const
             displayName: displayName,
             host: authorUrl.split("/author/")[0]
         };
-    }, 
+    },
     /**
      * Gets the unique URL representing an author
      * @param {String} authorId - the unique ID of the author (can be a URL)

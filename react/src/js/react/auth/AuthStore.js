@@ -12,12 +12,12 @@ import CookieUtil from "../util/CookieUtil";
 const getLoginStateFromCookies = () => {
     const cookies = cookie.parse(document.cookie),
         username = cookies["core-username"],
-        id = cookies["core-userid"];
+        id = cookies["core-userid"],
+        url = `${SERVER_URL}/author/${id}`;
     if (!username || !id) {
         return null;
     }
     // TODO: is this how displayName should be handled?
-    const url = `${SERVER_URL}/author/${id}`;
     return {
         username: username,
         userInfo: {
