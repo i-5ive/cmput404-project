@@ -67,14 +67,10 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("Invalid author ID specified", status=404)
         
         requests = FriendRequest.objects.filter(friend=get_author_url(pk))
-        formatted_requests = []
+        urls = []
         for pending_request in requests:
-            formatted_requests.append({
-                'displayName': pending_request.requester_name,
-                'id': pending_request.requester,
-                'host': pending_request.requester.split("/author/")[0],
-                'url': pending_request.requester
-            })
+            urls.append(pending_request.requester)
+        formatted_requests = get_author_summaries(urls)
         return Response(formatted_requests, status=200)
 
     @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')

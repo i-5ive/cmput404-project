@@ -38,7 +38,6 @@ class Follow(models.Model):
 class FriendRequest(models.Model):
     requester = models.URLField()
     friend = models.URLField()
-    requester_name = models.CharField(max_length=80, blank=True, null=True)
     
     def __str__(self):
         return self.requester + " wants to follow " + self.friend

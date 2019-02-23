@@ -6,11 +6,12 @@ from django.test import TestCase
 from core.authors.models import Author
 from core.authors.util import get_author_summaries, get_author_url
 from core.authors.tests.util import setupUser
+from core.hostUtil import get_host_url
 
 import unittest
 from unittest.mock import patch
 
-MOCK_HOST = "http://127.0.0.1"
+MOCK_HOST = get_host_url()
 EXTERNAL_HOST_ONE = "http://192.168.0.1"
 EXTERNAL_HOST_TWO = "http://softwareprocess.es"
 
