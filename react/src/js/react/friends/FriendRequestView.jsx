@@ -3,7 +3,7 @@ import Reflux from "reflux";
 
 import PropTypes from "prop-types";
 import { Button } from "react-bootstrap";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import AuthStore from "../auth/AuthStore";
 import FriendsActions from "./FriendsActions";

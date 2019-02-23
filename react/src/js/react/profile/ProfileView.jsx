@@ -26,7 +26,6 @@ const getId = (id) => {
  * Renders the view of a user's profile
  */
 class ProfileView extends Reflux.Component {
-    
     constructor(props) {
         super(props);
         this.store = ProfileStore;
