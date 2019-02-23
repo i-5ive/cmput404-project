@@ -5,15 +5,6 @@ import Actions from "./FriendsActions";
 
 import RestUtil from "../util/RestUtil";
 
-const makeUserQueryObject = (user) => {
-    return {
-        id: user.url,
-        host: user.host,
-        displayName: user.displayName,
-        url: user.url
-    };
-};
-
 /**
  * This store keeps track of the state of components that deal with user friend requests
  */
@@ -41,7 +32,7 @@ export default class FriendsStore extends Reflux.Store {
             errorLoadingRequests: false
         });
 
-        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((res) => {
+        RestUtil.sendGET(`author/${user}/friendrequests/`).then((res) => {
             this.setState({
                 friendRequests: res.data,
                 loadingRequests: false
@@ -64,8 +55,8 @@ export default class FriendsStore extends Reflux.Store {
 
         RestUtil.sendPOST("friendrequest/", {
             query: "friendrequest",
-            author: makeUserQueryObject(user),
-            friend: makeUserQueryObject(friend)
+            author: user,
+            friend: friend
         }).then(() => {
             this.setState({
                 sendingFriendRequest: false,
@@ -116,5 +107,17 @@ export default class FriendsStore extends Reflux.Store {
             });
             console.error(err);
         });
+    }
+
+    onRemoveFriendRequest(friend) {
+        const index = this.state.friendRequests.findIndex((request) => request.url === friend.url);
+        if (index > -1) {
+            const requests = update(this.state.friendRequests, {
+                $splice: [[index, 1]]
+            });
+            this.setState({
+                friendRequests: requests
+            });
+        }
     }
 }

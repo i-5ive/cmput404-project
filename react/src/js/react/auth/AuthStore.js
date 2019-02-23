@@ -11,7 +11,8 @@ import CookieUtil from "../util/CookieUtil";
 const getLoginStateFromCookies = () => {
     const cookies = cookie.parse(document.cookie),
         username = cookies["core-username"],
-        id = cookies["core-userid"];
+        id = cookies["core-userid"],
+        url = `${SERVER_URL}/author/${id}`;
     if (!username || !id) {
         return null;
     }
@@ -19,11 +20,12 @@ const getLoginStateFromCookies = () => {
     return {
         username: username,
         userInfo: {
-            id: id,
+            id: url,
             host: SERVER_URL,
             displayName: username,
-            url: `${SERVER_URL}/author/${id}`
-        }
+            url: url
+        },
+        userId: id
     };
 };
 
@@ -146,7 +148,8 @@ export default class AuthStore extends Reflux.Store {
         this.setState({
             isLoggedIn: false,
             username: null,
-            userInfo: null
+            userInfo: null,
+            userId: null
         });
     }
 }

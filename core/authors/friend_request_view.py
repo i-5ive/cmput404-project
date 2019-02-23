@@ -79,7 +79,7 @@ def handle_follow_request(request):
     
     reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
     if not reverseFollow.exists():
-        FriendRequest.objects.create(requester=authorUrl, friend=friendUrl, requester_name=author["displayName"])
+        FriendRequest.objects.create(requester=authorUrl, friend=friendUrl)
 
     Follow.objects.create(follower=authorUrl, followed=friendUrl)
 
