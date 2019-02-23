@@ -1,0 +1,15 @@
+@import "variables.scss";
+
+.post-feed {
+    background-color: $very-light-grey;
+    border-radius: 5px;
+    max-width: 40em;
+    margin: 0px auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+
+.filter-posts-wrapper {
+    float: right;
+}
