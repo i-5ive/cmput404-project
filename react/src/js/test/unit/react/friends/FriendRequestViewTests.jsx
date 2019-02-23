@@ -42,14 +42,6 @@ describe("Friend requests list view tests", () => {
         expect(wrapper.find("Button").at(1).props().disabled).eql(true);
     });
 
-    it("tests the display name showing up", () => {
-        const wrapper = shallow(<FriendRequestView request={request1} />);
-        wrapper.instance().store.singleton.setState({
-			userInfo: MOCK_USER_INFO
-        });
-        expect(wrapper.find("Link.name").text()).eql(request1.displayName);
-    });
-
     it("tests that the approve action is invoked after clicking approve", () => {
         const action = sandbox.spy(FriendsActions, "respondToFriendRequest");
         const wrapper = shallow(<FriendRequestView request={request1} />);
