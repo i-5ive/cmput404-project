@@ -1,5 +1,24 @@
+@import "variables.scss";
 @import "header.scss";
 @import "friendRequest.scss";
 @import "login.scss";
+@import "profile.scss";
 @import "post.scss";
 @import "postFeed.scss";
+
+.coreSpinner {
+    font-size: 24pt;
+}
+
+.core-app-body {
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+body {
+    background-color: #f2f3f5;
+}
+
+.tab-pane {
+    margin-top: 1em;
+}

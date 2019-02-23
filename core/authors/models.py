@@ -20,7 +20,7 @@ class Author(models.Model):
 
     # Optional Fields
     github = models.URLField(blank=True, null=True)
-    bio = models.TextField(max_length=1024, blank=True, null=True)
+    bio = models.CharField(max_length=1024, blank=True, null=True)
 
     def get_display_name(self):
         return self.displayName
@@ -38,7 +38,6 @@ class Follow(models.Model):
 class FriendRequest(models.Model):
     requester = models.URLField()
     friend = models.URLField()
-    requester_name = models.CharField(max_length=80, blank=True, null=True)
     
     def __str__(self):
         return self.requester + " wants to follow " + self.friend

@@ -5,6 +5,7 @@ import { Alert } from "react-bootstrap";
 
 import FriendsStore from "./FriendsStore";
 import FriendRequestView from "./FriendRequestView";
+import LoadingComponent from "../misc/LoadingComponent";
 
 /**
  * Renders the friend request notifications popover
@@ -25,6 +26,9 @@ export default class NotificationsPopover extends Reflux.Component {
         }
         return (
             <div>
+                {
+                    this.state.isRespondingToRequest && <LoadingComponent />
+                }
                 {
                     this.state.errorSendingResponse && (
                         <Alert bsStyle="danger">

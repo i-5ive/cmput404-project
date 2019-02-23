@@ -26,9 +26,15 @@ export default class RestUtil {
     /**
      * Sends a GET request to the server
      * @param {String} path - the path to make the request to (ex: authors/)
+     * @param {Object?} query - an optional object representing the query string
+     * @param {boolean?} externalHost - whether the request is being made to an external server or not
      * @return {Promise} - a promise that resolves when the request is finished
      */
-    static sendGET(path) {
-        return axios.get(`${SERVER_URL}/${path}`);
+    static sendGET(path, query = {}, externalHost = false) {
+        const uri = externalHost ? path : `${SERVER_URL}/${path}`;
+        return axios(uri, {
+            params: query,
+            withCredentials: !externalHost
+        });
     }
 }
