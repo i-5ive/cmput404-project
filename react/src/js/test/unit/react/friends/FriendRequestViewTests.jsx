@@ -47,7 +47,7 @@ describe("Friend requests list view tests", () => {
         wrapper.instance().store.singleton.setState({
 			userInfo: MOCK_USER_INFO
         });
-        expect(wrapper.find("span.name").text()).eql(request1.displayName);
+        expect(wrapper.find("a.name").text()).eql(request1.displayName);
     });
 
     it("tests that the approve action is invoked after clicking approve", () => {
