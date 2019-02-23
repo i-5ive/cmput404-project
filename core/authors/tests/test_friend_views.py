@@ -148,7 +148,7 @@ class CheckFriendsViewTests(TestCase):
     def test_no_matching_friends_empty_set(self, friends_set_mock):
         friends_set_mock.return_value = set()
 
-        data = get_friends_with_any_body(str(self.author1.id), ["http://127.0.0.1/author/yeet"])
+        data = get_friends_with_any_body(str(self.author1.id), ["http://127.0.0.1:8000/author/yeet"])
         response = self.client.post(get_friends_path(str(self.author1.id)), data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["query"], "friends")
@@ -157,9 +157,9 @@ class CheckFriendsViewTests(TestCase):
 
     @patch("core.authors.friends_util.get_friends_set")
     def test_no_matching_friends(self, friends_set_mock):
-        friends_set_mock.return_value = set(["http://127.0.0.1/author/yaw"])
+        friends_set_mock.return_value = set(["http://127.0.0.1:8000/author/yaw"])
 
-        data = get_friends_with_any_body(str(self.author1.id), ["http://127.0.0.1/author/yeet"])
+        data = get_friends_with_any_body(str(self.author1.id), ["http://127.0.0.1:8000/author/yeet"])
         response = self.client.post(get_friends_path(str(self.author1.id)), data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["query"], "friends")
@@ -169,10 +169,10 @@ class CheckFriendsViewTests(TestCase):
     @patch("core.authors.friends_view.get_friends_set")
     def test_one_friend(self, friends_set_mock):
 
-        commonAuthor = "http://127.0.0.1/author/yeet"
+        commonAuthor = "http://127.0.0.1:8000/author/yeet"
         friends_set_mock.return_value = set([commonAuthor])
 
-        data = get_friends_with_any_body(str(self.author1.id), [commonAuthor, "http://127.0.0.1/author/yaw"])
+        data = get_friends_with_any_body(str(self.author1.id), [commonAuthor, "http://127.0.0.1:8000/author/yaw"])
         response = self.client.post(get_friends_path(str(self.author1.id)), data, content_type="application/json")
        
         self.assertEqual(response.status_code, 200)
@@ -183,11 +183,11 @@ class CheckFriendsViewTests(TestCase):
 
     @patch("core.authors.friends_view.get_friends_set")
     def test_two_friends(self, friends_set_mock):
-        commonAuthor = "http://127.0.0.1/author/yeet"
-        commonAuthor2 = "http://127.0.0.1/author/yyy"
+        commonAuthor = "http://127.0.0.1:8000/author/yeet"
+        commonAuthor2 = "http://127.0.0.1:8000/author/yyy"
         friends_set_mock.return_value = set([commonAuthor, commonAuthor2])
 
-        data = get_friends_with_any_body(str(self.author1.id), [commonAuthor, commonAuthor2, "http://127.0.0.1/author/yaw"])
+        data = get_friends_with_any_body(str(self.author1.id), [commonAuthor, commonAuthor2, "http://127.0.0.1:8000/author/yaw"])
         response = self.client.post(get_friends_path(str(self.author1.id)), data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["query"], "friends")

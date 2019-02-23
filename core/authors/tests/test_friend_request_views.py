@@ -17,16 +17,16 @@ def get_local_authors_body(author1, author2, query="friendrequest"):
     return {
         "query": query,
         "author": {
-            "id": "http://127.0.0.1/author/" + str(author1.id),
-            "host": "http://127.0.0.1",
+            "id": "http://127.0.0.1:8000/author/" + str(author1.id),
+            "host": "http://127.0.0.1:8000",
             "displayName": "Some random name",
-            "url": "http://127.0.0.1/author/" + str(author1.id)
+            "url": "http://127.0.0.1:8000/author/" + str(author1.id)
         },
         "friend": {
-            "id": "http://127.0.0.1/author/" + str(author2.id),
-            "host": "http://127.0.0.1",
+            "id": "http://127.0.0.1:8000/author/" + str(author2.id),
+            "host": "http://127.0.0.1:8000",
             "displayName": "Some random name 2",
-            "url": "http://127.0.0.1/author/" + str(author2.id)
+            "url": "http://127.0.0.1:8000/author/" + str(author2.id)
         }
     }
 
@@ -162,7 +162,8 @@ class FriendRequestViewTestCase(TestCase):
 
         body = get_local_authors_body(self.author1, self.author2)
 
-        self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
+        res = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
+        print(res.data["message"])
         self.assertEqual(len(FriendRequest.objects.all()), 1)
         self.assertEqual(len(Follow.objects.all()), 1)
 
@@ -352,10 +353,10 @@ def get_respond_to_request_body(author1, approve, query="friendResponse"):
     return json.dumps({
         "query": query,
         "friend": {
-            "id": "http://127.0.0.1/author/" + str(author1),
-            "host": "http://127.0.0.1",
+            "id": "http://127.0.0.1:8000/author/" + str(author1),
+            "host": "http://127.0.0.1:8000",
             "displayName": "Some random name 2",
-            "url": "http://127.0.0.1/author/" + str(author1)
+            "url": "http://127.0.0.1:8000/author/" + str(author1)
         },
         "approve": approve
     })
