@@ -8,10 +8,10 @@
 
     .credentialsSwitchAction {
         float: right;
-        margin-top: 1.2em;
+        padding-top: 1.2em;
+    }
 
-        &:hover {
-            cursor: pointer;
-        }
+    .caption {
+        padding-bottom: 3em;
     }
 }

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { Link } from "react-router-dom";
-import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import { Button, FormGroup, FormControl, ControlLabel, Thumbnail } from "react-bootstrap";
 
 import { INVERSE_ALPHANUMERIC_REGEX } from "../constants/RegexConstants";
 
@@ -36,7 +36,7 @@ const validateUsername = (field) => {
             usernameState = getValidationState(usernameMessage),
             passwordState = getValidationState(passwordMessage);
         return (
-            <div>
+            <Thumbnail>
                 <h3>
                     {
                         props.action
@@ -90,7 +90,7 @@ const validateUsername = (field) => {
                         props.switchActionText
                     }
                 </Link>
-            </div>
+            </Thumbnail>
         );
     };
 

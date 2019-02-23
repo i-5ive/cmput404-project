@@ -3,6 +3,7 @@ import Reflux from "reflux";
 
 import PropTypes from "prop-types";
 import { Button } from "react-bootstrap";
+import {Link} from "react-router-dom";
 
 import AuthStore from "../auth/AuthStore";
 import FriendsActions from "./FriendsActions";
@@ -21,21 +22,21 @@ class FriendRequestView extends Reflux.Component {
     }
 
     _onApproveClicked = () => {
-        FriendsActions.respondToFriendRequest(this.state.userInfo.id, this.props.request, true);
+        FriendsActions.respondToFriendRequest(this.state.userId, this.props.request, true);
     };
 
     _onRejectClicked = () => {
-        FriendsActions.respondToFriendRequest(this.state.userInfo.id, this.props.request, false);
+        FriendsActions.respondToFriendRequest(this.state.userId, this.props.request, false);
     };
 
     render() {
         return (
             <div className="friendRequest">
-                <span className="name">
+                <Link className="name" to={`/profile/${encodeURIComponent(this.props.request.id)}`}>
                     {
                         this.props.request.displayName
                     }
-                </span>
+                </Link>
                 <div className="buttons">
                     <Button bsStyle="primary"
                         onClick={this._onApproveClicked}

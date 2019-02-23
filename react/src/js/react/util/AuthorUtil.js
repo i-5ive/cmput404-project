@@ -3,11 +3,11 @@ import { SERVER_URL } from "../constants/ServerConstants";
 export const
     /**
      * Determines whether the specified author is external or not
-     * @param {String} authorUrl - the URL of the author
+     * @param {String} authorId - the URL or ID of the author
      * @return {boolean} - whether the author is external or not
      */
-    isExternalAuthor = (authorUrl) => {
-        return authorUrl.split("/author/")[0] !== SERVER_URL;
+    isExternalAuthor = (authorId) => {
+        return authorId.includes("/author/") && authorId.split("/author/")[0] !== SERVER_URL;
     },
     /**
      * Creates a summary query used to represent an author
@@ -33,4 +33,15 @@ export const
             return authorId;
         }
         return `${SERVER_URL}/author/${authorId}`;
+    },
+    /**
+     * Gets the unique ID of an author
+     * @param {String} authorId - the unique URL or ID of the author
+     * @return {String} - the input URL if the author is external, or their uuid otherwise
+     */
+    getAuthorId = (authorId) => {
+        if (isExternalAuthor(authorId)) {
+            return authorId;
+        }
+        return authorId.includes("/author/") ? authorId.split("/author/")[1] : authorId;
     };

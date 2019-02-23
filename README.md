@@ -9,10 +9,7 @@ Files Included:
  - Most if not all of the configuration files (`.babelrc`, `.eslintrc.json`, `package.json`, etc)
  - index.html, index.js, and App.jsx
 
-## External Code
-Github Activity Feed - MIT License
-https://github.com/caseyscarborough/github-activity
-
+## External References
 TODO: stackoverflow references in code should be placed here
 
 Python unit testing

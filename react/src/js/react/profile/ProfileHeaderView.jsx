@@ -1,14 +1,15 @@
 import React from "react";
 import Reflux from "reflux";
 
-import { Alert, Button } from "react-bootstrap";
+import { Alert, Button, Thumbnail } from "react-bootstrap";
 
 import ProfileActions from "./ProfileActions";
 import ProfileStore from "./ProfileStore";
 import LoadingComponent from "../misc/LoadingComponent";
 import AuthStore from "../auth/AuthStore";
 import EditProfileModal from "./EditProfileModal";
-import { createSummaryQuery, getAuthorUrl } from "../util/AuthorUtil";
+import { createSummaryQuery, getAuthorUrl, getAuthorId } from "../util/AuthorUtil";
+import ProfileGithubDetails from "./ProfileGithubDetails";
 
 /**
  * Renders the part of the profile page that displays details about an author
@@ -24,7 +25,6 @@ export default class ProfileHeaderView extends Reflux.Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         return (this.state.modalVisible !== nextState.modalVisible) ||
-                (this.state.profileDetails !== nextState.profileDetails) ||
                 (this.state.isLoadingProfile !== nextState.isLoadingProfile) ||
                 (this.state.isProfileActionDisabled !== nextState.isProfileActionDisabled) ||
                 (this.state.isLoadingFollowStatus !== nextState.isLoadingFollowStatus);
@@ -35,15 +35,14 @@ export default class ProfileHeaderView extends Reflux.Component {
     }
 
     componentDidMount() {
-        ProfileActions.loadProfileDetails(this.props.id);
         if (!this._isLoggedInUser() && this.state.userId) {
             ProfileActions.loadFollowStatus(this.props.id, this.state.userId);
         }
     }
 
     componentDidUpdate(prevProps, prevState) {
-        // handles user coming immediately to a profile (from entering the direct url) without visiting some other page first
         if (this.state.userId && !prevState.userId && !this._isLoggedInUser()) {
+            // handles user coming immediately to a profile (from entering the direct url) without visiting some other page first
             ProfileActions.loadFollowStatus(this.props.id, this.state.userId);
         }
     }
@@ -89,10 +88,23 @@ export default class ProfileHeaderView extends Reflux.Component {
         );
     }
 
+    renderEmail() {
+        if (!this.state.profileDetails.email) {
+            return null;
+        }
+        return (
+            <a className="email" href={`mailto:${this.state.profileDetails.email}`}>
+                {
+                    this.state.profileDetails.email
+                }
+            </a>
+        );
+    }
+
     renderActionButton() {
-        if (this.state.userInfo) {
+        if (this.state.userId) {
             let text, onClick;
-            if (this.state.userInfo.id === this.props.id) {
+            if (this.state.userId === getAuthorId(this.props.id)) {
                 text = "Edit";
                 onClick = this._onShowModal;
             } else if (!this.state.errorLoadingFollowStatus && !this.state.isLoadingFollowStatus) {
@@ -147,37 +159,42 @@ export default class ProfileHeaderView extends Reflux.Component {
     }
 
     render() {
-        if (this.state.errorLoadingProfile) {
-            return (
-                <Alert bsStyle="danger">
-                    An error occurred while loading the user profile details.
-                </Alert>
-            );
-        } else if (this.state.isLoadingProfile || !this.state.profileDetails) {
-            return <LoadingComponent />;
-        }
         return (
-            <div className="details">
+            <div>
                 <EditProfileModal visible={this.state.modalVisible}
                     id={this.props.id}
                     onClose={this._onHideModal} />
-                {
-                    this.renderName()
-                }
-                <p>
-                    {
-                        this.state.profileDetails.bio
-                    }
-                </p>
-                <div className="detailsFooter">
-                    {
-                        this.renderActionNotification()
-                    }
-                    {
-                        this.renderActionButton()
-                    }
+                <div className="details">
+                    <Thumbnail>
+                        <div className="header">
+                            {
+                                this.renderName()
+                            }
+                            {
+                                this.renderEmail()
+                            }
+                        </div>
+                        <p>
+                            {
+                                this.state.profileDetails.bio
+                            }
+                        </p>
+                        <div className="footer">
+                            {
+                                this.renderActionNotification()
+                            }
+                            {
+                                this.renderActionButton()
+                            }
+                        </div>
+                    </Thumbnail>
+                    <Thumbnail>
+                        <h4>
+                            Github Repositories
+                        </h4>
+                        <ProfileGithubDetails />
+                    </Thumbnail>
                 </div>
-                <hr />
             </div>
         );
     }

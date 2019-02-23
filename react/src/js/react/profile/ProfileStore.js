@@ -5,6 +5,8 @@ import update from "immutability-helper";
 import Actions from "./ProfileActions";
 import RestUtil from "../util/RestUtil";
 import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
+import { isExternalAuthor, getAuthorId } from "../util/AuthorUtil";
+import FriendsActions from "../friends/FriendsActions";
 
 /**
  * This store keeps track of the state of components that deal with a user profile
@@ -32,17 +34,20 @@ export default class ProfileStore extends Reflux.Store {
             isLoadingProfile: true,
             successfullyLoadedProfile: false,
             errorLoadingProfile: false,
-            github: null,
             posts: [],
             sentFriendRequestToUser: null,
             profileActionSuccess: null,
             profileActionError: null,
             isFollowingUser: null,
             isProfileActionDisabled: false,
-            errorLoadingFollowStatus: null
+            errorLoadingFollowStatus: null,
+            githubDetails: null
         });
 
-        RestUtil.sendGET(`author/${id}/`).then((res) => {
+        // TODO: should external authors be loaded client side or server side?
+        const external = isExternalAuthor(id),
+            path = external ? `${id}/` : `author/${getAuthorId(id)}/`;
+        RestUtil.sendGET(path, {}, external).then((res) => {
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,
@@ -68,10 +73,14 @@ export default class ProfileStore extends Reflux.Store {
             isLoadingStream: true,
             errorLoadingStream: false
         });
-        RestUtil.sendGET(`author/${id}/posts/`, {
+
+        // TODO: should external authors be loaded client side or server side?
+        const external = isExternalAuthor(id),
+            path = external ? `${id}/posts/` : `author/${getAuthorId(id)}/posts/`;
+        RestUtil.sendGET(path, {
             page: page,
             size: POSTS_PAGE_SIZE
-        }).then((res) => {
+        }, external).then((res) => {
             const posts = update(this.state.posts, {
                 $push: res.data.posts
             });
@@ -264,6 +273,8 @@ export default class ProfileStore extends Reflux.Store {
             friend: friend,
             query: "friendrequest"
         }).then(() => {
+            // remove any existing friend request from the other user, because it has technically now been accepted
+            FriendsActions.removeFriendRequest(friend);
             this.setState({
                 isProfileActionDisabled: false,
                 profileActionSuccess: "Your friend request has been sent.",
@@ -274,6 +285,32 @@ export default class ProfileStore extends Reflux.Store {
             this.setState({
                 isProfileActionDisabled: false,
                 profileActionError: "An error occurred while sending your friend request."
+            });
+            console.error(err);
+        });
+    }
+
+    /**
+     * Loads details about the specified github account
+     * @param {String} githubUrl - the URL to the github account to load details of
+     */
+    onLoadGithubDetails(githubUrl) {
+        this.setState({
+            errorLoadingGithubRepos: null
+        });
+        const account = githubUrl.split(".com/")[1];
+        RestUtil.sendGET(`https://api.github.com/users/${account}/repos`, {}, true).then((res) => {
+            this.setState({
+                githubDetails: res.data.map((repo) => {
+                    return {
+                        name: repo.name,
+                        url: repo.html_url
+                    };
+                })
+            });
+        }).catch((err) => {
+            this.setState({
+                errorLoadingGithubRepos: true
             });
             console.error(err);
         });

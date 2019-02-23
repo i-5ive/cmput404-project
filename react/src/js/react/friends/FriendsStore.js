@@ -32,7 +32,7 @@ export default class FriendsStore extends Reflux.Store {
             errorLoadingRequests: false
         });
 
-        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((res) => {
+        RestUtil.sendGET(`author/${user}/friendrequests/`).then((res) => {
             this.setState({
                 friendRequests: res.data,
                 loadingRequests: false
@@ -107,5 +107,17 @@ export default class FriendsStore extends Reflux.Store {
             });
             console.error(err);
         });
+    }
+
+    onRemoveFriendRequest(friend) {
+        const index = this.state.friendRequests.findIndex((request) => request.url === friend.url);
+        if (index > -1) {
+            const requests = update(this.state.friendRequests, {
+                $splice: [[index, 1]]
+            });
+            this.setState({
+                friendRequests: requests
+            });
+        }
     }
 }

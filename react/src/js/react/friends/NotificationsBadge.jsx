@@ -14,7 +14,7 @@ export default class NotificationsBadge extends Reflux.Component {
     }
 
     componentDidMount() {
-        FriendsActions.loadFriendRequests(this.state.userInfo);
+        FriendsActions.loadFriendRequests(this.state.userId);
     }
 
     shouldComponentUpdate(nextProps, nextState) {

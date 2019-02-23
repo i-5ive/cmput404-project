@@ -18,7 +18,7 @@ export default class ProfilePostsStream extends Reflux.Component {
     }
 
     shouldComponentUpdate(prevProps, prevState) {
-        return this.state.posts.length !== prevState.posts.length;
+        return this.state.posts.length !== prevState.posts.length || this.state.errorLoadingStream !== prevState.errorLoadingStream;
     }
 
     render() {

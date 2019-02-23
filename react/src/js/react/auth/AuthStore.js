@@ -148,7 +148,8 @@ export default class AuthStore extends Reflux.Store {
         this.setState({
             isLoggedIn: false,
             username: null,
-            userInfo: null
+            userInfo: null,
+            userId: null
         });
     }
 }

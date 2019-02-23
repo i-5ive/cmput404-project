@@ -1,4 +1,4 @@
-.profileHeader {
+.authorProfile {
     display: flex;
     word-break: break-all;
 
@@ -7,15 +7,45 @@
     }
 
     .details {
-        width: 75vw;
+        width: 80vw;
+        display: flex;
 
-        .name {
-            text-align: center;
+        .header {
+            display: flex;
+
+            .name {
+                text-align: center;
+            }
+
+            .email {
+                margin-left: auto;
+            }
         }
-    }
 
-    .detailsFooter {
-        margin-top: 1em;
+        .thumbnail:nth-child(1) {
+            width: 45vw;
+            height: 100%;
+
+            .caption {
+                display: flex;
+                flex-direction: column;
+
+                .footer {
+                    margin-top: auto;
+                }
+            }
+        }
+
+        .thumbnail:nth-child(2) {
+            width: 30vw;
+            margin-left: 3em;
+            height: 100%;
+
+            .repos {
+                max-height: 35vh;
+                overflow-y: auto;
+            }
+        }
     }
 }
 

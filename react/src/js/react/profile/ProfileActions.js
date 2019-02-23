@@ -13,7 +13,8 @@ const Actions = Reflux.createActions([
     "setBio",
     "loadFollowStatus",
     "unfollowUser",
-    "sendFriendRequest"
+    "sendFriendRequest",
+    "loadGithubDetails"
 ]);
 
 export default Actions;
