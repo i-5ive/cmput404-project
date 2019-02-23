@@ -2,6 +2,7 @@ import axios from "axios";
 
 import { SERVER_URL } from "../constants/ServerConstants";
 
+// Credit to krescruz at https://stackoverflow.com/a/48118202 for this
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 axios.defaults.xsrfCookieName = "csrftoken";
 
