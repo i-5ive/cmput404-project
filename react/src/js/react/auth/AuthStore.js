@@ -5,7 +5,6 @@ import _ from "lodash";
 
 import Actions from "./AuthActions";
 import RestUtil from "../util/RestUtil";
-import FriendsActions from "../friends/FriendsActions";
 import { SERVER_URL } from "../constants/ServerConstants";
 import CookieUtil from "../util/CookieUtil";
 
@@ -59,7 +58,6 @@ export default class AuthStore extends Reflux.Store {
 
     _onLogin(userInfo) {
         // TODO: any actions to perform after logging in
-        FriendsActions.loadFriendRequests(userInfo);
     }
 
     /**

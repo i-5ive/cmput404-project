@@ -1,4 +1,5 @@
 import Reflux from "reflux";
+import update from "immutability-helper";
 
 import Actions from "./FriendsActions";
 
@@ -6,7 +7,7 @@ import RestUtil from "../util/RestUtil";
 
 const makeUserQueryObject = (user) => {
     return {
-        id: user.id,
+        id: user.url,
         host: user.host,
         displayName: user.displayName,
         url: user.url
@@ -40,9 +41,9 @@ export default class FriendsStore extends Reflux.Store {
             errorLoadingRequests: false
         });
 
-        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((requests) => {
+        RestUtil.sendGET(`author/${user.id}/friendrequests/`).then((res) => {
             this.setState({
-                friendRequests: requests,
+                friendRequests: res.data,
                 loadingRequests: false
             });
         }).catch((err) => {
@@ -76,6 +77,42 @@ export default class FriendsStore extends Reflux.Store {
                 sendingFriendRequest: false,
                 successfullySentRequest: false,
                 failedToSendRequest: true
+            });
+            console.error(err);
+        });
+    }
+
+    /**
+     * Handles a user responding to a friend request
+     * @param {String} userId - the ID of the user responding to the request
+     * @param {Object} request - the request to respond to
+     * @param {boolean} approve - whether to approve the request or not
+     */
+    onRespondToFriendRequest(userId, request, approve) {
+        this.setState({
+            isRespondingToRequest: true,
+            successfullyRespondedToRequest: false,
+            errorSendingResponse: false
+        });
+
+        RestUtil.sendPOST(`author/${userId}/friendrequests/respond/`, {
+            query: "friendResponse",
+            approve: approve,
+            friend: request
+        }).then(() => {
+            const index = this.state.friendRequests.indexOf(request),
+                requests = update(this.state.friendRequests, {
+                    $splice: [[index, 1]]
+                });
+            this.setState({
+                isRespondingToRequest: false,
+                successfullyRespondedToRequest: true,
+                friendRequests: requests
+            });
+        }).catch((err) => {
+            this.setState({
+                isRespondingToRequest: false,
+                errorSendingResponse: true
             });
             console.error(err);
         });
