@@ -27,7 +27,6 @@ urlpatterns = [
     path('users/', include('core.users.urls')),
     path('author/', include('core.authors.urls')),
     path('posts/', include('core.posts.urls')),
-    path('handleposts/', handle_posts, name='handleposts'),
     path('api-auth/', include('rest_framework.urls')),
     path('docs/', include_docs_urls(title='API Documentation')),
     path('friendrequest/', friend_request, name='friendrequest'),
