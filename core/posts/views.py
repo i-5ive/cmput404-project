@@ -29,7 +29,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         # Use post_id to delete all related image posts too
         post = Posts.objects.get(pk=pk)
-        related_posts = Posts.objects.filter(post_id=post.post_id).delete()
+        Posts.objects.filter(post_id=post.post_id).delete()
         return Response({
             "success": True,
             "message": "Post deleted successfully"

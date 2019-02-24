@@ -17,9 +17,9 @@ def create_post(request):
     body = request.data
     data = json.loads(body["postData"])
 
-    serializer = PostsSerializer(data=data)
-    serializer.is_valid()
-    new_post = serializer.save()
+    post_serializer = PostsSerializer(data=data)
+    post_serializer.is_valid()
+    new_post = post_serializer.save()
 
     # if image, make another post with generated post_id
     if (request.FILES):
@@ -32,11 +32,11 @@ def create_post(request):
             if image_type == "image/jpeg" or image_type == "image/png":
                 content_type = f"{image_type};base64"
             else:
-                return False, "Invalid file type"
+                return False, "Invalid file type", None
 
             # http://www.learningaboutelectronics.com/Articles/How-to-restrict-the-size-of-file-uploads-with-Python-in-Django.php
             if image_size > 10485760:
-                return False, "The maximum file size that can be uploaded is 10MB"
+                return False, "The maximum file size that can be uploaded is 10MB", None
 
             # Credits to Ykh, https://stackoverflow.com/questions/44489375/django-have-admin-take-image-file-but-store-it-as-a-base64-string
             encoded_image = base64.encodestring(img_file.read())
@@ -49,14 +49,15 @@ def create_post(request):
             serializer.is_valid()
             serializer.save()
 
-    return success, message
+    return success, message, post_serializer.data
 
 
 def handle_posts(request):
+    query = request.data["query"]
     success = False
     message = "Post not created"
 
-    success, message = create_post(request)
+    success, message, new_post = create_post(request)
 
     if success: 
         code = 200
@@ -65,5 +66,7 @@ def handle_posts(request):
 
     return Response({
         "success": success,
-        "message": message
+        "query": query,
+        "message": message,
+        "post": new_post
     }, status=code)
