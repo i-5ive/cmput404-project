@@ -9,6 +9,8 @@ from core.authors.models import Author
 from core.posts.serializers import PostsSerializer
 
 from core.authors.util import get_author_id
+
+MAX_UPLOAD_SIZE = 10485760
     
 def create_post(request):
     success = True
@@ -35,7 +37,7 @@ def create_post(request):
                 return False, "Invalid file type", None
 
             # http://www.learningaboutelectronics.com/Articles/How-to-restrict-the-size-of-file-uploads-with-Python-in-Django.php
-            if image_size > 10485760:
+            if image_size > MAX_UPLOAD_SIZE:
                 return False, "The maximum file size that can be uploaded is 10MB", None
 
             # Credits to Ykh, https://stackoverflow.com/questions/44489375/django-have-admin-take-image-file-but-store-it-as-a-base64-string
