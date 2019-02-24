@@ -12,10 +12,6 @@ class PostViewsTest(TestCase):
     def setUp(self):
         self.author1 = setupUser("cry")
 
-    def test_invalid_query(self):
-        response = self.client.post('/posts/', {'query': 'ihateposts'})
-        self.assertEqual(response.status_code, 400)
-
     def test_create_post(self):
         author_id = str(self.author1.id)
         data = {

@@ -54,12 +54,9 @@ def create_post(request):
 
 def handle_posts(request):
     success = False
-    message = "Invalid Query"
+    message = "Post not created"
 
-    query = request.data["query"]
-        
-    if query == "createpost":
-        success, message = create_post(request)
+    success, message = create_post(request)
 
     if success: 
         code = 200
@@ -67,7 +64,6 @@ def handle_posts(request):
         code = 400
 
     return Response({
-        "query": query,
         "success": success,
         "message": message
     }, status=code)
