@@ -10,6 +10,7 @@ Django==2.1.5
 django-extensions==2.1.5
 django-filter==2.1.0
 djangorestframework==3.9.1
+gunicorn==19.9.0
 idna==2.8
 itypes==1.1.0
 Jinja2==2.10
