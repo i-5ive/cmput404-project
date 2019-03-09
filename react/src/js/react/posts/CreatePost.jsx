@@ -31,7 +31,8 @@ export default class CreatePost extends Reflux.Component {
 
         const tags = form.elements.categories.value
         const data = {
-            content: form.elements.title.value,
+            title: form.elements.title.value,
+            content: form.elements.content.value,
             source: form.elements.source.value,
             origin: form.elements.origin.value,
             contentType: form.elements.contentType.value,
@@ -91,6 +92,12 @@ export default class CreatePost extends Reflux.Component {
                             {/* <Col md={3} xs={2}> */}
                             <PrivacyDropdown
                                 handleSelect={this.handlePrivacySelect} />
+                        </Col>
+                        <Col>
+                            <FormGroup controlId="unlisted">
+                                {/* <FormLabel>Password</FormLabel> */}
+                                <FormControl name="unlisted" type="checkbox" label="Unlisted" />
+                            </FormGroup>
                         </Col>
                         <Col>
                             <FormGroup controlId="contentType">
