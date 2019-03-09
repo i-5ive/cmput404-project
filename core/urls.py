@@ -31,5 +31,4 @@ urlpatterns = [
     path('friendrequest/', friend_request, name='friendrequest'),
     path('login/', login, name='login'),
     path('unfollow/', handle_unfollow_request, name='unfollow'),
-
 ]

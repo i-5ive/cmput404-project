@@ -58,9 +58,6 @@ class Posts(CommonData):
     description = models.CharField(max_length=100, blank=True, null=True)
     categories = ArrayField(models.CharField(max_length=200), default=list)
 
-    def clean(self):
-        self.visibility = self.visibility.upper()
-
 class Comments(CommonData):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Posts, related_name='comments', on_delete=models.CASCADE)

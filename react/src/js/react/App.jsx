@@ -2,7 +2,6 @@ import React from "react";
 import { Route, Switch } from "react-router-dom";
 
 import PageNotFound from "./help/PageNotFound";
-// import CreatePost from "./posts/CreatePost";
 import PostFeed from "./posts/PostFeed";
 import Header from "./misc/Header";
 import LoginView from "./auth/LoginView";
@@ -26,7 +25,6 @@ export default class App extends React.Component {
                 <Header />
                 <div className="core-app-body">
                     <Switch>
-                        {/* <Route exact path="/home" component={CreatePost} /> */}
                         <Route path="/login" component={LoginView} />
                         <Route exact path="/feed" component={PostFeed} />
                         <Route path="/register" component={RegisterView} />
