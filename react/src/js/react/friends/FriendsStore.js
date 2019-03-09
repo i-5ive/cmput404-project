@@ -9,115 +9,115 @@ import RestUtil from "../util/RestUtil";
  * This store keeps track of the state of components that deal with user friend requests
  */
 export default class FriendsStore extends Reflux.Store {
-    constructor() {
-        super();
-        this.state = {
-            errorLoadingRequests: false,
-            friendRequests: [],
-            loadingRequests: false,
-            sendingFriendRequest: false,
-            successfullySentRequest: false,
-            failedToSendRequest: false
-        };
-        this.listenables = Actions;
+  constructor() {
+    super();
+    this.state = {
+      errorLoadingRequests: false,
+      friendRequests: [],
+      loadingRequests: false,
+      sendingFriendRequest: false,
+      successfullySentRequest: false,
+      failedToSendRequest: false
+    };
+    this.listenables = Actions;
 
-        if (process.env.NODE_ENV === "development") {
-            window.DEV_FRIENDS_STORE = this;
-        }
+    if (process.env.NODE_ENV === "development") {
+      window.DEV_FRIENDS_STORE = this;
     }
+  }
 
-    onLoadFriendRequests(user) {
-        this.setState({
-            loadingRequests: true,
-            errorLoadingRequests: false
-        });
+  onLoadFriendRequests(user) {
+    this.setState({
+      loadingRequests: true,
+      errorLoadingRequests: false
+    });
 
-        RestUtil.sendGET(`author/${user}/friendrequests/`).then((res) => {
-            this.setState({
-                friendRequests: res.data,
-                loadingRequests: false
-            });
-        }).catch((err) => {
-            this.setState({
-                loadingRequests: false,
-                errorLoadingRequests: true
-            });
-            console.error(err);
-        });
-    }
+    RestUtil.sendGET(`author/${user}/friendrequests/`).then((res) => {
+      this.setState({
+        friendRequests: res.data,
+        loadingRequests: false
+      });
+    }).catch((err) => {
+      this.setState({
+        loadingRequests: false,
+        errorLoadingRequests: true
+      });
+      console.error(err);
+    });
+  }
 
-    onSendFriendRequest(user, friend) {
-        this.setState({
-            sendingFriendRequest: true,
-            successfullySentRequest: false,
-            failedToSendRequest: false
-        });
+  onSendFriendRequest(user, friend) {
+    this.setState({
+      sendingFriendRequest: true,
+      successfullySentRequest: false,
+      failedToSendRequest: false
+    });
 
-        RestUtil.sendPOST("friendrequest/", {
-            query: "friendrequest",
-            author: user,
-            friend: friend
-        }).then(() => {
-            this.setState({
-                sendingFriendRequest: false,
-                successfullySentRequest: true,
-                failedToSendRequest: false
-            });
-        }).catch((err) => {
-            this.setState({
-                sendingFriendRequest: false,
-                successfullySentRequest: false,
-                failedToSendRequest: true
-            });
-            console.error(err);
-        });
-    }
+    RestUtil.sendPOST("friendrequest/", {
+      query: "friendrequest",
+      author: user,
+      friend: friend
+    }).then(() => {
+      this.setState({
+        sendingFriendRequest: false,
+        successfullySentRequest: true,
+        failedToSendRequest: false
+      });
+    }).catch((err) => {
+      this.setState({
+        sendingFriendRequest: false,
+        successfullySentRequest: false,
+        failedToSendRequest: true
+      });
+      console.error(err);
+    });
+  }
 
-    /**
+  /**
      * Handles a user responding to a friend request
      * @param {String} userId - the ID of the user responding to the request
      * @param {Object} request - the request to respond to
      * @param {boolean} approve - whether to approve the request or not
      */
-    onRespondToFriendRequest(userId, request, approve) {
-        this.setState({
-            isRespondingToRequest: true,
-            successfullyRespondedToRequest: false,
-            errorSendingResponse: false
-        });
+  onRespondToFriendRequest(userId, request, approve) {
+    this.setState({
+      isRespondingToRequest: true,
+      successfullyRespondedToRequest: false,
+      errorSendingResponse: false
+    });
 
-        RestUtil.sendPOST(`author/${userId}/friendrequests/respond/`, {
-            query: "friendResponse",
-            approve: approve,
-            friend: request
-        }).then(() => {
-            const index = this.state.friendRequests.indexOf(request),
-                requests = update(this.state.friendRequests, {
-                    $splice: [[index, 1]]
-                });
-            this.setState({
-                isRespondingToRequest: false,
-                successfullyRespondedToRequest: true,
-                friendRequests: requests
-            });
-        }).catch((err) => {
-            this.setState({
-                isRespondingToRequest: false,
-                errorSendingResponse: true
-            });
-            console.error(err);
+    RestUtil.sendPOST(`author/${userId}/friendrequests/respond/`, {
+      query: "friendResponse",
+      approve: approve,
+      friend: request
+    }).then(() => {
+      const index = this.state.friendRequests.indexOf(request),
+        requests = update(this.state.friendRequests, {
+          $splice: [[index, 1]]
         });
-    }
+      this.setState({
+        isRespondingToRequest: false,
+        successfullyRespondedToRequest: true,
+        friendRequests: requests
+      });
+    }).catch((err) => {
+      this.setState({
+        isRespondingToRequest: false,
+        errorSendingResponse: true
+      });
+      console.error(err);
+    });
+  }
 
-    onRemoveFriendRequest(friend) {
-        const index = this.state.friendRequests.findIndex((request) => request.url === friend.url);
-        if (index > -1) {
-            const requests = update(this.state.friendRequests, {
-                $splice: [[index, 1]]
-            });
-            this.setState({
-                friendRequests: requests
-            });
-        }
+  onRemoveFriendRequest(friend) {
+    const index = this.state.friendRequests.findIndex((request) => request.url === friend.url);
+    if (index > -1) {
+      const requests = update(this.state.friendRequests, {
+        $splice: [[index, 1]]
+      });
+      this.setState({
+        friendRequests: requests
+      });
     }
+  }
 }

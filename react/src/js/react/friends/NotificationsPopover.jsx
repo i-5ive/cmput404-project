@@ -11,48 +11,48 @@ import LoadingComponent from "../misc/LoadingComponent";
  * Renders the friend request notifications popover
  */
 export default class NotificationsPopover extends Reflux.Component {
-    constructor() {
-        super();
-        this.store = FriendsStore;
-    }
+  constructor() {
+    super();
+    this.store = FriendsStore;
+  }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.state.friendRequests.length !== nextState.friendRequests.length || this.state.isRespondingToRequest !== nextState.isRespondingToRequest;
-    }
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.state.friendRequests.length !== nextState.friendRequests.length || this.state.isRespondingToRequest !== nextState.isRespondingToRequest;
+  }
 
-    render() {
-        if (this.state.friendRequests.length === 0) {
-            return <h5>You have no friend requests.</h5>;
+  render() {
+    if (this.state.friendRequests.length === 0) {
+      return <h5>You have no friend requests.</h5>;
+    }
+    return (
+      <div>
+        {
+          this.state.isRespondingToRequest && <LoadingComponent />
         }
-        return (
-            <div>
-                {
-                    this.state.isRespondingToRequest && <LoadingComponent />
-                }
-                {
-                    this.state.errorSendingResponse && (
-                        <Alert bsStyle="danger">
+        {
+          this.state.errorSendingResponse && (
+            <Alert bsStyle="danger">
                             An error occurred while responding to the request.
-                        </Alert>
-                    )
-                }
-                {
-                    this.state.successfullyRespondedToRequest && (
-                        <Alert bsStyle="success">
+            </Alert>
+          )
+        }
+        {
+          this.state.successfullyRespondedToRequest && (
+            <Alert bsStyle="success">
                             Your response has been recorded.
-                        </Alert>
-                    )
-                }
-                {
-                    this.state.friendRequests.map((request) => {
-                        return (
-                            <FriendRequestView key={request.id}
-                                request={request}
-                                disableActions={this.state.isRespondingToRequest} />
-                        );
-                    })
-                }
-            </div>
-        );
-    }
+            </Alert>
+          )
+        }
+        {
+          this.state.friendRequests.map((request) => {
+            return (
+              <FriendRequestView key={request.id}
+                request={request}
+                disableActions={this.state.isRespondingToRequest} />
+            );
+          })
+        }
+      </div>
+    );
+  }
 }

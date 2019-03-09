@@ -12,50 +12,50 @@ import FriendsActions from "./FriendsActions";
  * Renders a friend request
  */
 class FriendRequestView extends Reflux.Component {
-    constructor(props) {
-        super(props);
-        this.store = AuthStore;
-    }
+  constructor(props) {
+    super(props);
+    this.store = AuthStore;
+  }
 
-    shouldComponentUpdate(nextProps) {
-        return nextProps.disableActions !== this.props.disableActions || nextProps.request.id !== this.props.request.id;
-    }
+  shouldComponentUpdate(nextProps) {
+    return nextProps.disableActions !== this.props.disableActions || nextProps.request.id !== this.props.request.id;
+  }
 
     _onApproveClicked = () => {
-        FriendsActions.respondToFriendRequest(this.state.userId, this.props.request, true);
+      FriendsActions.respondToFriendRequest(this.state.userId, this.props.request, true);
     };
 
     _onRejectClicked = () => {
-        FriendsActions.respondToFriendRequest(this.state.userId, this.props.request, false);
+      FriendsActions.respondToFriendRequest(this.state.userId, this.props.request, false);
     };
 
     render() {
-        return (
-            <div className="friendRequest">
-                <Link className="name" to={`/profile/${encodeURIComponent(this.props.request.id)}`}>
-                    {
-                        this.props.request.displayName
-                    }
-                </Link>
-                <div className="buttons">
-                    <Button bsStyle="primary"
-                        onClick={this._onApproveClicked}
-                        disabled={this.props.disableActions}>
+      return (
+        <div className="friendRequest">
+          <Link className="name" to={`/profile/${encodeURIComponent(this.props.request.id)}`}>
+            {
+              this.props.request.displayName
+            }
+          </Link>
+          <div className="buttons">
+            <Button bsStyle="primary"
+              onClick={this._onApproveClicked}
+              disabled={this.props.disableActions}>
                         Accept
-                    </Button>
-                    <Button onClick={this._onRejectClicked}
-                        disabled={this.props.disableActions}>
+            </Button>
+            <Button onClick={this._onRejectClicked}
+              disabled={this.props.disableActions}>
                         Reject
-                    </Button>
-                </div>
-            </div>
-        );
+            </Button>
+          </div>
+        </div>
+      );
     }
 }
 
 FriendRequestView.propTypes = {
-    request: PropTypes.object,
-    disableActions: PropTypes.bool
+  request: PropTypes.object,
+  disableActions: PropTypes.bool
 };
 
 export default FriendRequestView;

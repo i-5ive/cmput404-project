@@ -12,58 +12,58 @@ import ProfileDetailsForm from "./ProfileDetailsForm";
  * Renders the modal that allows editing the currently selected profile
  */
 export default class EditProfileModal extends Reflux.Component {
-    constructor(props) {
-        super(props);
-        this.store = ProfileStore;
-    }
+  constructor(props) {
+    super(props);
+    this.store = ProfileStore;
+  }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return (this.state.isSavingProfile !== nextState.isSavingProfile) ||
+  shouldComponentUpdate(nextProps, nextState) {
+    return (this.state.isSavingProfile !== nextState.isSavingProfile) ||
             (this.props.visible !== nextProps.visible) ||
             (this.state.canSaveProfile !== nextState.canSaveProfile);
-    }
+  }
 
     _onSaveClicked = () => {
-        ProfileActions.saveProfileDetails(this.props.id, this.state.editProfileDetails);
+      ProfileActions.saveProfileDetails(this.props.id, this.state.editProfileDetails);
     };
 
     render() {
-        return (
-            <Modal show={this.props.visible} onHide={this.props.onClose}>
-                <ModalHeader closeButton>
-                    <ModalTitle>Edit Profile</ModalTitle>
-                </ModalHeader>
-                <ModalBody>
-                    {
-                        this.state.isSavingProfile && <LoadingComponent />
-                    }
-                    {
-                        this.state.errorSavingProfile && (
-                            <Alert bsStyle="danger">
+      return (
+        <Modal show={this.props.visible} onHide={this.props.onClose}>
+          <ModalHeader closeButton>
+            <ModalTitle>Edit Profile</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            {
+              this.state.isSavingProfile && <LoadingComponent />
+            }
+            {
+              this.state.errorSavingProfile && (
+                <Alert bsStyle="danger">
                                 An error occurred while updating your profile.
-                            </Alert>
-                        )
-                    }
-                    {
-                        this.state.successfullySavedProfile && (
-                            <Alert bsStyle="success">
+                </Alert>
+              )
+            }
+            {
+              this.state.successfullySavedProfile && (
+                <Alert bsStyle="success">
                                 Your profile was successfully updated.
-                            </Alert>
-                        )
-                    }
-                    <ProfileDetailsForm />
-                </ModalBody>
-                <ModalFooter>
-                    <Button onClick={this.props.onClose}>
+                </Alert>
+              )
+            }
+            <ProfileDetailsForm />
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={this.props.onClose}>
                         Exit
-                    </Button>
-                    <Button bsStyle="primary"
-                        onClick={this._onSaveClicked}
-                        disabled={this.state.isSavingProfile || !this.state.canSaveProfile}>
+            </Button>
+            <Button bsStyle="primary"
+              onClick={this._onSaveClicked}
+              disabled={this.state.isSavingProfile || !this.state.canSaveProfile}>
                         Save
-                    </Button>
-                </ModalFooter>
-            </Modal>
-        );
+            </Button>
+          </ModalFooter>
+        </Modal>
+      );
     }
 }

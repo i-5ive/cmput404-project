@@ -32,7 +32,7 @@ def create_post(request):
             image_size = img_file.size
             
             if image_type == "image/jpeg" or image_type == "image/png":
-                content_type = f"{image_type};base64"
+                content_type = "%s;base64" % image_type
             else:
                 return False, "Invalid file type", None
 
