@@ -1,13 +1,15 @@
 import React from "react";
 import Reflux from "reflux";
+import { withRouter } from "react-router-dom";
 
 import AuthStore from "../auth/AuthStore";
 import NotificationsPopover from "../friends/NotificationsPopover";
 import NotificationsBadge from "../friends/NotificationsBadge";
+import AuthActions from "../auth/AuthActions";
 
-import { Nav, NavItem, OverlayTrigger, Popover } from "react-bootstrap";
+import { Nav, NavItem, OverlayTrigger, Popover, NavDropdown, MenuItem } from "react-bootstrap";
 
-export default class HeaderProfileDetails extends Reflux.Component {
+class HeaderProfileDetails extends Reflux.Component {
     constructor() {
         super();
         this.store = AuthStore;
@@ -16,6 +18,19 @@ export default class HeaderProfileDetails extends Reflux.Component {
     shouldComponentUpdate(nextProps, nextState) {
         return nextState.isLoggedIn !== this.state.isLoggedIn;
     }
+
+    _onSignInClicked = () => {
+        this.props.history.push("/login");
+    };
+
+    _onProfileClicked = () => {
+        this.props.history.push(`/profile/${this.state.userId}`);
+    };
+
+    _onSignOutClicked = () => {
+        AuthActions.handleLogout();
+        this.props.history.push("/");
+    };
 
     renderNotifications() {
         return (
@@ -48,13 +63,16 @@ export default class HeaderProfileDetails extends Reflux.Component {
                         this.renderNotifications()
                     }
                 </NavItem>,
-                <NavItem key="name">
-                    {
-                        this.state.username
-                    }
-                </NavItem>
+                <NavDropdown key="profile-dropdown-item" title={this.state.username} id="profile-dropdown">
+                    <MenuItem key="profile" onClick={this._onProfileClicked}>View Profile</MenuItem>
+                    <MenuItem key="signOut" onClick={this._onSignOutClicked}>Sign Out</MenuItem>
+                </NavDropdown>
             ]
-        ) : <NavItem>Sign In</NavItem>;
+        ) : (
+            <NavItem key="signIn" onClick={this._onSignInClicked}>
+                Sign In
+            </NavItem>
+        );
         return (
             <div className="headerProfile">
                 <Nav>
@@ -66,3 +84,5 @@ export default class HeaderProfileDetails extends Reflux.Component {
         );
     }
 }
+
+export default withRouter(HeaderProfileDetails);

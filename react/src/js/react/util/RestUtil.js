@@ -1,36 +1,40 @@
-import rp from "request-promise";
+import axios from "axios";
 
 import { SERVER_URL } from "../constants/ServerConstants";
+
+// Credit to krescruz at https://stackoverflow.com/a/48118202 for this
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+axios.defaults.xsrfCookieName = "csrftoken";
 
 export default class RestUtil {
     /**
      * Sends a POST request to the server
-     * @param {String} path - the path to make the request to
+     * @param {String} path - the path to make the request to (ex: login/)
      * @param {Object} body - the request body
      * @return {Promise} - a promise that resolves when the request is finished
      */
     static sendPOST(path, body) {
         const options = {
-            uri: `${SERVER_URL}/${path}`,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            json: true,
-            body: body
+            data: body,
+            withCredentials: true,
+            method: "post",
+            url: `${SERVER_URL}/${path}`
         };
-        return rp.post(options);
+        return axios(options);
     }
 
     /**
      * Sends a GET request to the server
-     * @param {String} path - the path to make the request to
+     * @param {String} path - the path to make the request to (ex: authors/)
+     * @param {Object?} query - an optional object representing the query string
+     * @param {boolean?} externalHost - whether the request is being made to an external server or not
      * @return {Promise} - a promise that resolves when the request is finished
      */
-    static sendGET(path) {
-        const options = {
-            uri: `${SERVER_URL}/${path}`,
-            json: true
-        };
-        return rp.get(options);
+    static sendGET(path, query = {}, externalHost = false) {
+        const uri = externalHost ? path : `${SERVER_URL}/${path}`;
+        return axios(uri, {
+            params: query,
+            withCredentials: !externalHost
+        });
     }
 }

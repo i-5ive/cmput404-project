@@ -17,16 +17,16 @@ def get_local_authors_body(author1, author2, query="friendrequest"):
     return {
         "query": query,
         "author": {
-            "id": "http://127.0.0.1/author/" + str(author1.id),
-            "host": "http://127.0.0.1",
+            "id": "http://127.0.0.1:8000/author/" + str(author1.id),
+            "host": "http://127.0.0.1:8000",
             "displayName": "Some random name",
-            "url": "http://127.0.0.1/author/" + str(author1.id)
+            "url": "http://127.0.0.1:8000/author/" + str(author1.id)
         },
         "friend": {
-            "id": "http://127.0.0.1/author/" + str(author2.id),
-            "host": "http://127.0.0.1",
+            "id": "http://127.0.0.1:8000/author/" + str(author2.id),
+            "host": "http://127.0.0.1:8000",
             "displayName": "Some random name 2",
-            "url": "http://127.0.0.1/author/" + str(author2.id)
+            "url": "http://127.0.0.1:8000/author/" + str(author2.id)
         }
     }
 
@@ -152,7 +152,6 @@ class FriendRequestViewTestCase(TestCase):
 
         self.assertIsNotNone(FriendRequest.objects.get(requester=body["author"]["url"], friend=body["friend"]["url"]))
         self.assertIsNotNone(Follow.objects.get(follower=body["author"]["url"], followed=body["friend"]["url"]))
-        self.assertIsNotNone(FriendRequest.objects.get(requester_name=body["author"]["displayName"]))
 
     @patch("core.hostUtil.is_external_host")
     @patch("core.authors.util.get_author_id")
@@ -162,7 +161,8 @@ class FriendRequestViewTestCase(TestCase):
 
         body = get_local_authors_body(self.author1, self.author2)
 
-        self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
+        res = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
+        print(res.data["message"])
         self.assertEqual(len(FriendRequest.objects.all()), 1)
         self.assertEqual(len(Follow.objects.all()), 1)
 
@@ -230,12 +230,12 @@ class PendingFriendRequestViewsTest(TestCase):
         author1Url = get_author_url(str(self.author1.id))
         author2Url = get_author_url(str(self.author2.id))
 
-        FriendRequest.objects.create(requester=author1Url, friend=author2Url, requester_name="test display name")
+        FriendRequest.objects.create(requester=author1Url, friend=author2Url)
         response = self.client.get(get_pending_requests_path(str(self.author2.id)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': "test display name",
+            'displayName': self.author2.get_display_name(),
             'id': author1Url,
             'host': author1Url.split("/author/")[0],
             'url': author1Url
@@ -245,7 +245,7 @@ class PendingFriendRequestViewsTest(TestCase):
         author1Url = get_author_url(str(self.author1.id))
         author2Url = get_author_url(str(self.author2.id))
 
-        FriendRequest.objects.create(requester=author1Url, friend=author2Url, requester_name="test display name")
+        FriendRequest.objects.create(requester=author1Url, friend=author2Url)
         response = self.client.get(get_pending_requests_path(str(self.author1.id)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
@@ -255,21 +255,21 @@ class PendingFriendRequestViewsTest(TestCase):
         author2Url = get_author_url(str(self.author2.id))
         author3Url = get_author_url(str(self.author3.id))
 
-        FriendRequest.objects.create(requester=author1Url, friend=author2Url, requester_name="test display name")
-        FriendRequest.objects.create(requester=author3Url, friend=author2Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author1Url, friend=author2Url)
+        FriendRequest.objects.create(requester=author3Url, friend=author2Url)
 
         response = self.client.get(get_pending_requests_path(str(self.author2.id)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
         response.data.sort(key=lambda x : x["displayName"])
         self.assertEqual(response.data[0], {
-            'displayName': "test display name",
+            'displayName': self.author1.get_display_name(),
             'id': author1Url,
             'host': author1Url.split("/author/")[0],
             'url': author1Url
         })
         self.assertEqual(response.data[1], {
-            'displayName': "test name",
+            'displayName': self.author3.get_display_name(),
             'id': author3Url,
             'host': author3Url.split("/author/")[0],
             'url': author3Url
@@ -280,14 +280,14 @@ class PendingFriendRequestViewsTest(TestCase):
         author2Url = get_author_url(str(self.author2.id))
         author3Url = get_author_url(str(self.author3.id))
 
-        FriendRequest.objects.create(requester=author1Url, friend=author2Url, requester_name="test display name")
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author1Url, friend=author2Url)
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
 
         response = self.client.get(get_pending_requests_path(str(self.author2.id)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': "test display name",
+            'displayName': self.author1.get_display_name(),
             'id': author1Url,
             'host': author1Url.split("/author/")[0],
             'url': author1Url
@@ -297,7 +297,7 @@ class PendingFriendRequestViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': "test name",
+            'displayName': self.author3.get_display_name(),
             'id': author3Url,
             'host': author3Url.split("/author/")[0],
             'url': author3Url
@@ -308,15 +308,15 @@ class PendingFriendRequestViewsTest(TestCase):
         author2Url = get_author_url(str(self.author2.id))
         author3Url = get_author_url(str(self.author3.id))
 
-        FriendRequest.objects.create(requester=author1Url, friend=author2Url, requester_name="test display name")
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
-        FriendRequest.objects.create(requester=author2Url, friend=author3Url, requester_name="test third name")
+        FriendRequest.objects.create(requester=author1Url, friend=author2Url)
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
+        FriendRequest.objects.create(requester=author2Url, friend=author3Url)
 
         response = self.client.get(get_pending_requests_path(str(self.author2.id)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': "test display name",
+            'displayName': self.author1.get_display_name(),
             'id': author1Url,
             'host': author1Url.split("/author/")[0],
             'url': author1Url
@@ -326,7 +326,7 @@ class PendingFriendRequestViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': "test name",
+            'displayName': self.author3.get_display_name(),
             'id': author3Url,
             'host': author3Url.split("/author/")[0],
             'url': author3Url
@@ -336,7 +336,7 @@ class PendingFriendRequestViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': "test third name",
+            'displayName': self.author2.get_display_name(),
             'id': author2Url,
             'host': author2Url.split("/author/")[0],
             'url': author2Url
@@ -352,10 +352,10 @@ def get_respond_to_request_body(author1, approve, query="friendResponse"):
     return json.dumps({
         "query": query,
         "friend": {
-            "id": "http://127.0.0.1/author/" + str(author1),
-            "host": "http://127.0.0.1",
+            "id": "http://127.0.0.1:8000/author/" + str(author1),
+            "host": "http://127.0.0.1:8000",
             "displayName": "Some random name 2",
-            "url": "http://127.0.0.1/author/" + str(author1)
+            "url": "http://127.0.0.1:8000/author/" + str(author1)
         },
         "approve": approve
     })
@@ -396,7 +396,7 @@ class RespondFriendRequestViewsTest(TestCase):
     def test_request_from_other_friend(self):
         author1Url = get_author_url(str(self.author1.id))
         author3Url = get_author_url(str(self.author3.id))
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
 
         body = get_respond_to_request_body(self.author2.id, False)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
@@ -405,7 +405,7 @@ class RespondFriendRequestViewsTest(TestCase):
     def test_successful_approve_response(self):
         author1Url = get_author_url(str(self.author1.id))
         author3Url = get_author_url(str(self.author3.id))
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
 
         body = get_respond_to_request_body(self.author3.id, True)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
@@ -416,7 +416,7 @@ class RespondFriendRequestViewsTest(TestCase):
     def test_successful_reject_response(self):
         author1Url = get_author_url(str(self.author1.id))
         author3Url = get_author_url(str(self.author3.id))
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
 
         body = get_respond_to_request_body(self.author3.id, False)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
@@ -428,8 +428,8 @@ class RespondFriendRequestViewsTest(TestCase):
         author1Url = get_author_url(str(self.author1.id))
         author2Url = get_author_url(str(self.author2.id))
         author3Url = get_author_url(str(self.author3.id))
-        FriendRequest.objects.create(requester=author2Url, friend=author1Url, requester_name="test name 2")
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author2Url, friend=author1Url)
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
 
         body = get_respond_to_request_body(self.author3.id, False)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
@@ -442,8 +442,8 @@ class RespondFriendRequestViewsTest(TestCase):
         author1Url = get_author_url(str(self.author1.id))
         author2Url = get_author_url(str(self.author2.id))
         author3Url = get_author_url(str(self.author3.id))
-        FriendRequest.objects.create(requester=author2Url, friend=author1Url, requester_name="test name 2")
-        FriendRequest.objects.create(requester=author3Url, friend=author1Url, requester_name="test name")
+        FriendRequest.objects.create(requester=author2Url, friend=author1Url)
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
 
         body = get_respond_to_request_body(self.author3.id, True)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")

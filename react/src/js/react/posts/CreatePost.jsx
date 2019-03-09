@@ -6,25 +6,42 @@ import PrivacyDropdown from "./PrivacyDropdown";
 
 import "../../../scss/CreatePost.scss";
 import { PostsStore, PostsActions } from "./PostsStore";
+import AuthStore from "../auth/AuthStore";
 
 export default class CreatePost extends Reflux.Component {
     constructor(props) {
         super(props);
-        this.store = PostsStore;
+        this.stores = [PostsStore, AuthStore];
         this.state = {
-            privacyKey: "public"
+            privacyKey: "PUBLIC"
         };
     }
 
     // TODO submit this data
     handleSubmit = (e) => {
+        e.preventDefault();
         const form = e.currentTarget;
         // post text value
-        console.log(form.elements.post.value);
+        // console.log(form.elements.post.value);
+        console.log(this.state.userId);
+        let categories = form.elements.categories.value;
+        if (!categories) {
+            categories = [];
+        }
+
+        const tags = form.elements.categories.value
         const data = {
-            content: form.elements.post.value,
-            visibility: this.state.privacyKey
+            content: form.elements.title.value,
+            source: form.elements.source.value,
+            origin: form.elements.origin.value,
+            contentType: form.elements.contentType.value,
+            description: form.elements.description.value,
+            // unlisted: form.elements.unlisted.value,
+            categories: categories,
+            visibility: this.state.privacyKey,
+            author: this.state.userId
         };
+        console.log(data);
         PostsActions.createPost(data);
     }
 
@@ -41,47 +58,49 @@ export default class CreatePost extends Reflux.Component {
         return (
             <div className="create-post-wrapper">
                 <Form noValidate onSubmit={this.handleSubmit}>
-                    <FormGroup controlId="postTitle">
+                    <FormGroup controlId="title">
                         <FormControl bsSize="lg" className="form-control-lg" name="title" type="text" placeholder="Title" />
                     </FormGroup>
-                    <FormGroup controlId="postDesc">
+                    <FormGroup controlId="description">
                         <FormControl bsSize="sm" name="desc" type="text" placeholder="Description" />
                     </FormGroup>
-                    <FormGroup controlId="uploadImage">
+                    <FormGroup enctype="multipart/form-data" controlId="uploadImage">
                         <FormControl
                             id="fileUpload"
                             type="file"
                             accept=".jpeg, .png"
                             multiple
-                            onChange={this.addFile}
+                            // onChange={this.addFile}
                         />
+                        <button type="reset" className="btn btn-warning">Reset</button>
                     </FormGroup>
-                    <FormGroup controlId="formGroupPost">
+                    <FormGroup controlId="content">
                         <FormControl name="content" componentClass="textarea" rows="5" placeholder="What is Up?" />
                     </FormGroup>
-                    <FormGroup controlId="originURL">
-                        <FormControl name="origin" type="text" placeholder="origin?" />
+                    <FormGroup controlId="origin">
+                        <FormControl name="origin" type="text" placeholder="origin url" />
                     </FormGroup>
-                    <FormGroup controlId="sourceURL">
-                        <FormControl name="source" type="text" placeholder="source" />
+                    <FormGroup controlId="source">
+                        <FormControl name="source" type="text" placeholder="source url" />
                     </FormGroup>
-                    <FormGroup controlId="formTags">
+                    <FormGroup controlId="categories">
                         <FormControl name="tags" type="text" placeholder="Add tags, separate by comma" />
                     </FormGroup>
                     <Row form>
-                        <Col md={3} xs={2}>
+                        <Col>
+                            {/* <Col md={3} xs={2}> */}
                             <PrivacyDropdown
                                 handleSelect={this.handlePrivacySelect} />
                         </Col>
-                        <Col md={2} xs={3}>
-                            <FormGroup className="editMode" controlId="formMode">
-                                <FormControl componentClass="select">
-                                    <option>Plaintext</option>
-                                    <option>Markdown</option>
+                        <Col>
+                            <FormGroup controlId="contentType">
+                                <FormControl name="contentType" componentClass="select">
+                                    <option value="text/plain">Plaintext</option>
+                                    <option value="text/markdown">Markdown</option>
                                 </FormControl>
                             </FormGroup>
                         </Col>
-                        <Col md={7}>
+                        <Col>
                             <Button variant="primary" className="submit-button" type="submit">
                                 Create Post
                             </Button>

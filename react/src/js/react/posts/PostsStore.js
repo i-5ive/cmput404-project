@@ -8,15 +8,6 @@ export const PostsActions = Reflux.createActions([
 
 // TODO delete posts?, getposts
 
-const makeUserQueryObject = (user) => {
-    return {
-        id: user.id,
-        host: user.host,
-        displayName: user.displayName,
-        url: user.url
-    };
-};
-
 /**
  * This store keeps track of the state of components that deal with creating posts
  */
@@ -36,7 +27,7 @@ export class PostsStore extends Reflux.Store {
         }
     }
 
-    onCreatePost(user) {
+    onCreatePost(data) {
         this.setState({
             creatingPost: true,
             successfullyCreatedPost: false,
@@ -45,7 +36,7 @@ export class PostsStore extends Reflux.Store {
 
         RestUtil.sendPOST("posts/", {
             query: "createpost",
-            author: makeUserQueryObject(user)
+            postData: JSON.stringify(data)
         }).then(() => {
             this.setState({
                 creatingPost: false,
