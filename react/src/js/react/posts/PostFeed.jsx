@@ -13,26 +13,26 @@ export default class PostFeed extends React.Component {
 	    loadMorePosts: PropTypes.function,
 	    posts: PropTypes.array,
 	    isLoading: PropTypes.bool,
-		currentPage: PropTypes.number
+	    currentPage: PropTypes.number
 	}
 
     /**
      * GET's to the database
      */
     loadMorePosts = () => {
-      this.props.loadMorePosts(this.props.currentPage + 1);
+        this.props.loadMorePosts(this.props.currentPage + 1);
     }
 
     render() {
-      if (this.props.isLoading) {
-        return <LoadingComponent />;
-      }
-      return (
-        <div className="post-feed">
-          {this.props.posts.map(post => (
-            <Post key={post} post={post} />
-          ))}
-        </div>
-      );
+        if (this.props.isLoading) {
+            return <LoadingComponent />;
+        }
+        return (
+            <div className="post-feed">
+                {this.props.posts.map(post => (
+                    <Post key={post} post={post} />
+                ))}
+            </div>
+        );
     }
 }

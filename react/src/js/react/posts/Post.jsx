@@ -10,14 +10,14 @@ import { formatDate } from "../util/DateUtil";
  */
 export default class Post extends React.Component {
     static propTypes = {
-      post: PropTypes.object.isrequired
+        post: PropTypes.object.isrequired
     }
 
     // TODO
     renderComments() {
-      return null;
+        return null;
 
-      /* <div className="comment-wrapper">
+        /* <div className="comment-wrapper">
 			{this.state.comments.map(comment => (
 				<p className="comment" key={comment}>comment</p>
 			))}
@@ -31,27 +31,27 @@ export default class Post extends React.Component {
     }
 
     render() {
-      return (
-        <Thumbnail>
-          <h4 className="post-title">
-            {
-              this.props.post.title
-            }
-          </h4>
-          <p>
-            {
-              formatDate(this.props.post.date)
-            }
-          </p>
-          <p className="post-body">
-            {
-              this.props.post.content
-            }
-          </p>
-          {
-            this.renderComments()
-          }
-        </Thumbnail>
-      );
+        return (
+            <Thumbnail>
+                <h4 className="post-title">
+                    {
+                        this.props.post.title
+                    }
+                </h4>
+                <p>
+                    {
+                        formatDate(this.props.post.date)
+                    }
+                </p>
+                <p className="post-body">
+                    {
+                        this.props.post.content
+                    }
+                </p>
+                {
+                    this.renderComments()
+                }
+            </Thumbnail>
+        );
     }
 }

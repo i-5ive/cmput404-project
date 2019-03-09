@@ -18,26 +18,26 @@ import HomeView from "./home/HomeView";
  * Allows us to map various URLs to page-components
  */
 export default class App extends React.Component {
-  componentDidMount() {
-    AuthActions.parseLoginCookies();
-  }
+    componentDidMount() {
+        AuthActions.parseLoginCookies();
+    }
 
-  render() {
-    return (
-      <div className="core-app-view">
-        <Header />
-        <div className="core-app-body">
-          <Switch>
-            <Route path="/login" component={LoginView} />
-            <Route exact path="/feed" component={PostFeed} />
-            <Route path="/register" component={RegisterView} />
-            <Route path="/profile/:id" component={ProfileView} />
-            <Route path="/discover" component={DiscoverView} />
-            <Route exact path="/" component={HomeView} />
-            <Route path="*" component={PageNotFound} />
-          </Switch>
-        </div>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div className="core-app-view">
+                <Header />
+                <div className="core-app-body">
+                    <Switch>
+                        <Route path="/login" component={LoginView} />
+                        <Route exact path="/feed" component={PostFeed} />
+                        <Route path="/register" component={RegisterView} />
+                        <Route path="/profile/:id" component={ProfileView} />
+                        <Route path="/discover" component={DiscoverView} />
+                        <Route exact path="/" component={HomeView} />
+                        <Route path="*" component={PageNotFound} />
+                    </Switch>
+                </div>
+            </div>
+        );
+    }
 }

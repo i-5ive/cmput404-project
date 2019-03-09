@@ -10,78 +10,78 @@ import AuthActions from "../auth/AuthActions";
 import { Nav, NavItem, OverlayTrigger, Popover, NavDropdown, MenuItem } from "react-bootstrap";
 
 class HeaderProfileDetails extends Reflux.Component {
-  constructor() {
-    super();
-    this.store = AuthStore;
-  }
+    constructor() {
+        super();
+        this.store = AuthStore;
+    }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextState.isLoggedIn !== this.state.isLoggedIn;
-  }
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextState.isLoggedIn !== this.state.isLoggedIn;
+    }
 
     _onSignInClicked = () => {
-      this.props.history.push("/login");
+        this.props.history.push("/login");
     };
 
     _onProfileClicked = () => {
-      this.props.history.push(`/profile/${this.state.userId}`);
+        this.props.history.push(`/profile/${this.state.userId}`);
     };
 
     _onSignOutClicked = () => {
-      AuthActions.handleLogout();
-      this.props.history.push("/");
+        AuthActions.handleLogout();
+        this.props.history.push("/");
     };
 
     renderNotifications() {
-      return (
-        <OverlayTrigger
-          trigger="click"
-          placement="bottom"
-          overlay={
-            <Popover
-              id="notifications-popover"
-              title="Notifications"
+        return (
+            <OverlayTrigger
+                trigger="click"
+                placement="bottom"
+                overlay={
+                    <Popover
+                        id="notifications-popover"
+                        title="Notifications"
+                    >
+                        <NotificationsPopover />
+                    </Popover>
+                }
+                rootClose
             >
-              <NotificationsPopover />
-            </Popover>
-          }
-          rootClose
-        >
-          <span className="notificationsBadge">
-            <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
-            <NotificationsBadge />
-          </span>
-        </OverlayTrigger>
-      );
+                <span className="notificationsBadge">
+                    <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
+                    <NotificationsBadge />
+                </span>
+            </OverlayTrigger>
+        );
     }
 
     render() {
-      const contents = this.state.isLoggedIn ? (
-        [
-          <NavItem key="notifications">
-            {
-              this.renderNotifications()
-            }
-          </NavItem>,
-          <NavDropdown key="profile-dropdown-item" title={this.state.username} id="profile-dropdown">
-            <MenuItem key="profile" onClick={this._onProfileClicked}>View Profile</MenuItem>
-            <MenuItem key="signOut" onClick={this._onSignOutClicked}>Sign Out</MenuItem>
-          </NavDropdown>
-        ]
-      ) : (
-        <NavItem key="signIn" onClick={this._onSignInClicked}>
+        const contents = this.state.isLoggedIn ? (
+            [
+                <NavItem key="notifications">
+                    {
+                        this.renderNotifications()
+                    }
+                </NavItem>,
+                <NavDropdown key="profile-dropdown-item" title={this.state.username} id="profile-dropdown">
+                    <MenuItem key="profile" onClick={this._onProfileClicked}>View Profile</MenuItem>
+                    <MenuItem key="signOut" onClick={this._onSignOutClicked}>Sign Out</MenuItem>
+                </NavDropdown>
+            ]
+        ) : (
+            <NavItem key="signIn" onClick={this._onSignInClicked}>
                 Sign In
-        </NavItem>
-      );
-      return (
-        <div className="headerProfile">
-          <Nav>
-            {
-              contents
-            }
-          </Nav>
-        </div>
-      );
+            </NavItem>
+        );
+        return (
+            <div className="headerProfile">
+                <Nav>
+                    {
+                        contents
+                    }
+                </Nav>
+            </div>
+        );
     }
 }
 

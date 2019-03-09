@@ -8,29 +8,29 @@ import FriendsActions from "../friends/FriendsActions";
 import AuthStore from "../auth/AuthStore";
 
 export default class NotificationsBadge extends Reflux.Component {
-  constructor() {
-    super();
-    this.stores = [FriendsStore, AuthStore];
-  }
-
-  componentDidMount() {
-    FriendsActions.loadFriendRequests(this.state.userId);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state.friendRequests.length !== nextState.friendRequests.length;
-  }
-
-  render() {
-    if (this.state.friendRequests.length === 0) {
-      return null;
+    constructor() {
+        super();
+        this.stores = [FriendsStore, AuthStore];
     }
-    return (
-      <Badge pill="true" variant="danger">
-        {
-          this.state.friendRequests.length
+
+    componentDidMount() {
+        FriendsActions.loadFriendRequests(this.state.userId);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.state.friendRequests.length !== nextState.friendRequests.length;
+    }
+
+    render() {
+        if (this.state.friendRequests.length === 0) {
+            return null;
         }
-      </Badge>
-    );
-  }
+        return (
+            <Badge pill="true" variant="danger">
+                {
+                    this.state.friendRequests.length
+                }
+            </Badge>
+        );
+    }
 }

@@ -6,25 +6,25 @@ import HeaderProfileDetails from "./HeaderProfileDetails";
 import Link from "react-router-dom/Link";
 
 export default class Header extends React.Component {
-  render() {
-    return (
-      <Navbar inverse>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <Link to="/">
+    render() {
+        return (
+            <Navbar inverse>
+                <Navbar.Header>
+                    <Navbar.Brand>
+                        <Link to="/">
                             Core
-            </Link>
-          </Navbar.Brand>
-        </Navbar.Header>
-        <Nav>
-          <NavItem>
-            <Link to="/discover" className="bootstrapLink">
+                        </Link>
+                    </Navbar.Brand>
+                </Navbar.Header>
+                <Nav>
+                    <NavItem>
+                        <Link to="/discover" className="bootstrapLink">
 							Discover
-            </Link>
-          </NavItem>
-        </Nav>
-        <HeaderProfileDetails />
-      </Navbar>
-    );
-  }
+                        </Link>
+                    </NavItem>
+                </Nav>
+                <HeaderProfileDetails />
+            </Navbar>
+        );
+    }
 }
