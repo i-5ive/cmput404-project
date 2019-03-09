@@ -5,14 +5,17 @@ import PropTypes from "prop-types";
 import { Button } from "react-bootstrap";
 import { PostsStore, PostsActions } from "./PostsStore";
 import AuthStore from "../auth/AuthStore";
+import { Thumbnail } from "react-bootstrap";
+
+import { formatDate } from "../util/DateUtil";
+
 /**
  * Displays a singular post
  */
 export default class Post extends Reflux.Component {
     static propTypes = {
         className: PropTypes.string.isRequired,
-        postId: PropTypes.string.isRequired,
-        data: PropTypes.object.isRequired
+        post: PropTypes.object.isRequired
     }
 
     constructor(props) {
@@ -20,61 +23,9 @@ export default class Post extends Reflux.Component {
         this.stores = [PostsStore, AuthStore];
     }
 
-    // componentDidMount() {
-    //     this.getComments();
-
-    //     const textarea = document.getElementById(this.props.postId);
-
-    //     if (textarea) {
-    //         textarea.addEventListener("keydown", this.autosize);
-    //     }
-    // }
-
-    // autosize() {
-    //     const element = document.getElementById(this.props.postId);
-    //     setTimeout(function() {
-    //         element.style.cssText = `height: ${element.scrollHeight}px`;
-    //     }, 0);
-    // }
-
-    // /**
-    //  * GET's to the database
-    //  */
-    // getComments() {
-    //     // TODO: actually connect this to the database
-    //     // TODO: currently this will only work locally, perhaps we have to fix that?
-
-    //     // fetch("http://localhost:8000/api/<POST ID STRING FROM PROPS/comments")
-    //     //   .then(res => res.json())
-    //     //   .then(text => {
-    //     //       this.setState({posts: text});
-    //     //       this.setState({promiseDone: true});
-    //     //   });
-
-    //     // TODO: remove the 2 lines below. It is fake data so Mandy can make the UI
-    //     this.setState({ comments: ["thing", "thing2"] });
-    //     this.setState({ promiseDone: true });
-    // }
-
-    // /**
-    //  * POST's to the database
-    //  */
-    // makeComment() {
-    //     // TODO: check if there is anything to post (whote space should not be posted)
-    //     const element = document.getElementById(this.props.postId),
-    //         comment = element.value;
-    //     console.log(comment);
-    //     element.value = "";
-    //     element.style.cssText = "height: 24px";
-    // }
-
-    handleDeletePost = () => {
-        PostsActions.deletePost(this.props.data.id, this.props.data.post_id);
-    }
-
     renderContent = () => {
-        const type = this.props.data.contentType,
-            content = this.props.data.content;
+        const type = this.props.post.contentType,
+            content = this.props.post.content;
         if (type === ("image/png;base64" || "image/jpeg;base64")) {
             const name = `data:${type},${content}`;
             return <img src={name} />;
@@ -83,44 +34,51 @@ export default class Post extends Reflux.Component {
         }
     }
 
-    render() {
-        const { data } = this.props;
+    // TODO
+    renderComments() {
+        return null;
+    }
 
+    handleDeletePost = () => {
+        PostsActions.deletePost(this.props.post.id, this.props.post.post_id);
+    }
+
+    render() {
+        const { post } = this.props;
+        console.log(post);
         return (
-            <div className={this.props.className}>
-                <div className="post-wrapper">
-                    <div className="post-header">
-                        <Button
-                            variant="primary"
-                            className="delete-button"
-                            onClick={this.handleDeletePost}>
-                            Delete Post
-                        </Button>
-                    </div>
-                    <p className="description">{data.visibility}</p>
-                    <h1 className="post-title">{data.title}</h1>
-                    <p className="description">{data.description}</p>
-                    <div className="post-body">
-                        {this.renderContent()}
-                    </div>
-                    <p className="categories">{data.categories}</p>
-                    <p className="source">{data.source}</p>
-                    <p className="origin">{data.origin}</p>
+            <Thumbnail>
+                <div className="post-header">
+                    <i className="fas fa-user-lock">{post.visibility}</i>
+                    <Button
+                        variant="primary"
+                        className="delete-button"
+                        onClick={this.handleDeletePost}>
+                        <i className="far fa-trash-alt" />
+                    </Button>
                 </div>
-                {/* <div className="comment-wrapper">
-                    {this.state.comments.map(comment => (
-                        <p className="comment" key={comment}>comment</p>
-                    ))}
-                    <div className="comment-feild">
-                        <textarea className="comment-input" id={this.props.postId} name="text" rows="1" wrap="soft" />
-                        <button className="send-comment-button" onClick={this.makeComment}>
-                            <i className="fa fa-paper-plane send-comment-button" />
-                        </button>
-                    </div>
-                </div> */}
-            </div>
+                <h4 className="post-title">
+                    {
+                        post.title
+                    }
+                </h4>
+                <p>
+                    {
+                        formatDate(post.published)
+                    }
+                </p>
+                <p className="post-body">
+                    {
+                        this.renderContent()
+                    }
+                </p>
+                <p className="categories">{post.categories}</p>
+                <p className="source">{post.source}</p>
+                <p className="origin">{post.origin}</p>
+                {
+                    this.renderComments()
+                }
+            </Thumbnail>
         );
     }
 }
-
-// <input className="comment-input" type="text" id="comment" name="comment"/>

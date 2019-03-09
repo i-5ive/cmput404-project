@@ -17,8 +17,10 @@ export default class Header extends React.Component {
                     </Navbar.Brand>
                 </Navbar.Header>
                 <Nav>
-                    <NavItem eventKey={1}>
-                        Discover
+                    <NavItem>
+                        <Link to="/discover" className="bootstrapLink">
+							Discover
+                        </Link>
                     </NavItem>
                 </Nav>
                 <HeaderProfileDetails />

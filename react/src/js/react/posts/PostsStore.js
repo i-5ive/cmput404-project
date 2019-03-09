@@ -1,4 +1,5 @@
 import Reflux from "reflux";
+import update from "immutability-helper";
 
 import RestUtil from "../util/RestUtil";
 
@@ -58,16 +59,20 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    getPosts() {
+    getPosts(page) {
         this.setState({
             fetchingPosts: true,
             failedToFetchPosts: false
         });
-        RestUtil.sendGET("posts/").then((response) => {
-            console.log(response);
+        RestUtil.sendGET("posts/", {
+            page: page
+        }).then((response) => {
+            const posts = update(this.state.posts, {
+                $push: response.data.results
+            });
             this.setState({
                 fetchingPosts: false,
-                posts: response.data.results
+                posts: posts
             });
         }).catch((err) => {
             this.setState({

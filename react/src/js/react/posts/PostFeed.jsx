@@ -1,45 +1,36 @@
 import React from "react";
-import Reflux from "reflux";
+import PropTypes from "prop-types";
 
-import CreatePost from "./CreatePost";
 import Post from "./Post";
-
-import { PostsStore, PostsActions } from "./PostsStore";
-import AuthStore from "../auth/AuthStore";
+import LoadingComponent from "../misc/LoadingComponent";
 /**
  * This is componenet will GET from the posts database to get all the posts.
  * From here it will dynamically create components for all the posts
  */
-export default class PostFeed extends Reflux.Component {
-    constructor() {
-        super();
-        this.stores = [PostsStore, AuthStore];
-    }
+export default class PostFeed extends React.Component {
+	static propTypes = {
+	    loadMorePosts: PropTypes.function,
+	    posts: PropTypes.array,
+	    isLoading: PropTypes.bool,
+	    currentPage: PropTypes.number
+	}
 
-    componentDidMount() {
-        PostsActions.getPosts();
+    /**
+     * GET's to the database
+     */
+    loadMorePosts = () => {
+        this.props.loadMorePosts(this.props.currentPage + 1);
     }
 
     render() {
+        if (this.props.isLoading) {
+            return <LoadingComponent />;
+        }
         return (
-            <div>
-                <div className="filter-posts-wrapper">
-                    <p className="filter-posts-text">
-                        I want to see:
-                    </p>
-                    <input type="checkbox" name="Friends" value="Friends" />
-                    <label htmlFor="Friends">Friends</label>
-                    <input type="checkbox" name="FOAF" value="FOAF" />
-                    <label htmlFor="FOAF">FOAF</label>
-                    <input type="checkbox" name="Public" value="Public" />
-                    <label htmlFor="Public">Public</label>
-                </div>
-                <CreatePost />
-                <div className="post-feed">
-                    {this.state.posts.map((post) => (
-                        <Post className="post" key={post.id} postId={post.post_id} data={post} />
-                    ))}
-                </div>
+            <div className="post-feed">
+                {this.props.posts.map(post => (
+                    <Post key={post.id} post={post} />
+                ))}
             </div>
         );
     }

@@ -37,7 +37,7 @@ export default class CreatePost extends Reflux.Component {
             origin: form.elements.origin.value,
             contentType: form.elements.contentType.value,
             description: form.elements.description.value,
-            // unlisted: form.elements.unlisted.value,
+            unlisted: form.elements.unlisted.value,
             categories: categories,
             visibility: this.state.privacyKey,
             author: this.state.userId
