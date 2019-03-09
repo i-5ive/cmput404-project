@@ -1,5 +1,5 @@
 import React from "react";
-
+import CreatePost from "./CreatePost";
 import Post from "./Post";
 
 /**
@@ -56,6 +56,7 @@ export default class PostFeed extends React.Component {
                     <input type="checkbox" name="Public" value="Public" />
                     <label htmlFor="Public">Public</label>
                 </div>
+                <CreatePost />
                 <div className="post-feed">
                     {this.state.posts.map(post => (
                         <Post className="post" key={post} postId={post} />

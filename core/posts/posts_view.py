@@ -18,9 +18,13 @@ def create_post(request):
 
     body = request.data
     data = json.loads(body["postData"])
+    print(body["postData"])
+    print(data["categories"])
+
 
     post_serializer = PostsSerializer(data=data)
     post_serializer.is_valid()
+    print(post_serializer.errors)
     new_post = post_serializer.save()
 
     # if image, make another post with generated post_id
@@ -65,6 +69,8 @@ def handle_posts(request):
         code = 200
     else:
         code = 400
+
+    print( success, message, new_post)
 
     return Response({
         "success": success,
