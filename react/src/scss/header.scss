@@ -11,3 +11,13 @@
 		float: right;
 	}
 }
+
+.bootstrapLink {
+	color: inherit;
+	text-decoration: inherit;
+	
+	&:hover, &:active, &:visited {
+		color: inherit;
+		text-decoration: inherit;
+	}
+}
