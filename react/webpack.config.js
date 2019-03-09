@@ -1,17 +1,24 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin"),
     webpack = require("webpack"),
+    path = require("path"),
     PORT = process.env.PORT || 8081;
 
+// Credit to user3923737 at https://stackoverflow.com/a/53726068 for the "output" property
 module.exports = {
     resolve: {
         // removes the need to add file extensions to the end of imports
         extensions: ["\0", ".webpack.js", ".web.js", ".js", ".jsx", ".scss"]
     },
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'index_bundle.js',
+        publicPath: '/'
+    },
     devServer: {
         // allows React-Router
         historyApiFallback: true,
         port: PORT,
-        host: "localhost"
+        host: "127.0.0.1"
     },
     module: {
         rules: [

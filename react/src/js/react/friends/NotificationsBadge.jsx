@@ -1,13 +1,20 @@
 import React from "react";
 import Reflux from "reflux";
 
-import FriendsStore from "./FriendsStore";
 import { Badge } from "react-bootstrap";
+
+import FriendsStore from "./FriendsStore";
+import FriendsActions from "../friends/FriendsActions";
+import AuthStore from "../auth/AuthStore";
 
 export default class NotificationsBadge extends Reflux.Component {
     constructor() {
         super();
-        this.store = FriendsStore;
+        this.stores = [FriendsStore, AuthStore];
+    }
+
+    componentDidMount() {
+        FriendsActions.loadFriendRequests(this.state.userId);
     }
 
     shouldComponentUpdate(nextProps, nextState) {

@@ -3,6 +3,7 @@ import React from "react";
 import { Navbar, Nav, NavItem } from "react-bootstrap";
 
 import HeaderProfileDetails from "./HeaderProfileDetails";
+import Link from "react-router-dom/Link";
 
 export default class Header extends React.Component {
     render() {
@@ -10,15 +11,16 @@ export default class Header extends React.Component {
             <Navbar inverse>
                 <Navbar.Header>
                     <Navbar.Brand>
-                        <a href="#home">Core</a>
+                        <Link to="/">
+                            Core
+                        </Link>
                     </Navbar.Brand>
                 </Navbar.Header>
                 <Nav>
-                    <NavItem eventKey={1}>
-                        Home
-                    </NavItem>
-                    <NavItem eventKey={2}>
-                        Discover
+                    <NavItem>
+                        <Link to="/discover" className="bootstrapLink">
+							Discover
+                        </Link>
                     </NavItem>
                 </Nav>
                 <HeaderProfileDetails />

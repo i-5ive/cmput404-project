@@ -10,3 +10,12 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'github', 'bio', 'user')
 
     user = UserSerializer()
+
+class AuthorSummarySerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.URLField()
+    host = serializers.URLField()
+    id = serializers.URLField()
+
+    class Meta:
+        model = Author
+        fields = ('id', 'host', 'displayName', 'url')

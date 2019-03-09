@@ -1,17 +1,9 @@
 import Reflux from "reflux";
+import update from "immutability-helper";
 
 import Actions from "./FriendsActions";
 
 import RestUtil from "../util/RestUtil";
-
-const makeUserQueryObject = (user) => {
-    return {
-        id: user.id,
-        host: user.host,
-        displayName: user.displayName,
-        url: user.url
-    };
-};
 
 /**
  * This store keeps track of the state of components that deal with user friend requests
@@ -40,9 +32,9 @@ export default class FriendsStore extends Reflux.Store {
             errorLoadingRequests: false
         });
 
-        RestUtil.sendGET(`author/${user.id}/friendRequests/`).then((requests) => {
+        RestUtil.sendGET(`author/${user}/friendrequests/`).then((res) => {
             this.setState({
-                friendRequests: requests,
+                friendRequests: res.data,
                 loadingRequests: false
             });
         }).catch((err) => {
@@ -63,8 +55,8 @@ export default class FriendsStore extends Reflux.Store {
 
         RestUtil.sendPOST("friendrequest/", {
             query: "friendrequest",
-            author: makeUserQueryObject(user),
-            friend: makeUserQueryObject(friend)
+            author: user,
+            friend: friend
         }).then(() => {
             this.setState({
                 sendingFriendRequest: false,
@@ -79,5 +71,53 @@ export default class FriendsStore extends Reflux.Store {
             });
             console.error(err);
         });
+    }
+
+    /**
+     * Handles a user responding to a friend request
+     * @param {String} userId - the ID of the user responding to the request
+     * @param {Object} request - the request to respond to
+     * @param {boolean} approve - whether to approve the request or not
+     */
+    onRespondToFriendRequest(userId, request, approve) {
+        this.setState({
+            isRespondingToRequest: true,
+            successfullyRespondedToRequest: false,
+            errorSendingResponse: false
+        });
+
+        RestUtil.sendPOST(`author/${userId}/friendrequests/respond/`, {
+            query: "friendResponse",
+            approve: approve,
+            friend: request
+        }).then(() => {
+            const index = this.state.friendRequests.indexOf(request),
+                requests = update(this.state.friendRequests, {
+                    $splice: [[index, 1]]
+                });
+            this.setState({
+                isRespondingToRequest: false,
+                successfullyRespondedToRequest: true,
+                friendRequests: requests
+            });
+        }).catch((err) => {
+            this.setState({
+                isRespondingToRequest: false,
+                errorSendingResponse: true
+            });
+            console.error(err);
+        });
+    }
+
+    onRemoveFriendRequest(friend) {
+        const index = this.state.friendRequests.findIndex((request) => request.url === friend.url);
+        if (index > -1) {
+            const requests = update(this.state.friendRequests, {
+                $splice: [[index, 1]]
+            });
+            this.setState({
+                friendRequests: requests
+            });
+        }
     }
 }

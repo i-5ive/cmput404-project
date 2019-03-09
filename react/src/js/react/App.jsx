@@ -1,25 +1,42 @@
+import React from "react";
+import { Route, Switch } from "react-router-dom";
+
+import PageNotFound from "./help/PageNotFound";
+import PostFeed from "./posts/PostFeed";
+import Header from "./misc/Header";
+import LoginView from "./auth/LoginView";
+import RegisterView from "./auth/RegisterView";
+
+import AuthActions from "./auth/AuthActions";
+import ProfileView from "./profile/ProfileView";
+
+import DiscoverView from "./discover/DiscoverView";
+import HomeView from "./home/HomeView";
+
 /**
  * Entry-point for the react code in the app.
  * Allows us to map various URLs to page-components
  */
+export default class App extends React.Component {
+    componentDidMount() {
+        AuthActions.parseLoginCookies();
+    }
 
-import React from "react";
-import Reflux from "reflux";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-
-import PageNotFound from "./help/PageNotFound";
-import Header from "./misc/Header";
-
-export default class App extends Reflux.Component {
     render() {
         return (
-            <div>
+            <div className="core-app-view">
                 <Header />
-                <BrowserRouter>
+                <div className="core-app-body">
                     <Switch>
+                        <Route path="/login" component={LoginView} />
+                        <Route exact path="/feed" component={PostFeed} />
+                        <Route path="/register" component={RegisterView} />
+                        <Route path="/profile/:id" component={ProfileView} />
+                        <Route path="/discover" component={DiscoverView} />
+                        <Route exact path="/" component={HomeView} />
                         <Route path="*" component={PageNotFound} />
                     </Switch>
-                </BrowserRouter>
+                </div>
             </div>
         );
     }
