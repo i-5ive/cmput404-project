@@ -1,3 +1,4 @@
+/* eslint-disable one-var */
 import React from "react";
 import Reflux from "reflux";
 
@@ -21,6 +22,7 @@ export default class CreatePost extends Reflux.Component {
         const form = e.currentTarget;
         const files = form.elements.fileUpload.files;
 
+        // eslint-disable-next-line no-undef
         const formData = new FormData();
         Array.from(files).forEach((file) => {
             formData.append("imageFiles", file);
@@ -38,7 +40,7 @@ export default class CreatePost extends Reflux.Component {
             origin: form.elements.origin.value,
             contentType: form.elements.contentType.value,
             description: form.elements.description.value,
-            unlisted: form.elements.unlisted.value,
+            unlisted: form.elements.unlisted.value, // TODO Fix this
             categories: categories,
             visibility: this.state.privacyKey,
             author: this.state.userId
@@ -78,13 +80,13 @@ export default class CreatePost extends Reflux.Component {
                         <FormControl name="content" componentClass="textarea" rows="5" placeholder="What is Up?" />
                     </FormGroup>
                     <FormGroup controlId="origin">
-                        <FormControl name="origin" type="url" placeholder="origin url" isValid={false} />
+                        <FormControl name="origin" type="url" placeholder="Origin URL (https://your-website.com)" isValid={false} />
                     </FormGroup>
                     <FormGroup controlId="source">
-                        <FormControl name="source" type="url" placeholder="source url" isValid={false} />
+                        <FormControl name="source" type="url" placeholder="Source URL (https://another-website.com)" isValid={false} />
                     </FormGroup>
                     <FormGroup controlId="categories">
-                        <FormControl name="tags" type="text" placeholder="Add tags, separate by comma" />
+                        <FormControl name="categories" type="text" placeholder="Add tags, separate by comma" />
                     </FormGroup>
                     <Row form>
                         <Col>

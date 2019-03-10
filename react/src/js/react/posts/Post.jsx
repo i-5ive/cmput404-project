@@ -38,6 +38,17 @@ export default class Post extends Reflux.Component {
         return null;
     }
 
+    renderFooter() {
+        const { post } = this.props;
+        return (
+            <div className="post-footer">
+                <p className="categories">{post.categories}</p>
+                { post.source ? <a href={post.source} className="source">source</a> : null}
+                { post.origin ? <a href={post.origin}>origin</a> : null }
+            </div>
+        );
+    }
+
     handleDeletePost = () => {
         PostsActions.deletePost(this.props.post.id, this.props.post.post_id);
     }
@@ -70,9 +81,7 @@ export default class Post extends Reflux.Component {
                         this.renderContent()
                     }
                 </p>
-                <p className="categories">{post.categories}</p>
-                <p className="source">{post.source}</p>
-                <p className="origin">{post.origin}</p>
+                {this.renderFooter()}
                 {
                     this.renderComments()
                 }
