@@ -21,11 +21,12 @@ export default class Post extends Reflux.Component {
         this.store = PostsStore;
     }
 
+    // TODO Need to render properly
+    // From VinayC, https://stackoverflow.com/questions/8499633/how-to-display-base64-images-in-html
     renderContent = () => {
-        const type = this.props.post.contentType,
-            content = this.props.post.content;
-        if (type === ("image/png;base64" || "image/jpeg;base64")) {
-            const name = `data:${type},${content}`;
+        const { contentType, content } = this.props.post;
+        if (contentType === ("image/png;base64" || "image/jpeg;base64")) {
+            const name = `data:${contentType},${content}`;
             return <img src={name} />;
         } else {
             return <p className="content">{content}</p>;

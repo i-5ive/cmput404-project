@@ -11,7 +11,7 @@ from core.posts.serializers import PostsSerializer, CommentsSerializer
 from core.posts.posts_view import handle_posts as handle_posts
 
 class PostsViewSet(viewsets.ModelViewSet):
-    queryset = Posts.objects.all()
+    queryset = Posts.objects.all().order_by('-published')
     serializer_class = PostsSerializer
 
     @action(detail=True)

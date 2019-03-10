@@ -39,11 +39,7 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedPost: false,
             failedToCreatePost: false
         });
-
-        RestUtil.sendPOST("posts/", {
-            query: "createpost",
-            postData: JSON.stringify(data)
-        }).then(() => {
+        RestUtil.sendPOST("posts/", data).then(() => {
             this.setState({
                 creatingPost: false,
                 successfullyCreatedPost: true,

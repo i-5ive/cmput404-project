@@ -16,17 +16,21 @@ export default class CreatePost extends Reflux.Component {
         };
     }
 
-    // TODO submit this data
     handleSubmit = (e) => {
         e.preventDefault();
         const form = e.currentTarget;
-        console.log(this.state.userId);
+        const files = form.elements.fileUpload.files;
+
+        const formData = new FormData();
+        Array.from(files).forEach((file) => {
+            formData.append("imageFiles", file);
+        });
+
         let categories = form.elements.categories.value;
         if (!categories) {
             categories = [];
         }
 
-        const tags = form.elements.categories.value
         const data = {
             title: form.elements.title.value,
             content: form.elements.content.value,
@@ -39,26 +43,22 @@ export default class CreatePost extends Reflux.Component {
             visibility: this.state.privacyKey,
             author: this.state.userId
         };
-        console.log(data);
-        PostsActions.createPost(data);
+        formData.append("postData", JSON.stringify(data));
+        formData.append("query", "createPost");
+        PostsActions.createPost(formData);
         this.props.handleClose();
         // TODO Add new posts
-        PostsActions.getPosts(1);
     }
 
     handlePrivacySelect = (key) => {
         this.setState({ privacyKey: key });
     }
 
-    // TODO handle adding image (also multi image upload?)
-    addFile = (e) => {
-        console.log(e.target.files[0]);
-    }
-
+    // TODO Fix formatting
     render() {
         return (
             <div className="create-post-wrapper">
-                <Form noValidate onSubmit={this.handleSubmit}>
+                <Form onSubmit={this.handleSubmit}>
                     <FormGroup controlId="title">
                         <FormControl bsSize="lg" className="form-control-lg" name="title" type="text" placeholder="Title" />
                     </FormGroup>
@@ -71,7 +71,6 @@ export default class CreatePost extends Reflux.Component {
                             type="file"
                             accept=".jpeg, .png"
                             multiple
-                            // onChange={this.addFile}
                         />
                         <button type="reset" className="btn btn-warning">Reset</button>
                     </FormGroup>
@@ -79,10 +78,10 @@ export default class CreatePost extends Reflux.Component {
                         <FormControl name="content" componentClass="textarea" rows="5" placeholder="What is Up?" />
                     </FormGroup>
                     <FormGroup controlId="origin">
-                        <FormControl name="origin" type="text" placeholder="origin url" />
+                        <FormControl name="origin" type="url" placeholder="origin url" isValid={false} />
                     </FormGroup>
                     <FormGroup controlId="source">
-                        <FormControl name="source" type="text" placeholder="source url" />
+                        <FormControl name="source" type="url" placeholder="source url" isValid={false} />
                     </FormGroup>
                     <FormGroup controlId="categories">
                         <FormControl name="tags" type="text" placeholder="Add tags, separate by comma" />

@@ -18,8 +18,6 @@ def create_post(request):
 
     body = request.data
     data = json.loads(body["postData"])
-    print(body["postData"])
-    print(data["categories"])
 
 
     post_serializer = PostsSerializer(data=data)
