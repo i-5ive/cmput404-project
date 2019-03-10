@@ -235,7 +235,7 @@ class PendingFriendRequestViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], {
-            'displayName': self.author2.get_display_name(),
+            'displayName': self.author1.get_display_name(),
             'id': author1Url,
             'host': author1Url.split("/author/")[0],
             'url': author1Url
