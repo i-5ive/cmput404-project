@@ -26,7 +26,7 @@ class Author(models.Model):
         return self.displayName
 
     def __str__(self):
-        return self.user.email
+        return self.user.username
 
 class Follow(models.Model):
     follower = models.URLField()
@@ -55,3 +55,5 @@ def create_author_profile(sender, instance, created, **kwargs):
     """
     if created:
         author, new = Author.objects.get_or_create(user=instance)
+        author.displayName = instance.username
+        author.save()
