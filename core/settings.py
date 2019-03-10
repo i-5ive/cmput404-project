@@ -37,11 +37,7 @@ SECRET_KEY = 'mtl$5lb%^%=!kk7f^shyp0)^^!+n_y_9&yq10m_tvl1mtz18hs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-<<<<<<< HEAD
-ALLOWED_HOSTS = ['cmput404-i5.herokuapp.com']
-=======
-ALLOWED_HOSTS = ["*"] if DEBUG else []
->>>>>>> f4d318a43e7509523f05133ef2b5a37ce9467e76
+ALLOWED_HOSTS = ["*"] if DEBUG else ['cmput404-i5.herokuapp.com']
 
 # Application definition
 
@@ -61,7 +57,9 @@ INSTALLED_APPS = [
     'core.authors',
     'core.posts'
 ]
-
+MIDDLEWARE_CLASSES = (
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -148,8 +146,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 #https://devcenter.heroku.com/articles/django-assets
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
