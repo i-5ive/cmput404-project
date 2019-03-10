@@ -2,10 +2,8 @@ import React from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
 
-import { Button } from "react-bootstrap";
 import { PostsStore, PostsActions } from "./PostsStore";
-import AuthStore from "../auth/AuthStore";
-import { Thumbnail } from "react-bootstrap";
+import { Thumbnail, Button } from "react-bootstrap";
 
 import { formatDate } from "../util/DateUtil";
 
@@ -20,7 +18,7 @@ export default class Post extends Reflux.Component {
 
     constructor(props) {
         super(props);
-        this.stores = [PostsStore, AuthStore];
+        this.store = PostsStore;
     }
 
     renderContent = () => {
@@ -45,7 +43,6 @@ export default class Post extends Reflux.Component {
 
     render() {
         const { post } = this.props;
-        console.log(post);
         return (
             <Thumbnail>
                 <div className="post-header">

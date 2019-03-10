@@ -4,7 +4,6 @@ import Reflux from "reflux";
 import { FormGroup, FormControl, Form, Button, Row, Col } from "react-bootstrap";
 import PrivacyDropdown from "./PrivacyDropdown";
 
-import "../../../scss/CreatePost.scss";
 import { PostsStore, PostsActions } from "./PostsStore";
 import AuthStore from "../auth/AuthStore";
 
@@ -21,8 +20,6 @@ export default class CreatePost extends Reflux.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         const form = e.currentTarget;
-        // post text value
-        // console.log(form.elements.post.value);
         console.log(this.state.userId);
         let categories = form.elements.categories.value;
         if (!categories) {
@@ -44,6 +41,9 @@ export default class CreatePost extends Reflux.Component {
         };
         console.log(data);
         PostsActions.createPost(data);
+        this.props.handleClose();
+        // TODO Add new posts
+        PostsActions.getPosts(1);
     }
 
     handlePrivacySelect = (key) => {
@@ -110,6 +110,9 @@ export default class CreatePost extends Reflux.Component {
                         <Col>
                             <Button variant="primary" className="submit-button" type="submit">
                                 Create Post
+                            </Button>
+                            <Button variant="primary" className="cancel-button" onClick={this.props.handleClose}>
+                                Cancel
                             </Button>
                         </Col>
                     </Row>
