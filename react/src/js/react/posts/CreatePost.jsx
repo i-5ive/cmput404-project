@@ -50,7 +50,7 @@ export default class CreatePost extends Reflux.Component {
         PostsActions.createPost(formData);
         // TODO add error message
         this.props.handleClose();
-        PostsActions.getPosts();
+        PostsActions.onGetPosts();
     }
 
     handlePrivacySelect = (key) => {
@@ -91,13 +91,11 @@ export default class CreatePost extends Reflux.Component {
                     </FormGroup>
                     <Row form>
                         <Col>
-                            {/* <Col md={3} xs={2}> */}
                             <PrivacyDropdown
                                 handleSelect={this.handlePrivacySelect} />
                         </Col>
                         <Col>
                             <FormGroup controlId="unlisted">
-                                {/* <FormLabel>Password</FormLabel> */}
                                 <FormControl name="unlisted" type="checkbox" label="Unlisted" />
                             </FormGroup>
                         </Col>

@@ -19,9 +19,9 @@ def create_post(request):
     body = request.data
     data = json.loads(body["postData"])
 
-
     post_serializer = PostsSerializer(data=data)
     post_serializer.is_valid()
+    # TODO Remove this, leave in for now
     print(post_serializer.errors)
     new_post = post_serializer.save()
 

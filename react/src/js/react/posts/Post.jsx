@@ -50,7 +50,7 @@ export default class Post extends Reflux.Component {
     }
 
     handleDeletePost = () => {
-        PostsActions.deletePost(this.props.post.id, this.props.post.post_id);
+        PostsActions.onDeletePost(this.props.post.id, this.props.post.post_id);
     }
 
     render() {

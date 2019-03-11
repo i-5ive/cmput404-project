@@ -5,8 +5,8 @@ import RestUtil from "../util/RestUtil";
 
 export const PostsActions = Reflux.createActions([
     "createPost",
-    "getPosts",
-    "deletePost"
+    "onGetPosts",
+    "onDeletePost"
 ]);
 
 /**
@@ -55,7 +55,7 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    getPosts(page) {
+    onGetPosts(page) {
         this.setState({
             fetchingPosts: true,
             failedToFetchPosts: false
@@ -80,7 +80,7 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    deletePost(id, postId) {
+    onDeletePost(id, postId) {
         this.setState({
             deletingPost: true,
             failedToDeletePost: false
