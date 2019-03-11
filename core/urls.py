@@ -35,5 +35,4 @@ urlpatterns = [
     path('unfollow/', handle_unfollow_request, name='unfollow'),
     path('index_bundle.js', get_indexjs),
     re_path('.*', TemplateView.as_view(template_name='index.html'))
-
 ]
