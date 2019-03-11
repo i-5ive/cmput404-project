@@ -5,8 +5,8 @@ import RestUtil from "../util/RestUtil";
 
 export const PostsActions = Reflux.createActions([
     "createPost",
-    "onGetPosts",
-    "onDeletePost"
+    "getPosts",
+    "deletePost"
 ]);
 
 /**

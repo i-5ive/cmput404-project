@@ -50,7 +50,7 @@ export default class CreatePost extends Reflux.Component {
         PostsActions.createPost(formData);
         // TODO add error message
         this.props.handleClose();
-        PostsActions.onGetPosts();
+        PostsActions.getPosts();
     }
 
     handlePrivacySelect = (key) => {
