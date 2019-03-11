@@ -1,3 +1,5 @@
+from django.core.paginator import Paginator
+
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
@@ -10,6 +12,9 @@ from core.authors.util import get_author_url, get_author_summaries
 from core.authors.friends_view import handle_friends_get, handle_friends_post
 from core.hostUtil import get_host_url
 from core.authors.friends_util import get_friends
+
+from core.posts.models import Posts
+from core.posts.serializers import PostsSerializer
 
 def validate_friend_request_response(body, pk):
     success = True
@@ -186,4 +191,56 @@ class AuthorViewSet(viewsets.ModelViewSet):
         
         return Response({
             "isFollowingUser": follow.exists()
+        }, status=200)
+
+    # /author/{AUTHOR_ID}/posts
+    @action(detail=True, url_path="posts")
+    def posts(self, request, pk=None):
+        if request.user.is_anonymous:
+            # should it be a text response?
+            return Response("You must be logged in to perform this action.",status=403)
+
+        if not pk:
+            # should it be a text response?
+            return Response("You must specify an author.",status=400)
+        
+        requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
+        page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
+        if page < 1:
+            return Response("Page number must be positive", status=400)
+        size = int(request.query_params.get("size", 50))
+        if size < 0:
+            return Response("Size must be positive", status=400)
+
+        # post_types will track what level of posts a user can see
+        post_types = ["PUBLIC", "SERVERONLY"]
+        # convert to dict for dat O(1)
+        # Note: this is terrible, we should be using the database more directly
+        requesterFriends = {}
+        for friend in get_friends(requestingAuthor):
+            requesterFriends[friend] = True
+
+        # Check if they are direct friends
+        if requesterFriends.get(pk, False):
+            post_types += ["FRIENDS", "FOAF"]
+        else: # They are not direct friends, so we should check if they share any friends
+            for friend in get_friends(pk):
+                if requesterFriends.get(friend, False):
+                    post_types += ["FOAF"]
+                    break # we don't need to check any more friends
+
+        try:
+            posts = Posts.objects.all().filter(author=pk, visibility__in=post_types, unlisted=False)
+            # NEED TO ADD: requestingAuthor is the one it should be visibleTo
+            #posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo=?????, unlisted=False)
+            posts.order_by('-published')
+        except:
+            print("got except!")
+            return Response(status=500)
+
+        posts = Paginator(posts, size)
+        posts = PostsSerializer(posts.page(page), many=True)
+
+        return Response({
+            "posts": posts.data
         }, status=200)
