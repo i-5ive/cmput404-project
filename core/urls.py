@@ -21,6 +21,7 @@ from rest_framework.documentation import include_docs_urls
 from core.authors.friend_request_view import handle_follow_request as friend_request
 from core.authors.login_view import login
 from core.authors.unfollow_author_view import handle_unfollow_request
+from core.views import get_indexjs
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,7 +33,7 @@ urlpatterns = [
     path('friendrequest/', friend_request, name='friendrequest'),
     path('login/', login, name='login'),
     path('unfollow/', handle_unfollow_request, name='unfollow'),
-    path('index_bundle.js', RedirectView.as_view(url='/static/index_bundle.js', permanent=True)),
+    path('index_bundle.js', get_indexjs),
     re_path('.*', TemplateView.as_view(template_name='index.html'))
 
 ]
