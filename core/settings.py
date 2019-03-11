@@ -76,7 +76,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['static'], # mad hack for serving react through static template
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

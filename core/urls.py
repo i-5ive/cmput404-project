@@ -14,7 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.generic import TemplateView, RedirectView
 from rest_framework.documentation import include_docs_urls
 
 from core.authors.friend_request_view import handle_follow_request as friend_request
@@ -31,5 +32,7 @@ urlpatterns = [
     path('friendrequest/', friend_request, name='friendrequest'),
     path('login/', login, name='login'),
     path('unfollow/', handle_unfollow_request, name='unfollow'),
+    path('index_bundle.js', RedirectView.as_view(url='/static/index_bundle.js', permanent=True)),
+    re_path('.*', TemplateView.as_view(template_name='index.html'))
 
 ]
