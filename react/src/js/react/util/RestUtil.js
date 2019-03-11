@@ -1,25 +1,37 @@
 import axios from "axios";
 
 import { SERVER_URL } from "../constants/ServerConstants";
+import CookieUtil from "./CookieUtil";
 
 // Credit to krescruz at https://stackoverflow.com/a/48118202 for this
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 axios.defaults.xsrfCookieName = "csrftoken";
+
+const getAuthObject = () => {
+    return {
+        username: CookieUtil.getValue("core-username"),
+        password: CookieUtil.getValue("core-password")
+    };
+};
 
 export default class RestUtil {
     /**
      * Sends a POST request to the server
      * @param {String} path - the path to make the request to (ex: login/)
      * @param {Object} body - the request body
+	 * @param {boolean} auth - whether the request needs authentication or not
      * @return {Promise} - a promise that resolves when the request is finished
      */
-    static sendPOST(path, body) {
+    static sendPOST(path, body, auth = false) {
         const options = {
             data: body,
             withCredentials: true,
             method: "post",
             url: `${SERVER_URL}/${path}`
         };
+        if (auth) {
+            options.auth = getAuthObject();
+        }
         return axios(options);
     }
 
@@ -28,13 +40,15 @@ export default class RestUtil {
      * @param {String} path - the path to make the request to (ex: authors/)
      * @param {Object?} query - an optional object representing the query string
      * @param {boolean?} externalHost - whether the request is being made to an external server or not
+	 * @param {boolean?} auth - whether the request needs authentication or not
      * @return {Promise} - a promise that resolves when the request is finished
      */
-    static sendGET(path, query = {}, externalHost = false) {
+    static sendGET(path, query = {}, externalHost = false, auth = false) {
         const uri = externalHost ? path : `${SERVER_URL}/${path}`;
         return axios(uri, {
             params: query,
-            withCredentials: !externalHost
+            withCredentials: !externalHost,
+            auth: auth ? getAuthObject() : undefined
         });
     }
 }

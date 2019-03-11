@@ -110,7 +110,7 @@ export default class ProfileStore extends Reflux.Store {
             errorSavingProfile: false
         });
 
-        RestUtil.sendPOST(`author/${id}/update/`, data).then(() => {
+        RestUtil.sendPOST(`author/${id}/update/`, data, true).then(() => {
             const newProfile = update(this.state.profileDetails, {
                 $merge: data
             });
