@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import AuthStore from "../auth/AuthStore";
 import NotificationsPopover from "../friends/NotificationsPopover";
 import NotificationsBadge from "../friends/NotificationsBadge";
+import PostModal from "../posts/PostModal";
 import AuthActions from "../auth/AuthActions";
 
 import { Nav, NavItem, OverlayTrigger, Popover, NavDropdown, MenuItem } from "react-bootstrap";
@@ -13,10 +14,14 @@ class HeaderProfileDetails extends Reflux.Component {
     constructor() {
         super();
         this.store = AuthStore;
+        this.state = {
+            showModal: false
+        };
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return nextState.isLoggedIn !== this.state.isLoggedIn;
+        return (nextState.isLoggedIn !== this.state.isLoggedIn) ||
+            (nextProps.showModal !== this.state.showModal);
     }
 
     _onSignInClicked = () => {
@@ -55,9 +60,36 @@ class HeaderProfileDetails extends Reflux.Component {
         );
     }
 
+    handleShow = () => {
+        this.setState({
+            showModal: true
+        });
+    }
+
+    handleClose = () => {
+        this.setState({
+            showModal: false
+        });
+    }
+
+    renderCreatePost() {
+        return (
+            <React.Fragment>
+                <span className="createPostBadge" onClick={this.handleShow}>
+                    <span className="glyphicon glyphicon-pencil" aria-hidden="true" />
+                </span>
+            </React.Fragment>
+        );
+    }
+
     render() {
         const contents = this.state.isLoggedIn ? (
             [
+                <NavItem key="create-post">
+                    {
+                        this.renderCreatePost()
+                    }
+                </NavItem>,
                 <NavItem key="notifications">
                     {
                         this.renderNotifications()
@@ -80,6 +112,10 @@ class HeaderProfileDetails extends Reflux.Component {
                         contents
                     }
                 </Nav>
+                <PostModal
+                    show={this.state.showModal}
+                    handleClose={this.handleClose}
+                />
             </div>
         );
     }

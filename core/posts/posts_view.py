@@ -21,6 +21,8 @@ def create_post(request):
 
     post_serializer = PostsSerializer(data=data)
     post_serializer.is_valid()
+    # TODO Remove this, leave in for now
+    print(post_serializer.errors)
     new_post = post_serializer.save()
 
     # if image, make another post with generated post_id
