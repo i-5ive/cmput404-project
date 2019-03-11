@@ -5,7 +5,7 @@ import Reflux from "reflux";
 import { FormGroup, FormControl, Form, Button, Row, Col } from "react-bootstrap";
 import PrivacyDropdown from "./PrivacyDropdown";
 
-import { PostsStore, PostsActions } from "./PostsStore";
+import { PostsStore, PostsActions } from "../discover/PostsStore";
 import AuthStore from "../auth/AuthStore";
 
 export default class CreatePost extends Reflux.Component {
@@ -48,8 +48,9 @@ export default class CreatePost extends Reflux.Component {
         formData.append("postData", JSON.stringify(data));
         formData.append("query", "createPost");
         PostsActions.createPost(formData);
+        // TODO add error message
         this.props.handleClose();
-        // TODO Add new posts
+        PostsActions.getPosts();
     }
 
     handlePrivacySelect = (key) => {

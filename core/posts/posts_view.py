@@ -68,8 +68,6 @@ def handle_posts(request):
     else:
         code = 400
 
-    print( success, message, new_post)
-
     return Response({
         "success": success,
         "query": query,

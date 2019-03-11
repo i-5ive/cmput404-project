@@ -68,7 +68,8 @@ export class PostsStore extends Reflux.Store {
             });
             this.setState({
                 fetchingPosts: false,
-                posts: posts
+                posts: posts,
+                currentPageNumber: page
             });
         }).catch((err) => {
             this.setState({
@@ -85,13 +86,11 @@ export class PostsStore extends Reflux.Store {
             failedToDeletePost: false
         });
         RestUtil.sendDELETE(`posts/${id}`).then(() => {
-            this.setState({
-                deletingPost: false,
-                failedToDeletePost: false
-            });
             // From pscl, https://stackoverflow.com/questions/29527385/removing-element-from-array-in-component-state
             this.setState((prevState) => ({
-                posts: prevState.posts.filter((post) => post.post_id !== postId)
+                posts: prevState.posts.filter((post) => post.post_id !== postId),
+                deletingPost: false,
+                failedToDeletePost: false
             }));
         }).catch((err) => {
             this.setState({

@@ -2,7 +2,7 @@ import React from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
 
-import { PostsStore, PostsActions } from "./PostsStore";
+import { PostsStore, PostsActions } from "../discover/PostsStore";
 import { Thumbnail, Button } from "react-bootstrap";
 
 import { formatDate } from "../util/DateUtil";
