@@ -208,6 +208,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
             return Response("Page number must be positive", status=400)
+
+        # TODO: size should be limited?
         size = int(request.query_params.get("size", 50))
         if size < 0:
             return Response("Size must be positive", status=400)
@@ -231,16 +233,22 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         try:
             posts = Posts.objects.all().filter(author=pk, visibility__in=post_types, unlisted=False)
-            # NEED TO ADD: requestingAuthor is the one it should be visibleTo
+            # TODO: requestingAuthor is the one it should be visibleTo
             #posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo=?????, unlisted=False)
             posts.order_by('-published')
         except:
             print("got except!")
             return Response(status=500)
 
-        posts = Paginator(posts, size)
-        posts = PostsSerializer(posts.page(page), many=True)
+        pages = Paginator(posts, size)
+        posts = PostsSerializer(pages.page(page), many=True)
 
-        return Response({
+        response = {
+            "query": "posts",
+            "count": pages.count,
+            "size": size,
+            "next": "/author/{}/posts?page={}".format(pk,page) if page < pages.num_pages else None,
+            "previous": "/author/{}/posts?page={}".format(pk,page-2) if page > 1 else None,
             "posts": posts.data
-        }, status=200)
+        }
+        return Response(response, status=200)
