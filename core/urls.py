@@ -34,6 +34,6 @@ urlpatterns = [
     path('login/', login, name='login'),
     path('unfollow/', handle_unfollow_request, name='unfollow'),
     path('index_bundle.js', get_indexjs),
-    re_path(r'^app/', TemplateView.as_view(template_name='index.html')),
+    re_path('^app/', TemplateView.as_view(template_name='index.html')),
     re_path(r'^(?P<path>.*)$', RedirectView.as_view(url='app/%(path)s')),
 ]
