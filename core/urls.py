@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from rest_framework.documentation import include_docs_urls
 
 from core.authors.friend_request_view import handle_follow_request as friend_request
@@ -34,5 +34,6 @@ urlpatterns = [
     path('login/', login, name='login'),
     path('unfollow/', handle_unfollow_request, name='unfollow'),
     path('index_bundle.js', get_indexjs),
-    re_path(r'^', TemplateView.as_view(template_name='index.html')),
+    re_path(r'^app/', TemplateView.as_view(template_name='index.html')),
+    re_path(r'^(?P<path>.*)$', RedirectView.as_view(url='app/%(path)s')),
 ]
