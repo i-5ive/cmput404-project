@@ -193,15 +193,16 @@ class AuthorViewSet(viewsets.ModelViewSet):
             "isFollowingUser": follow.exists()
         }, status=200)
 
+    # All posts the currently auth'd user can see of pk
     # /author/{AUTHOR_ID}/posts
     @action(detail=True, url_path="posts")
     def posts(self, request, pk=None):
         if request.user.is_anonymous:
-            # should it be a text response?
+            # TODO should it be a text response?
             return Response("You must be logged in to perform this action.",status=403)
 
         if not pk:
-            # should it be a text response?
+            # TODO should it be a text response?
             return Response("You must specify an author.",status=400)
         
         requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
@@ -247,6 +248,70 @@ class AuthorViewSet(viewsets.ModelViewSet):
             "query": "posts",
             "count": pages.count,
             "size": size,
+            # Recall: the page the user specifies is offset by +1 for Paginator
+            "next": "/author/{}/posts?page={}".format(pk,page) if page < pages.num_pages else None,
+            "previous": "/author/{}/posts?page={}".format(pk,page-2) if page > 1 else None,
+            "posts": posts.data
+        }
+        return Response(response, status=200)
+
+    # All posts visible to the currently auth'd user
+    # /author/posts
+    @action(detail=False, url_path="posts")
+    def posts(self, request):
+        if request.user.is_anonymous:
+            # TODO: should it be a text response?
+            return Response("You must be logged in to perform this action.",status=403)
+        
+        requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
+        page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
+        if page < 1:
+            return Response("Page number must be positive", status=400)
+
+        # TODO: size should be limited?
+        size = int(request.query_params.get("size", 50))
+        if size < 0:
+            return Response("Size must be positive", status=400)
+        
+        # Get direct friends and FOAFs into a dictionary
+        requesterFriends = {}
+        requesterFOAFs = {}
+        for friend in get_friends(requestingAuthor):
+            requesterFriends[friend] = True
+        for friend in requesterFriends:
+            for friend in get_friends(friend):
+                # Ensure we don't add direct friends as an FOAF
+                if not requesterFriends.get(friend, False):
+                    requesterFOAFs[friend] = True
+
+        try:
+            # Grab the requesting user's posts
+            posts = Posts.objects.all().filter(author=requestingAuthor, unlisted=False)
+
+            # Grab posts from direct friends
+            for friend in requesterFriends:
+                posts |= Posts.objects.all().filter(author=friend, visibility__in=["PUBLIC", "FRIENDS", "FOAF", "SERVERONLY"], unlisted=False)
+
+            # Posts from FOAFs
+            for friend in requesterFOAFs:
+                posts |= Posts.objects.all().filter(author=friend, visibility__in=["PUBLIC", "FOAF", "SERVERONLY"], unlisted=False)
+
+            # TODO: PRIVATE posts need to be added as well
+            #posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo=?????, unlisted=False)
+
+            posts.order_by('-published')
+        except:
+            print("got except!")
+            return Response(status=500)
+        
+        pages = Paginator(posts, size)
+        posts = PostsSerializer(pages.page(page), many=True)
+
+        response = {
+            "query": "posts",
+            "count": pages.count,
+            "size": size,
+            # Recall: the page the user specifies is offset by +1 for Paginator
             "next": "/author/{}/posts?page={}".format(pk,page) if page < pages.num_pages else None,
             "previous": "/author/{}/posts?page={}".format(pk,page-2) if page > 1 else None,
             "posts": posts.data
