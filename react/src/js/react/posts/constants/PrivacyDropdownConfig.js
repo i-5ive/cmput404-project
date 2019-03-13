@@ -18,11 +18,11 @@ const privacyConfig = [
     {
         title: "Private",
         key: "PRIVATE"
-    },
-    {
-        title: "Custom Authors",
-        key: "PRIVATE"
     }
+    // {
+    //     title: "Custom Authors",
+    //     key: "PRIVATE"
+    // }
 ];
 
 export default privacyConfig;

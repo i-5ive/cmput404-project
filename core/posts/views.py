@@ -14,6 +14,12 @@ class PostsViewSet(viewsets.ModelViewSet):
     queryset = Posts.objects.filter(visibility="PUBLIC").order_by('-published')
     serializer_class = PostsSerializer
 
+    def retrieve(self, request, pk):
+        post = Posts.objects.get(pk=pk)
+        posts = Posts.objects.filter(post_id=post.post_id)
+        serializer = PostsSerializer(posts, many=True, context={'request': request})
+        return Response(serializer.data)
+
     @action(detail=True)
     def comments(self, request, pk):
         post = self.get_object()
