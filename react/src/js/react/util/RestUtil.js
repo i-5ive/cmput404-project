@@ -8,8 +8,12 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 axios.defaults.xsrfCookieName = "csrftoken";
 
 const getAuthObject = () => {
+    const username = CookieUtil.getValue("core-username");
+    if (!username) {
+        return undefined;
+    }
     return {
-        username: CookieUtil.getValue("core-username"),
+        username: username,
         password: CookieUtil.getValue("core-password")
     };
 };
@@ -22,7 +26,7 @@ export default class RestUtil {
 	 * @param {boolean} auth - whether the request needs authentication or not
      * @return {Promise} - a promise that resolves when the request is finished
      */
-    static sendPOST(path, body, auth = false) {
+    static sendPOST(path, body, auth = true) {
         const options = {
             data: body,
             withCredentials: true,
@@ -43,7 +47,7 @@ export default class RestUtil {
 	 * @param {boolean?} auth - whether the request needs authentication or not
      * @return {Promise} - a promise that resolves when the request is finished
      */
-    static sendGET(path, query = {}, externalHost = false, auth = false) {
+    static sendGET(path, query = {}, externalHost = false, auth = true) {
         const uri = externalHost ? path : `${SERVER_URL}/${path}`;
         return axios(uri, {
             params: query,

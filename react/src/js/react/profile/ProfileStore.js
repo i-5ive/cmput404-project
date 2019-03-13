@@ -299,7 +299,7 @@ export default class ProfileStore extends Reflux.Store {
             errorLoadingGithubRepos: null
         });
         const account = githubUrl.split(".com/")[1];
-        RestUtil.sendGET(`https://api.github.com/users/${account}/repos`, {}, true).then((res) => {
+        RestUtil.sendGET(`https://api.github.com/users/${account}/repos`, {}, true, false).then((res) => {
             this.setState({
                 githubDetails: res.data.map((repo) => {
                     return {
