@@ -107,7 +107,7 @@ export class PostsStore extends Reflux.Store {
             });
         }).catch((err) => {
             this.setState({
-                fetchingPosts: false,
+                deletingPost: false,
                 failedToDeletePost: true
             });
             console.error(err);
@@ -117,7 +117,8 @@ export class PostsStore extends Reflux.Store {
     onGetPost(postId) {
         this.setState({
             fetchingPost: true,
-            failedToFetchPost: false
+            failedToFetchPost: false,
+            currentPost: []
         });
         RestUtil.sendGET(`posts/${postId}`).then((response) => {
             const post = update(this.state.currentPost, {
@@ -130,8 +131,8 @@ export class PostsStore extends Reflux.Store {
             });
         }).catch((err) => {
             this.setState({
-                fetchingPosts: false,
-                failedToFetchPosts: true
+                fetchingPost: false,
+                failedToFetchPost: true
             });
             console.error(err);
         });

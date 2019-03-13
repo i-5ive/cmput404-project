@@ -1,6 +1,8 @@
 import React from "react";
 import Reflux from "reflux";
 
+import { Alert } from "react-bootstrap";
+
 import { PostsStore, PostsActions } from "../discover/PostsStore";
 import LoadingComponent from "../misc/LoadingComponent";
 import Post from "./Post";
@@ -16,7 +18,9 @@ export default class PostView extends Reflux.Component {
     }
 
     render() {
-        if (this.state.currentPost.length === 0) {
+        if (this.state.failedToFetchPost) {
+            return <Alert className="alert alert-danger">Failed to fetch post :(</Alert>;
+        } else if (this.state.currentPost.length === 0) {
             return <LoadingComponent />;
         }
         return (

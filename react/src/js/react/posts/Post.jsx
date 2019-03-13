@@ -46,8 +46,6 @@ class Post extends Reflux.Component {
         return (
             <div className="post-footer">
                 <p className="categories">{this.currentPost.categories}</p>
-                { this.currentPost.source ? <a href={this.currentPost.source} className="source">source</a> : null}
-                { this.currentPost.origin ? <a href={this.currentPost.origin}>origin</a> : null }
                 { commentsLength ? <a onClick={this.handlePermalink}>{`${commentsLength} comments`}</a> : null}
             </div>
         );
@@ -58,7 +56,7 @@ class Post extends Reflux.Component {
     }
 
     handlePermalink = () => {
-        this.props.history.push(`/discover/${this.currentPost.id}`);
+        this.props.history.push(`/post/${this.currentPost.id}`);
     }
 
     render() {
