@@ -24,7 +24,6 @@ export default class PostModal extends React.Component {
         return (
             <Modal
                 size="lg"
-                centered
                 show={this.props.show}
                 onHide={this.props.handleClose}
                 className="create-post-modal">

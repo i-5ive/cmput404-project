@@ -31,6 +31,8 @@ export default class CreatePost extends Reflux.Component {
         let categories = form.elements.categories.value;
         if (!categories) {
             categories = [];
+        } else {
+            categories = categories.split(",");
         }
 
         const data = {
@@ -50,6 +52,7 @@ export default class CreatePost extends Reflux.Component {
         PostsActions.createPost(formData);
         // TODO add error message
         this.props.handleClose();
+        // TODO Fix Loading
         PostsActions.getPosts();
     }
 
@@ -68,9 +71,8 @@ export default class CreatePost extends Reflux.Component {
                     <FormGroup controlId="description">
                         <FormControl bsSize="sm" name="desc" type="text" placeholder="Description" />
                     </FormGroup>
-                    <FormGroup enctype="multipart/form-data" controlId="uploadImage">
+                    <FormGroup controlId="fileUpload">
                         <FormControl
-                            id="fileUpload"
                             type="file"
                             accept=".jpeg, .png"
                             multiple
@@ -81,15 +83,15 @@ export default class CreatePost extends Reflux.Component {
                         <FormControl name="content" componentClass="textarea" rows="5" placeholder="What is Up?" />
                     </FormGroup>
                     <FormGroup controlId="origin">
-                        <FormControl name="origin" type="url" placeholder="Origin URL (https://your-website.com)" isValid={false} />
+                        <FormControl name="origin" type="url" placeholder="Origin URL (https://your-website.com)" />
                     </FormGroup>
                     <FormGroup controlId="source">
-                        <FormControl name="source" type="url" placeholder="Source URL (https://another-website.com)" isValid={false} />
+                        <FormControl name="source" type="url" placeholder="Source URL (https://another-website.com)" />
                     </FormGroup>
                     <FormGroup controlId="categories">
                         <FormControl name="categories" type="text" placeholder="Add tags, separate by comma" />
                     </FormGroup>
-                    <Row form>
+                    <Row>
                         <Col>
                             <PrivacyDropdown
                                 handleSelect={this.handlePrivacySelect} />
