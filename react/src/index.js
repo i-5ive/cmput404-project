@@ -12,7 +12,7 @@ const contentWrapper = document.getElementById("react-entrypoint");
 
 if (contentWrapper) {
     ReactDOM.render(
-        <BrowserRouter>
+        <BrowserRouter basename={'/app'} >
             <App />
         </BrowserRouter>
     , contentWrapper);
