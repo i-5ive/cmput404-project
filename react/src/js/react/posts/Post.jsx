@@ -2,35 +2,38 @@ import React from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
 
+import { withRouter } from "react-router-dom";
 import { PostsStore, PostsActions } from "../discover/PostsStore";
 import { Thumbnail, Button } from "react-bootstrap";
-
 import { formatDate } from "../util/DateUtil";
 
 /**
  * Displays a singular post
  */
-export default class Post extends Reflux.Component {
+class Post extends Reflux.Component {
     static propTypes = {
-        className: PropTypes.string.isRequired,
-        post: PropTypes.object.isRequired
+        post: PropTypes.array.isRequired
     }
 
     constructor(props) {
         super(props);
         this.store = PostsStore;
+        this.currentPost = this.props.post[0];
     }
 
-    // TODO Need to render properly
     // From VinayC, https://stackoverflow.com/questions/8499633/how-to-display-base64-images-in-html
-    renderContent = () => {
-        const { contentType, content } = this.props.post;
-        if (contentType === ("image/png;base64" || "image/jpeg;base64")) {
-            const name = `data:${contentType},${content}`;
-            return <img src={name} />;
-        } else {
-            return <p className="content">{content}</p>;
-        }
+    renderContent = (posts) => {
+        const contentList = [];
+        posts.forEach((post, index) => {
+            const { contentType, content } = post;
+            if (contentType === ("image/png;base64" || "image/jpeg;base64")) {
+                const name = `data:${contentType},${content}`;
+                contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
+            } else {
+                contentList.push(<span key={`text-${index}`} className="post-text">{content}</span>);
+            }
+        });
+        return contentList;
     }
 
     // TODO
@@ -39,48 +42,58 @@ export default class Post extends Reflux.Component {
     }
 
     renderFooter() {
-        const { post } = this.props;
+        const commentsLength = this.currentPost.comments.length;
         return (
             <div className="post-footer">
-                <p className="categories">{post.categories}</p>
-                { post.source ? <a href={post.source} className="source">source</a> : null}
-                { post.origin ? <a href={post.origin}>origin</a> : null }
+                <p className="categories">{this.currentPost.categories}</p>
+                { this.currentPost.source ? <a href={this.currentPost.source} className="source">source</a> : null}
+                { this.currentPost.origin ? <a href={this.currentPost.origin}>origin</a> : null }
+                { commentsLength ? <a onClick={this.handlePermalink}>{`${commentsLength} comments`}</a> : null}
             </div>
         );
     }
 
     handleDeletePost = () => {
-        PostsActions.deletePost(this.props.post.id, this.props.post.post_id);
+        PostsActions.deletePost(this.currentPost.id, this.currentPost.post_id);
+    }
+
+    handlePermalink = () => {
+        this.props.history.push(`/discover/${this.currentPost.id}`);
     }
 
     render() {
         const { post } = this.props;
+
         return (
             <Thumbnail>
                 <div className="post-header">
-                    <i className="fas fa-user-lock">{post.visibility}</i>
-                    <Button
-                        variant="primary"
-                        className="delete-button"
-                        onClick={this.handleDeletePost}>
-                        <i className="far fa-trash-alt" />
-                    </Button>
+                    {/* TODO Add Author URL here */}
+                    <p className="post-time">
+                        Posted by <a href="#">{this.currentPost.author.displayName}</a> on {formatDate(this.currentPost.published)}
+                    </p>
+                    <div className="buttons">
+                        <i className="fas fa-user-lock">{this.currentPost.visibility}</i>
+                        <Button
+                            variant="primary"
+                            className="permalink-button"
+                            onClick={this.handlePermalink}>
+                            <i className="fas fa-link" />
+                        </Button>
+                        <Button
+                            variant="primary"
+                            className="delete-button"
+                            onClick={this.handleDeletePost}>
+                            <i className="far fa-trash-alt" />
+                        </Button>
+                    </div>
                 </div>
-                <h4 className="post-title">
+                <h3 className="post-title">{this.currentPost.title}</h3>
+                <p className="post-desc">{this.currentPost.description}</p>
+                <div className="post-body">
                     {
-                        post.title
+                        this.renderContent(post)
                     }
-                </h4>
-                <p>
-                    {
-                        formatDate(post.published)
-                    }
-                </p>
-                <p className="post-body">
-                    {
-                        this.renderContent()
-                    }
-                </p>
+                </div>
                 {this.renderFooter()}
                 {
                     this.renderComments()
@@ -89,3 +102,5 @@ export default class Post extends Reflux.Component {
         );
     }
 }
+
+export default withRouter(Post);

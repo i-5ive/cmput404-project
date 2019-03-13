@@ -10,6 +10,7 @@ import RegisterView from "./auth/RegisterView";
 import AuthActions from "./auth/AuthActions";
 import ProfileView from "./profile/ProfileView";
 
+import PostView from "./posts/PostView";
 import DiscoverView from "./discover/DiscoverView";
 import HomeView from "./home/HomeView";
 
@@ -32,6 +33,7 @@ export default class App extends React.Component {
                         <Route exact path="/feed" component={PostFeed} />
                         <Route path="/register" component={RegisterView} />
                         <Route path="/profile/:id" component={ProfileView} />
+                        <Route path="/discover/:id" component={PostView} />
                         <Route path="/discover" component={DiscoverView} />
                         <Route exact path="/" component={HomeView} />
                         <Route path="*" component={PageNotFound} />

@@ -6,7 +6,8 @@ import RestUtil from "../util/RestUtil";
 export const PostsActions = Reflux.createActions([
     "createPost",
     "getPosts",
-    "deletePost"
+    "deletePost",
+    "getPost"
 ]);
 
 /**
@@ -21,10 +22,12 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedPost: false,
             failedToCreatePost: false,
             posts: [],
+            currentPost: [],
             fetchingPosts: false,
             failedToFetchPosts: false,
             deletingPost: true,
-            failedToDeletePost: false
+            failedToDeletePost: false,
+            fetchingPost: false
         };
         this.listenables = PostsActions;
 
@@ -66,9 +69,17 @@ export class PostsStore extends Reflux.Store {
             const posts = update(this.state.posts, {
                 $push: response.data.results
             });
+            const hash = Object.create(null);
+            posts.forEach(function(post) {
+                if (hash[post.post_id]) {
+                    hash[post.post_id].push(post);
+                } else {
+                    hash[post.post_id] = [post];
+                }
+            });
             this.setState({
                 fetchingPosts: false,
-                posts: posts,
+                posts: hash,
                 currentPageNumber: page
             });
         }).catch((err) => {
@@ -86,16 +97,41 @@ export class PostsStore extends Reflux.Store {
             failedToDeletePost: false
         });
         RestUtil.sendDELETE(`posts/${id}`).then(() => {
-            // From pscl, https://stackoverflow.com/questions/29527385/removing-element-from-array-in-component-state
-            this.setState((prevState) => ({
-                posts: prevState.posts.filter((post) => post.post_id !== postId),
+            // From mehulmpt, https://stackoverflow.com/questions/48302118/delete-nested-object-base-on-key-in-react
+            const newPosts = Object.assign({}, this.state.posts);
+            delete newPosts[postId];
+            this.setState({
+                posts: newPosts,
                 deletingPost: false,
                 failedToDeletePost: false
-            }));
+            });
         }).catch((err) => {
             this.setState({
                 fetchingPosts: false,
                 failedToDeletePost: true
+            });
+            console.error(err);
+        });
+    }
+
+    onGetPost(postId) {
+        this.setState({
+            fetchingPost: true,
+            failedToFetchPost: false
+        });
+        RestUtil.sendGET(`posts/${postId}`).then((response) => {
+            const post = update(this.state.currentPost, {
+                $set: response.data
+            });
+
+            this.setState({
+                fetchingPost: false,
+                currentPost: post
+            });
+        }).catch((err) => {
+            this.setState({
+                fetchingPosts: false,
+                failedToFetchPosts: true
             });
             console.error(err);
         });
