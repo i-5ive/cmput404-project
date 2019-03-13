@@ -21,6 +21,8 @@ def create_post(request):
 
     post_serializer = PostsSerializer(data=data)
     post_serializer.is_valid()
+    # TODO Remove this, leave in for now
+    print(post_serializer.errors)
     new_post = post_serializer.save()
 
     # if image, make another post with generated post_id
@@ -41,7 +43,8 @@ def create_post(request):
                 return False, "The maximum file size that can be uploaded is 10MB", None
 
             # Credits to Ykh, https://stackoverflow.com/questions/44489375/django-have-admin-take-image-file-but-store-it-as-a-base64-string
-            encoded_image = base64.encodestring(img_file.read())
+            # Credits to Willem Van Onsem, https://stackoverflow.com/questions/52444818/how-to-convert-a-png-image-to-string-and-send-it-through-django-api
+            encoded_image = base64.b64encode(img_file.read()).decode()
 
             data["post_id"] = new_id
             data["content"] = str(encoded_image)

@@ -55,4 +55,18 @@ export default class RestUtil {
             auth: auth ? getAuthObject() : undefined
         });
     }
+
+    /**
+     * Sends a DELETE request to the server
+     * @param {String} path - the path to make the request to (ex: posts/<id>)
+     * @return {Promise} - a promise that resolves when the request is finished
+     */
+    static sendDELETE(path) {
+        const options = {
+            withCredentials: true,
+            method: "delete",
+            url: `${SERVER_URL}/${path}`
+        };
+        return axios(options);
+    }
 }

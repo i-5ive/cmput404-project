@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import environ
 import os
+import django_heroku
 
 ROOT_DIR = environ.Path(__file__) - 2  # (cmput404-project/core/settings.py - 2 = cmput404-project/)
 APPS_DIR = ROOT_DIR.path('cmput404-project')
@@ -36,7 +37,7 @@ SECRET_KEY = 'mtl$5lb%^%=!kk7f^shyp0)^^!+n_y_9&yq10m_tvl1mtz18hs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"] if DEBUG else []
+ALLOWED_HOSTS = ["*"] if DEBUG else ['cmput404-i5.herokuapp.com']
 
 # Application definition
 
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -73,7 +75,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['static'], # mad hack for serving react through static template
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,8 +143,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
+#https://devcenter.heroku.com/articles/django-assets
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+# MUST BE LAST LINE!!!!
+django_heroku.settings(locals())
