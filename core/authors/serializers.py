@@ -18,4 +18,4 @@ class AuthorSummarySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Author
-        fields = ('id', 'host', 'displayName', 'github', 'url',)
+        fields = ('id', 'host', 'displayName', 'github', 'url')

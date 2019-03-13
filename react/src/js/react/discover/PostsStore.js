@@ -67,9 +67,10 @@ export class PostsStore extends Reflux.Store {
             page: page
         }).then((response) => {
             const posts = update(this.state.posts, {
-                $push: response.data.results
-            });
-            const hash = Object.create(null);
+                    $push: response.data.results
+                }),
+                hash = Object.create(null);
+
             posts.forEach(function(post) {
                 if (hash[post.post_id]) {
                     hash[post.post_id].push(post);
