@@ -82,6 +82,7 @@ export class PostsStore extends Reflux.Store {
             this.setState({
                 fetchingPosts: false,
                 posts: hash,
+                allPosts: posts,
                 currentPageNumber: page
             });
         }).catch((err) => {
