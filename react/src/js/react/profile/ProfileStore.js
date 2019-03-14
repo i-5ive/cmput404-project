@@ -110,7 +110,7 @@ export default class ProfileStore extends Reflux.Store {
             errorSavingProfile: false
         });
 
-        RestUtil.sendPOST(`author/${id}/update/`, data).then(() => {
+        RestUtil.sendPOST(`author/${id}/update/`, data, true).then(() => {
             const newProfile = update(this.state.profileDetails, {
                 $merge: data
             });
@@ -299,7 +299,7 @@ export default class ProfileStore extends Reflux.Store {
             errorLoadingGithubRepos: null
         });
         const account = githubUrl.split(".com/")[1];
-        RestUtil.sendGET(`https://api.github.com/users/${account}/repos`, {}, true).then((res) => {
+        RestUtil.sendGET(`https://api.github.com/users/${account}/repos`, {}, true, false).then((res) => {
             this.setState({
                 githubDetails: res.data.map((repo) => {
                     return {

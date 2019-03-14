@@ -12,8 +12,9 @@ const getLoginStateFromCookies = () => {
     const cookies = cookie.parse(document.cookie),
         username = cookies["core-username"],
         id = cookies["core-userid"],
+        password = cookies["core-password"],
         url = `${SERVER_URL}/author/${id}`;
-    if (!username || !id) {
+    if (!username || !id || !password) {
         return null;
     }
     // TODO: is this how displayName should be handled?
@@ -25,7 +26,8 @@ const getLoginStateFromCookies = () => {
             displayName: username,
             url: url
         },
-        userId: id
+        userId: id,
+        password: password
     };
 };
 

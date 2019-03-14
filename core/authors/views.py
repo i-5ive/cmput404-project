@@ -135,6 +135,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def update_profile(self, request, pk):
         try:
             author = Author.objects.get(pk=pk)
+            if (request.user != author.user):
+                return Response("Invalid authentication credentials" + str(request.user), status=401)
         except:
             return Response("Invalid author ID specified", status=404)
 
