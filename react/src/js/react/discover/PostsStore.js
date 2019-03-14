@@ -22,6 +22,7 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedPost: false,
             failedToCreatePost: false,
             posts: [],
+            allPosts: [],
             currentPost: [],
             fetchingPosts: false,
             failedToFetchPosts: false,
@@ -66,7 +67,7 @@ export class PostsStore extends Reflux.Store {
         RestUtil.sendGET("posts/", {
             page: page
         }).then((response) => {
-            const posts = update(this.state.posts, {
+            const posts = update(this.state.allPosts, {
                     $push: response.data.results
                 }),
                 hash = Object.create(null);
@@ -97,7 +98,7 @@ export class PostsStore extends Reflux.Store {
             deletingPost: true,
             failedToDeletePost: false
         });
-        RestUtil.sendDELETE(`posts/${id}`).then(() => {
+        RestUtil.sendDELETE(`posts/${id}/`).then(() => {
             // From mehulmpt, https://stackoverflow.com/questions/48302118/delete-nested-object-base-on-key-in-react
             const newPosts = Object.assign({}, this.state.posts);
             delete newPosts[postId];
@@ -121,7 +122,7 @@ export class PostsStore extends Reflux.Store {
             failedToFetchPost: false,
             currentPost: []
         });
-        RestUtil.sendGET(`posts/${postId}`).then((response) => {
+        RestUtil.sendGET(`posts/${postId}/`).then((response) => {
             const post = update(this.state.currentPost, {
                 $set: response.data
             });
