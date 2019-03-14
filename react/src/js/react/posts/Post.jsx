@@ -6,19 +6,49 @@ import { withRouter } from "react-router-dom";
 import { PostsStore, PostsActions } from "../discover/PostsStore";
 import { Thumbnail, Button } from "react-bootstrap";
 import { formatDate } from "../util/DateUtil";
+import AuthStore from "../auth/AuthStore";
 
 /**
  * Displays a singular post
  */
 class Post extends Reflux.Component {
     static propTypes = {
-        post: PropTypes.array.isRequired
+        post: PropTypes.array.isRequired,
+        isPostView: PropTypes.bool
+    }
+
+    static defaultProps ={
+        isPostView: false
     }
 
     constructor(props) {
         super(props);
-        this.store = PostsStore;
+        this.stores = [PostsStore, AuthStore];
         this.currentPost = this.props.post[0];
+    }
+
+    renderHeaderButtons = () => {
+        // TODO Add edit button
+        const isCurrentUser = (this.currentPost.author.id === this.state.userId);
+        return (
+            <div className="buttons">
+                <i className="fas fa-user-lock">{this.currentPost.visibility}</i>
+                <Button
+                    variant="primary"
+                    className="permalink-button"
+                    onClick={this.handlePermalink}>
+                    <i className="fas fa-link" />
+                </Button>
+                {isCurrentUser
+                    ? <Button
+                        variant="primary"
+                        className="delete-button"
+                        onClick={this.handleDeletePost}>
+                        <i className="far fa-trash-alt" />
+                    </Button>
+                    : null }
+            </div>
+        );
     }
 
     // From VinayC, https://stackoverflow.com/questions/8499633/how-to-display-base64-images-in-html
@@ -26,7 +56,7 @@ class Post extends Reflux.Component {
         const contentList = [];
         posts.forEach((post, index) => {
             const { contentType, content } = post;
-            if (contentType === ("image/png;base64" || "image/jpeg;base64")) {
+            if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
                 const name = `data:${contentType},${content}`;
                 contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
             } else {
@@ -69,21 +99,7 @@ class Post extends Reflux.Component {
                     <p className="post-time">
                         Posted by <a href="#">{this.currentPost.author.displayName}</a> on {formatDate(this.currentPost.published)}
                     </p>
-                    <div className="buttons">
-                        <i className="fas fa-user-lock">{this.currentPost.visibility}</i>
-                        <Button
-                            variant="primary"
-                            className="permalink-button"
-                            onClick={this.handlePermalink}>
-                            <i className="fas fa-link" />
-                        </Button>
-                        <Button
-                            variant="primary"
-                            className="delete-button"
-                            onClick={this.handleDeletePost}>
-                            <i className="far fa-trash-alt" />
-                        </Button>
-                    </div>
+                    {!this.props.isPostView ? this.renderHeaderButtons() : null}
                 </div>
                 <h3 className="post-title">{this.currentPost.title}</h3>
                 <p className="post-desc">{this.currentPost.description}</p>
