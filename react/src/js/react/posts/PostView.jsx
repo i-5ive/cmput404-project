@@ -26,7 +26,8 @@ export default class PostView extends Reflux.Component {
         return (
             <div className="postView">
                 <Post
-                    post={this.state.currentPost} />
+                    post={this.state.currentPost}
+                    isPostView />
             </div>
         );
     }

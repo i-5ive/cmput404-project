@@ -17,6 +17,13 @@ export default class CreatePost extends Reflux.Component {
         };
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.successfullyCreatedPost !== prevState.successfullyCreatedPost) {
+            this.props.handleClose();
+            PostsActions.getPosts();
+        }
+    }
+
     handleSubmit = (e) => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -51,9 +58,6 @@ export default class CreatePost extends Reflux.Component {
         formData.append("query", "createPost");
         PostsActions.createPost(formData);
         // TODO add error message
-        this.props.handleClose();
-        // TODO Fix Loading
-        PostsActions.getPosts();
     }
 
     handlePrivacySelect = (key) => {
@@ -76,6 +80,7 @@ export default class CreatePost extends Reflux.Component {
                             type="file"
                             accept=".jpeg, .png"
                             multiple
+                            className="file-input-button"
                         />
                         <button type="reset" className="btn btn-warning">Reset</button>
                     </FormGroup>
