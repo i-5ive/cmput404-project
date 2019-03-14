@@ -36,7 +36,10 @@ matrix:
         - npm run-script lint
         # runs the front-end unit tests and coverage
         - npm test -- --single-run
-      after_script:
+      before_deploy:
+        - pwd && ls -la
+        - cd ${TRAVIS_BUILD_DIR}
+        - pwd && ls -la
       deploy:
         provider: s3
         skip_cleanup: true
