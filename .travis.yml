@@ -44,9 +44,10 @@ matrix:
       deploy:
         provider: s3
         skip_cleanup: true
-        access_key_id: AKIAITJUTNH6VTEYYIJA
+        access_key_id: AKIAIQW4UVPNI5XCE4FQ
         secret_access_key:
-          secure: MuTfrB5rzk+Uqhk+9BBxRPalKJxjrzlocD4C2vNfLTqDxhu3VsEQLbN2vrLLxZobOqkHxhLAHtdkL9YAicv7nzQb+cC0PkXV7YlEzPjqle01LaX38RK7xlRjMFO6PvxzH3DSmeGJFfv8+VT2NcbvrjngobTA1UkKugUTEvx9aryHZ77ZvfWtRGml6oQ0ufMSdOqWdRjHLhR5RWIo3mUDlDLujNj6amfUj7ezfEas1D/HG/LKJcahziDnPKta56NXpfGzy8eT145ArAlmMPaPqcAqQEdIcV3PcRm15Y9a27vqrwelsy+aDS8CFY8uLDZPFIW1sca0BFBN513J1+SxK1StRgRr2A8RbH8EotbMPWjUE1ATUo6yt9CGUvENGYLgIRtffdWtOcnkbIYESiXaxpAMwc+E7vADhK49ToFHMyLroZEeN2oDmbJEPjn1mWFDk6ReiD5lo1GOMm122Xoz8AKH4YYicKcMOb5AINmKz5gp55/eE4u0ZEwkHamvha57NG6An/u1wy8/jU1SWgz0H152cUxIx0oh7YMai03tC8HLFnTUn5GQWjXDUdFUqtuWE4TAeUh8NHRLAZbUVeYep9nFJsAoo/h+R6bftH0nsy6J2iGh+yrsEkdLW5Qoxjmdyc1CsskshLV1biKIW7MtGQrjP3prrZVFojvyHjbNH9k=
+          secure: "jFPvOttxXGrJWDIfYES7OIrbCH3xG8ZmJqinCgIobOJMalJU/SoiWp9iMFiIvd7YOco4LUSFmjSKvEH9JkTicerfV8ESSCtUbptbcXn7hYyOhQ62S4cNRSffbgbtIPwZn37W3XaRtxfoOUQczmOwNLIIlPd7tA0n8rCpHmjLPAp9qXVU+Pbx2BOWPLB7uhSViC5LGnnNR1qOGIqmR6erBD8tLgWTAObg6OkI7n2/xHr+tk04FAPdbvEutOFbOj0gjvWPSr/+IM9a3jftVqfQjCM6b3K+TSvtF0akhpbiRooszhmkbwJsG8uGdmeV+Ng5m9iSBGIXfkbD1Nr7nq0MLFzlokBvRgbZKQvTJ+Xy4KLr58RCGqLhvMOtUszHB9Nmc62W+GvW+0iMnNCVObasMMn1I6juSBwXbiWytBszbqmyP0hhqZbX+cvEQoJT7AEabzduJKxCRvBCZVcRbKM+D6tprjb/3N7N7ieod8+oWM9XmhP/CJyotJYZHkV3+L850pAN7npUhiWCQyE6+WkewkWrFMERGv+64fWMJYkai58NFBrb3h60NoAe1QvQHifTtLQXhBlJTfcGOelTjG065sECbChBarH8iNGb7TJEiEZOLQuzTowdDxULi3vKKrlKQ3isP0Y1z06uLyZABMdRW3Vi3vVgcZSOLom7BPXyeIk="
+
         bucket: cmput404-i5
         local-dir: ${TRAVIS_BUILD_DIR}/react/dist
         acl: public_read
