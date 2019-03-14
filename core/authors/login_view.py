@@ -52,6 +52,7 @@ def login(request):
     if success:
         response.set_cookie("core-username", request.data["username"], max_age=LOGIN_TIME_IN_SECONDS)
         response.set_cookie("core-userid", str(userId), max_age=LOGIN_TIME_IN_SECONDS)
+        response.set_cookie("core-password", request.data["password"], max_age=LOGIN_TIME_IN_SECONDS)
         response.status_code = 200
     else:
         response.status_code = 400

@@ -12,5 +12,10 @@ Files Included:
 ## External References
 TODO: stackoverflow references in code should be placed here
 
-Python unit testing
-https://docs.python.org/3/library/unittest.mock.html
+Python unit testing  
+https://docs.python.org/3/library/unittest.mock.html  
+
+TestCafe Documentation  
+https://devexpress.github.io/testcafe/documentation/test-api/selecting-page-elements/selectors/  
+https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-requests/  
+https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-requests/mocking-http-requests.html  
