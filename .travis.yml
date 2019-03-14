@@ -37,9 +37,8 @@ matrix:
       provider: s3
       skip_cleanup: true
       region: "us-west-2"
-      access_key_id: "AKIAIQW4UVPNI5XCE4FQ"
-      secret_access_key:
-        secure: "PzBkOX6dF/1iKYYKJwr1trGDf3TdHSTEk33DSGF2tH1CgRxnkL/XRBAa4tWG/heOMdaiedcVKhiR9Ws0POBwFngqkyY91q6B5zm1xh3Im1Xne/m+ZMwZD7w7VF9un+nhdhCQASxhCtIQR+s0AEUyuT0oE12HckdvGDXHWjShsQKY2nfSi3rgH2v22kK9oAB7TdyK2vY48+a8tZ66qjAHl1yRCAoZ7T5sVsN4YeVxMjdDU4pChaGtyEQ+iaSOtYa4acuVMX5CzZ9p3/OwiJhT9eWidW/gi2CBIPT9cXFySDJabas0irALe93MREf4cf6Y/neAZRyBeIk5GU0zlf9I3goolzHsc9dOB9UkH/spKC9rTf+cKbx+rwiFWojoJht3HCTkRM+cYjyQGZoD59+v3nKckWq41csPV53EdgxzEOM6OG2jBbrAM7N0/eDoxaC+s2GkY81kQvjTj6fqPg+NuvJgxa2lzCEAU8bf5xWE39ABPkxLdnc1s4qN2hLwQR8TxOxnV+zIfSALMylXZfKnO701c355gSek3OFJHQBudjbTWfLf3AxgCpHm8lWSXN7aIBN9JJ877Rb+cUgsCRD/IB4uCeG4T2QbNGy4t0vFrABPa7Raka5yev868KDVnEQamvWsR6xFlMaw+6SaiB9GBSA0HwnLpO86uGZnzHS7lFY="
+      access_key_id: ${AWS_ACCESS_KEY_ID}
+      secret_access_key: ${AWS_SECRET_ACCESS_KEY}
       bucket: "cmput404-i5"
       local-dir: "${TRAVIS_BUILD_DIR}/react/dist"
       acl: public_read
