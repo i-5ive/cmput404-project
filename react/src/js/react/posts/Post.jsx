@@ -2,6 +2,7 @@ import React from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
 
+import ReactMarkdown from "react-markdown";
 import { withRouter } from "react-router-dom";
 import { PostsStore, PostsActions } from "../discover/PostsStore";
 import { Thumbnail, Button } from "react-bootstrap";
@@ -59,6 +60,9 @@ class Post extends Reflux.Component {
             if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
                 const name = `data:${contentType},${content}`;
                 contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
+            } else if (contentType === "text/markdown") {
+                console.log(content);
+                contentList.push(<ReactMarkdown source={content} />);
             } else {
                 contentList.push(<span key={`text-${index}`} className="post-text">{content}</span>);
             }
