@@ -37,7 +37,8 @@ matrix:
         # runs the front-end unit tests and coverage
         - npm test -- --single-run
       before_deploy:
-        - cd ${TRAVIS_BUILD_DIR}
+        - cd ${TRAVIS_BUILD_DIR}/react
+        - npm install
         - npm run-script build
       deploy:
         provider: s3
