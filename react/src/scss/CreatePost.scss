@@ -1,6 +1,10 @@
 .create-post-wrapper {
     padding: 10px;
 
+    .file-input-button {
+        display: inline;
+    }
+
     .submit-button {
         float: right;
     }

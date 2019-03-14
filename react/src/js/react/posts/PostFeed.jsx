@@ -9,8 +9,11 @@ import LoadingComponent from "../misc/LoadingComponent";
  */
 export default class PostFeed extends React.Component {
 	static propTypes = {
-	    loadMorePosts: PropTypes.function,
-	    posts: PropTypes.array,
+	    loadMorePosts: PropTypes.func,
+	    posts: PropTypes.oneOfType([
+	        PropTypes.array,
+	        PropTypes.object
+	    ]),
 	    isLoading: PropTypes.bool,
 	    currentPage: PropTypes.number
 	}
@@ -26,10 +29,11 @@ export default class PostFeed extends React.Component {
         if (this.props.isLoading) {
             return <LoadingComponent />;
         }
+
         return (
             <div className="post-feed">
-                {this.props.posts.map(post => (
-                    <Post key={post.id} post={post} />
+                {Object.keys(this.props.posts).map((post) => (
+                    <Post key={post} post={this.props.posts[post]} />
                 ))}
             </div>
         );

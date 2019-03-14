@@ -12,8 +12,9 @@ const getLoginStateFromCookies = () => {
     const cookies = cookie.parse(document.cookie),
         username = cookies["core-username"],
         id = cookies["core-userid"],
+        password = cookies["core-password"],
         url = `${SERVER_URL}/author/${id}`;
-    if (!username || !id) {
+    if (!username || !id || !password) {
         return null;
     }
     // TODO: is this how displayName should be handled?
@@ -25,7 +26,8 @@ const getLoginStateFromCookies = () => {
             displayName: username,
             url: url
         },
-        userId: id
+        userId: id,
+        password: password
     };
 };
 
@@ -92,7 +94,7 @@ export default class AuthStore extends Reflux.Store {
             username: username,
             password: password,
             email: ""
-        }).then((res) => {
+        }, false).then((res) => {
             this.setState({
                 isRegistering: false,
                 isSuccessfullyRegistered: true
@@ -123,7 +125,7 @@ export default class AuthStore extends Reflux.Store {
             query: "login",
             username: username,
             password: password
-        }).then(() => {
+        }, false).then(() => {
             const loginState = getLoginStateFromCookies();
             this.setState(Object.assign(loginState, {
                 isLoggingIn: false,
