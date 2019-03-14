@@ -32,8 +32,8 @@ export default class PostFeed extends React.Component {
 
         return (
             <div className="post-feed">
-                {Object.keys(this.props.posts).map((post, index) => (
-                    <Post key={index} post={this.props.posts[post]} />
+                {Object.keys(this.props.posts).map((post) => (
+                    <Post key={post} post={this.props.posts[post]} />
                 ))}
             </div>
         );
