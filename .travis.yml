@@ -39,6 +39,7 @@ matrix:
       before_deploy:
         - cd ${TRAVIS_BUILD_DIR}/react
         - npm install
+        - npm rebuild node-sass
         - npm run-script build
       deploy:
         provider: s3
