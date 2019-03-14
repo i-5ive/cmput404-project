@@ -28,6 +28,7 @@ class CommonData(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-published']
     
 class Posts(CommonData):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

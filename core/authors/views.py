@@ -8,10 +8,10 @@ from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
 from core.authors.friend_request_view import get_author_details
 
-from core.authors.util import get_author_url, get_author_summaries
+from core.authors.util import get_author_url, get_author_summaries, get_author_id
 from core.authors.friends_view import handle_friends_get, handle_friends_post
 from core.hostUtil import get_host_url
-from core.authors.friends_util import get_friends
+from core.authors.friends_util import get_friends, get_friends_from_pk
 
 from core.posts.models import Posts
 from core.posts.serializers import PostsSerializer
@@ -212,7 +212,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
-            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
+            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC", "SERVERONLY"])
+        # else if is other_server:
+        #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
 
@@ -221,14 +223,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
             # convert to dict for dat O(1)
             # Note: this is terrible, we should be using the database more directly
             requesterFriends = {}
-            for friend in get_friends(requestingAuthor):
+            for friend in get_friends_from_pk(requestingAuthor):
                 requesterFriends[friend] = True
 
             # Check if they are direct friends
             if requesterFriends.get(pk, False):
                 post_types += ["FRIENDS", "FOAF"]
             else: # They are not direct friends, so we should check if they share any friends
-                for friend in get_friends(pk):
+                for friend in get_friends_from_pk(pk):
                     if requesterFriends.get(friend, False):
                         post_types += ["FOAF"]
                         break # we don't need to check any more friends
@@ -236,12 +238,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
             try:
                 posts = Posts.objects.all().filter(author=pk, visibility__in=post_types)
                 # TODO: requestingAuthor is the one it should be visibleTo
-                #posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo=?????)
-                posts.order_by('-published')
+                posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo__contains=get_author_url(str(requestingAuthor)))
             except:
                 print("got except!")
                 return Response(status=500)
 
+        posts.order_by('-published')
         pages = Paginator(posts, size)
         posts = PostsSerializer(pages.page(page), many=True)
 
@@ -270,16 +272,20 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
-            posts = Posts.objects.all().filter(visibility__in=["PUBLIC"])
+            posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"])
+        # else if is other_server:
+        #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because not anon
             # Get direct friends and FOAFs into a dictionary
             requesterFriends = {}
             requesterFOAFs = {}
-            for friend in get_friends(requestingAuthor):
+            for friend in get_friends_from_pk(requestingAuthor):
+                friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                 requesterFriends[friend] = True
             for friend in requesterFriends:
-                for friend in get_friends(friend):
+                for friend in get_friends_from_pk(friend):
+                    friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                     # Ensure we don't add direct friends as an FOAF
                     if not requesterFriends.get(friend, False):
                         requesterFOAFs[friend] = True
@@ -287,24 +293,23 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 # Grab the requesting user's posts
                 posts = Posts.objects.all().filter(author=requestingAuthor)
                 # Grab all public posts
-                posts |= = Posts.objects.all().filter(visibility__in=["PUBLIC"])
+                posts |= Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"])
 
                 # Grab posts from direct friends
                 for friend in requesterFriends:
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF", "SERVERONLY"])
+                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF"])
 
                 # Posts from FOAFs
                 for friend in requesterFOAFs:
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FOAF", "SERVERONLY"])
+                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FOAF"])
 
-                # TODO: PRIVATE posts need to be added as well
-                #posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo=?????)
-
-                posts.order_by('-published')
+                # PRIVATE posts that the author can see
+                posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))])
             except:
                 print("got except!")
                 return Response(status=500)
         
+        posts.order_by('-published')
         pages = Paginator(posts, size)
         posts = PostsSerializer(pages.page(page), many=True)
 
