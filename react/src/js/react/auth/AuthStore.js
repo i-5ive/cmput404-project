@@ -94,7 +94,7 @@ export default class AuthStore extends Reflux.Store {
             username: username,
             password: password,
             email: ""
-        }).then((res) => {
+        }, false).then((res) => {
             this.setState({
                 isRegistering: false,
                 isSuccessfullyRegistered: true
@@ -125,7 +125,7 @@ export default class AuthStore extends Reflux.Store {
             query: "login",
             username: username,
             password: password
-        }).then(() => {
+        }, false).then(() => {
             const loginState = getLoginStateFromCookies();
             this.setState(Object.assign(loginState, {
                 isLoggingIn: false,
