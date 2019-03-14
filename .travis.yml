@@ -11,7 +11,7 @@ matrix:
         - pytest --cov=core -n 4
     - language: node_js
       node_js:
-        - "lts/carbon"
+        - "8"
 
       sources:
       - google-chrome
