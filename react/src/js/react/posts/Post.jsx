@@ -92,6 +92,10 @@ class Post extends Reflux.Component {
         this.props.history.push(`/post/${this.currentPost.id}`);
     }
 
+    handleAuthorlink = () => {
+        this.props.history.push(`/profile/${this.currentPost.author.id}`);
+    }
+
     render() {
         const { post } = this.props;
 
@@ -100,7 +104,7 @@ class Post extends Reflux.Component {
                 <div className="post-header">
                     {/* TODO Add Author URL here */}
                     <p className="post-time">
-                        Posted by <a href="#">{this.currentPost.author.displayName}</a> on {formatDate(this.currentPost.published)}
+                        Posted by <a onClick={this.handleAuthorlink}>{this.currentPost.author.displayName}</a> on {formatDate(this.currentPost.published)}
                     </p>
                     {!this.props.isPostView ? this.renderHeaderButtons() : null}
                 </div>
