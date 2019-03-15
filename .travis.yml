@@ -3,46 +3,44 @@ sudo: true
 cache: pip
 matrix:
   include:
-    - language: python
-      python: "3.7"
-      install:
-        - pip install -r requirements.txt
-      script:
-        - pytest --cov=core -n 4
-    - language: node_js
-      node_js:
-        - "lts/carbon"
-
-      sources:
-      - google-chrome
-      packages:
-      - google-chrome-stable
-
-      env:
-        - DJANGO_VERSION=2.1.2 DB=postgresql DISPLAY=:99.0 CHROME_BIN=/usr/bin/google-chrome DJANGO_HOST=http://127.0.0.1:8000/api
-
-      install:
-        # installs the packages specified in package.json
-        - cd react
-        - npm install
-
-      before_script:
-        # Allows us to run chrome in travis
-        - Xvfb :99 &
-        - sleep 3 # give xvfb some time to start
-
-      script:
-        # enforces front-end code styling
-        - npm run-script lint
-        # runs the front-end unit tests and coverage
-        - npm test -- --single-run
-      deploy:
-        provider: s3
-        access_key_id: AKIAITJUTNH6VTEYYIJA
-        secret_access_key:
-          secure: MuTfrB5rzk+Uqhk+9BBxRPalKJxjrzlocD4C2vNfLTqDxhu3VsEQLbN2vrLLxZobOqkHxhLAHtdkL9YAicv7nzQb+cC0PkXV7YlEzPjqle01LaX38RK7xlRjMFO6PvxzH3DSmeGJFfv8+VT2NcbvrjngobTA1UkKugUTEvx9aryHZ77ZvfWtRGml6oQ0ufMSdOqWdRjHLhR5RWIo3mUDlDLujNj6amfUj7ezfEas1D/HG/LKJcahziDnPKta56NXpfGzy8eT145ArAlmMPaPqcAqQEdIcV3PcRm15Y9a27vqrwelsy+aDS8CFY8uLDZPFIW1sca0BFBN513J1+SxK1StRgRr2A8RbH8EotbMPWjUE1ATUo6yt9CGUvENGYLgIRtffdWtOcnkbIYESiXaxpAMwc+E7vADhK49ToFHMyLroZEeN2oDmbJEPjn1mWFDk6ReiD5lo1GOMm122Xoz8AKH4YYicKcMOb5AINmKz5gp55/eE4u0ZEwkHamvha57NG6An/u1wy8/jU1SWgz0H152cUxIx0oh7YMai03tC8HLFnTUn5GQWjXDUdFUqtuWE4TAeUh8NHRLAZbUVeYep9nFJsAoo/h+R6bftH0nsy6J2iGh+yrsEkdLW5Qoxjmdyc1CsskshLV1biKIW7MtGQrjP3prrZVFojvyHjbNH9k=
-        bucket: cmput404-i5
-        local-dir: react/dist
-        acl: public_read
-        on:
-          branch: release
+  - language: python
+    python: '3.7'
+    install:
+    - pip install -r requirements.txt
+    script:
+    - pytest --cov=core -n 4
+  - language: node_js
+    node_js:
+    - '8'
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-stable
+    env:
+    - DJANGO_VERSION=2.1.2 DB=postgresql DISPLAY=:99.0 CHROME_BIN=/usr/bin/google-chrome
+      DJANGO_HOST=http://127.0.0.1:8000/api
+    install:
+    - cd react
+    - npm install
+    before_script:
+    - Xvfb :99 &
+    - sleep 3
+    script:
+    - npm run-script lint
+    - npm test -- --single-run
+    before_deploy:
+    - cd ${TRAVIS_BUILD_DIR}/react
+    - npm install
+    - npm rebuild node-sass
+    - npm run-script build
+    deploy:
+      provider: s3
+      skip_cleanup: true
+      region: "us-west-2"
+      access_key_id: ${AWS_ACCESS_KEY_ID}
+      secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+      bucket: "cmput404-i5"
+      local-dir: "${TRAVIS_BUILD_DIR}/react/dist"
+      acl: public_read
+      on:
+        branch: release
