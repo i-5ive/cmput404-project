@@ -10,6 +10,7 @@ export const PostsActions = Reflux.createActions([
     "getPosts",
     "deletePost",
     "getPost",
+    "addComment",
     "clearModalMessage"
 ]);
 
@@ -24,6 +25,9 @@ export class PostsStore extends Reflux.Store {
             creatingPost: false,
             successfullyCreatedPost: false,
             failedToCreatePost: false,
+            creatingComment: false,
+            successfullyCreatedComment: false,
+            failedToCreateComment: false,
             posts: [],
             currentPost: null,
             fetchingPosts: false,
@@ -137,6 +141,28 @@ export class PostsStore extends Reflux.Store {
             this.setState({
                 fetchingPost: false,
                 failedToFetchPost: true
+            });
+            console.error(err);
+        });
+    }
+
+    onCreateComment(comment) {
+        this.setState({
+            creatingComment: true,
+            successfullyCreatedComment: false,
+            failedToCreateComment: false
+        });
+        RestUtil.sendPOST(`posts/${comment.post}/comments/`, comment).then(() => { // this is not the right url?
+            this.setState({
+                creatingComment: false,
+                successfullyCreatedComment: true,
+                failedToCreateComment: false
+            });
+        }).catch((err) => {
+            this.setState({
+                creatingComment: false,
+                successfullyCreatedComment: false,
+                failedToCreateComment: true
             });
             console.error(err);
         });
