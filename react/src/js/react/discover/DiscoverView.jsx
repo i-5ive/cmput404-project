@@ -18,7 +18,7 @@ export default class DiscoverView extends Reflux.Component {
     }
 
     componentDidMount() {
-        this._loadMorePosts(1);
+        this._loadMorePosts();
     }
 
     _loadMorePosts = (pageNumber) => {

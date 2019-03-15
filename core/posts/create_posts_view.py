@@ -7,17 +7,15 @@ from rest_framework.response import Response
 from core.posts.models import Posts
 from core.authors.models import Author
 from core.posts.serializers import PostsSerializer
+from core.users.models import User
 
 from core.authors.util import get_author_id
 
 MAX_UPLOAD_SIZE = 10485760
     
-def create_post(request):
+def create_post(request, data):
     success = True
     message = "Post created"
-
-    body = request.data
-    data = json.loads(body["postData"])
 
     post_serializer = PostsSerializer(data=data)
     post_serializer.is_valid()
@@ -35,6 +33,8 @@ def create_post(request):
             
             if image_type == "image/jpeg" or image_type == "image/png":
                 content_type = "%s;base64" % image_type
+            elif (image_type == "application/base64"):
+                content_type = image_type
             else:
                 return False, "Invalid file type", None
 
@@ -56,14 +56,53 @@ def create_post(request):
 
     return success, message, post_serializer.data
 
+def handle_visible_to(request, data):
+    visible_to = request.data.get("visibleTo")
+    if (visible_to):
+        visible_to = json.loads(visible_to)
+        # TODO: external authors
+        users = User.objects.filter(username__in=visible_to)
+        if (len(users) == len(visible_to)):
+            data["visibleTo"] = []
+            for user in users:
+                data["visibleTo"].append(user.author.get_url())
+        else:
+            invalid_users = []
+            seen_users = {}
+            for user in users:
+                seen_users[user] = True
+            for user in visible_to:
+                if (not seen_users.get(user)):
+                    invalid_users.append(user)
+            return Response({
+                "success": False,
+                "query": request.data["query"],
+                "message": "Not all requested users could be found",
+                "invalidUsers": invalid_users
+            }, status=400)
 
 def handle_posts(request):
     query = request.data["query"]
+    data = json.loads(request.data["postData"])
+    if ((not request.user.is_authenticated) or str(request.user.author.id) != data["author"]):
+        return Response({
+            "success": False,
+            "query": query,
+            "message": "You are not authenticated as the post's specified author",
+            "post": None
+        }, status=401)
     success = False
-    message = "Post not created"
+    message = "There was a problem parsing the request body"
 
-    success, message, new_post = create_post(request)
-
+    visible_to_response = handle_visible_to(request, data)
+    if (visible_to_response):
+        return visible_to_response
+    
+    try:
+        success, message, new_post = create_post(request, data)
+    except:
+        new_post = None
+    
     if success: 
         code = 200
     else:

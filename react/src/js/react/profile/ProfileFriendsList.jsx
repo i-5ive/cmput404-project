@@ -29,7 +29,7 @@ export default class ProfileFriendsList extends Reflux.Component {
                 </Link>
                 <h5>
                     {
-                        isExternalAuthor ? "External Author" : "Local Author"
+                        isExternalAuthor(friend.id) ? "External Author" : "Local Author"
                     }
                 </h5>
             </div>

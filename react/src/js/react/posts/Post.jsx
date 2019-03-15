@@ -3,7 +3,7 @@ import Reflux from "reflux";
 import PropTypes from "prop-types";
 
 import ReactMarkdown from "react-markdown";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import { PostsStore, PostsActions } from "../discover/PostsStore";
 import { Thumbnail, Button } from "react-bootstrap";
 import { formatDate } from "../util/DateUtil";
@@ -61,7 +61,7 @@ class Post extends Reflux.Component {
                 const name = `data:${contentType},${content}`;
                 contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
             } else if (contentType === "text/markdown") {
-                contentList.push(<ReactMarkdown source={content} />);
+                contentList.push(<ReactMarkdown key={post.id} source={content} />);
             } else {
                 contentList.push(<span key={`text-${index}`} className="post-text">{content}</span>);
             }
@@ -93,14 +93,14 @@ class Post extends Reflux.Component {
     }
 
     render() {
-        const { post } = this.props;
+        const posts = this.props.post,
+			post = posts[0];
 
         return (
             <Thumbnail>
                 <div className="post-header">
-                    {/* TODO Add Author URL here */}
                     <p className="post-time">
-                        Posted by <a href="#">{this.currentPost.author.displayName}</a> on {formatDate(this.currentPost.published)}
+                        Posted by <Link to={`/profile/${encodeURIComponent(post.author.url)}/`}>{post.author.displayName}</Link> on {formatDate(post.published)}
                     </p>
                     {!this.props.isPostView ? this.renderHeaderButtons() : null}
                 </div>
@@ -108,7 +108,7 @@ class Post extends Reflux.Component {
                 <p className="post-desc">{this.currentPost.description}</p>
                 <div className="post-body">
                     {
-                        this.renderContent(post)
+                        this.renderContent(posts)
                     }
                 </div>
                 {this.renderFooter()}

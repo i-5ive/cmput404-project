@@ -52,7 +52,7 @@ const validateUsername = (field) => {
                         placeholder="Username" />
                     {
                         usernameState && (
-                            <h5>
+                            <h5 className="error-text">
                                 {
                                     usernameMessage
                                 }
@@ -69,7 +69,7 @@ const validateUsername = (field) => {
                         placeholder="Password" />
                     {
                         passwordState && (
-                            <h5>
+                            <h5 className="error-text">
                                 {
                                     passwordMessage
                                 }

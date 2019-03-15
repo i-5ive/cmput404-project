@@ -33,8 +33,6 @@ class Posts(CommonData):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # the same post_id is used to identify linked posts for images 
     post_id = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=True)
-    source = models.URLField(blank=True, null=True)
-    origin = models.URLField(blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True)
     content = models.TextField(blank=True, null=True)
     unlisted = models.BooleanField(default=False)
@@ -45,7 +43,7 @@ class Posts(CommonData):
         ('FOAF', 'Friend of a Friend'),
         ('FRIENDS', 'Friends'),
         ('PRIVATE', 'Private'),
-        ('SERVERONLY', 'Local Friend')
+        ('SERVERONLY', 'Server Only')
     )
 
     visibility = models.CharField(

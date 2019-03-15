@@ -1,5 +1,6 @@
 import Reflux from "reflux";
 import update from "immutability-helper";
+import _ from "lodash";
 
 import RestUtil from "../util/RestUtil";
 
@@ -7,7 +8,8 @@ export const PostsActions = Reflux.createActions([
     "createPost",
     "getPosts",
     "deletePost",
-    "getPost"
+    "getPost",
+	"clearModalMessage"
 ]);
 
 /**
@@ -41,25 +43,25 @@ export class PostsStore extends Reflux.Store {
         this.setState({
             creatingPost: true,
             successfullyCreatedPost: false,
-            failedToCreatePost: false
+            failedToCreatePost: false,
+			invalidSharedUsernames: null
         });
         RestUtil.sendPOST("posts/", data).then(() => {
             this.setState({
                 creatingPost: false,
-                successfullyCreatedPost: true,
-                failedToCreatePost: false
+                successfullyCreatedPost: true
             });
         }).catch((err) => {
             this.setState({
                 creatingPost: false,
-                successfullyCreatedPost: false,
-                failedToCreatePost: true
+                failedToCreatePost: true,
+				invalidSharedUsernames: _.get(err, "response.data.invalidUsers")
             });
             console.error(err);
         });
     }
 
-    onGetPosts(page) {
+    onGetPosts(page = 0) {
         this.setState({
             fetchingPosts: true,
             failedToFetchPosts: false
@@ -72,7 +74,7 @@ export class PostsStore extends Reflux.Store {
                 }),
                 hash = Object.create(null);
 
-            posts.forEach(function(post) {
+            posts.forEach((post) => {
                 if (hash[post.post_id]) {
                     hash[post.post_id].push(post);
                 } else {
@@ -140,6 +142,12 @@ export class PostsStore extends Reflux.Store {
             console.error(err);
         });
     }
+	
+	onClearModalMessage() {
+		this.setState({
+			failedToCreatePost: false
+		});
+	}
 }
 
 export default {

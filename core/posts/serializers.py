@@ -11,7 +11,7 @@ class PostsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Posts
-        fields = ('id', 'post_id', 'author', 'source', 'origin', 'contentType', 'unlisted', 'comments',
+        fields = ('id', 'post_id', 'author', 'contentType', 'unlisted', 'comments',
             'content', 'title', 'description', 'published', 'visibleTo', 'visibility', "categories")
 
     # Credits to Ivan Semochkin, https://stackoverflow.com/questions/41248271/django-rest-framework-not-responding-to-read-only-on-nested-data
@@ -20,6 +20,9 @@ class PostsSerializer(serializers.ModelSerializer):
         instance.author.host = get_host_url()
         instance.author.url = get_author_url(str(instance.author.id))
         representation['author'] = AuthorSummarySerializer(instance.author, read_only=True).data
+        # TODO: integration with other servers
+        representation["origin"] = get_host_url() + "/posts/" + str(instance.id)
+        representation["source"] = representation["origin"]
         return representation 
 
 class CommentsSerializer(serializers.ModelSerializer):

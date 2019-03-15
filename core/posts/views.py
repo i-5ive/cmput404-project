@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from core.posts.models import Posts, Comments
 from core.posts.serializers import PostsSerializer, CommentsSerializer
-from core.posts.posts_view import handle_posts as handle_posts
+from core.posts.create_posts_view import handle_posts
 
 import logging
 
@@ -54,13 +54,16 @@ class PostsViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, **kwargs):
         # Use post_id to delete all related image posts too
         post = self.get_object()
+        if ((not request.user.is_authenticated) or request.user.author != post.author):
+            return Response({
+                "success": False,
+                "message": "You must be logged in as the author of the post to delete it.",
+                "query": "deletePost"
+            }, status=401)
+        
         Posts.objects.filter(post_id=post.post_id).delete()
         return Response({
             "success": True,
-            "message": "Post deleted successfully"
+            "message": "Post deleted successfully",
+            "query": "deletePost"
         }, status=200)
-
-
-
-    
-

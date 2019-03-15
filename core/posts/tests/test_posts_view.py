@@ -15,17 +15,91 @@ from core.posts.views import PostsViewSet
 class PostViewsTest(TestCase):
 
     def setUp(self):
-        self.author1 = setupUser("cry")
+        self.author1 = setupUser("cry", "password")
+        self.author2 = setupUser("user2", "password")
         self.factory = APIRequestFactory()
+        
+        self.client.login(username="cry", password="password")
 
+    def test_create_post_wrong_user_authentication(self):
+        self.client.login(username="user2", password="password")
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PRIVATE",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
+        self.assertEqual(response.status_code, 401)
+        
+    def test_create_post_unauthenticated(self):
+        self.client.logout()
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PRIVATE",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
+        self.assertEqual(response.status_code, 401)
+        
+    def test_unfound_users(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PRIVATE",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data, 'visibleTo': json.dumps(["a", "b"])})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(sorted(response.data["invalidUsers"]), ["a", "b"])
+    
+    def test_one_unfound_user(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PRIVATE",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data, 'visibleTo': json.dumps(["b"])})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(sorted(response.data["invalidUsers"]), ["b"])
+    
+    def test_all_valid_users(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PRIVATE",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data, 'visibleTo': json.dumps(["cry", "user2"])})
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.data.get("invalidUsers"))
+
+        posts = Posts.objects.all()
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(sorted(posts.first().visibleTo), sorted([self.author1.get_url(), self.author2.get_url()]))
+    
     def test_create_post(self):
         author_id = str(self.author1.id)
         data = {
             "author": author_id,
             "title": "wild",
-            "source": "http://www.chaitali.com/",
-            "origin": "http://www.cry.com/",
-            "visibleTo": ["whomever"],
             "unlisted": True,
             "visibility": "PRIVATE",
             "categories": ["cool", "fun", "sad"]
@@ -35,6 +109,10 @@ class PostViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["query"], "createpost")
         self.assertEqual(response.data["message"], "Post created")
+        
+        posts = Posts.objects.all()
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(len(posts.first().visibleTo), 0)
 
     # From https://stackoverflow.com/questions/11170425/how-to-unit-test-file-upload-in-django, credits to Danilo Cabello
     def test_valid_file_type(self):
@@ -48,6 +126,17 @@ class PostViewsTest(TestCase):
         response = self.client.post('/posts/', {'imageFiles': fp, 'query': 'createpost', 'postData': post_data})
         self.assertEqual(response.status_code, 200)
 
+    def test_application_base64_file(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild"
+        }
+        post_data = json.dumps(data)
+        fp = SimpleUploadedFile("app.dat", b"file_content", content_type="application/base64")
+        response = self.client.post('/posts/', {'imageFiles': fp, 'query': 'createpost', 'postData': post_data})
+        self.assertEqual(response.status_code, 200)
+        
     def test_invalid_file_type(self):
         author_id = str(self.author1.id)
         data = {
@@ -83,7 +172,7 @@ class PostViewsTest(TestCase):
         response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
 
         post = Posts.objects.get(author=author_id)
-        response = self.client.delete(f'/posts/{post.id}/')
+        response = self.client.delete('/posts/%s/' % (post.id))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["message"], "Post deleted successfully")
         self.assertEqual(len(Posts.objects.filter(id=post.id)), 0)
@@ -129,3 +218,17 @@ class PostViewsTest(TestCase):
             if 'text' in post['contentType']:
                 continue
             self.assertIn("image", post['contentType'])
+
+    def test_deletion_unauthenticated(self):
+        self.client.logout()
+        post = Posts.objects.create(author=self.author1)
+        res = self.client.delete("/posts/%s/" % post.id)
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(len(Posts.objects.all()), 1)
+        
+    def test_deletion_wrong_user_authentication(self):
+        self.client.login(username="user2", password="password")
+        post = Posts.objects.create(author=self.author1)
+        res = self.client.delete("/posts/%s/" % post.id)
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(len(Posts.objects.all()), 1)

@@ -3,21 +3,10 @@
 	
 	.headerNotifications {
 		font-size: 15pt;
-		transform: rotateZ(38deg);
 	}
 
 	.notificationsBadge > .badge {
 		background-color: red;
 		float: right;
-	}
-}
-
-.bootstrapLink {
-	color: inherit;
-	text-decoration: inherit;
-	
-	&:hover, &:active, &:visited {
-		color: inherit;
-		text-decoration: inherit;
 	}
 }
