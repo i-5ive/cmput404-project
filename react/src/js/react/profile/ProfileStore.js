@@ -227,7 +227,7 @@ export default class ProfileStore extends Reflux.Store {
             this.setState({
                 isFollowingUser: res.data.isFollowingUser,
                 isLoadingFollowStatus: false,
-				isOtherFollowing: res.data.isOtherFollowing && res.data.isOtherFriendRequest
+                isOtherFollowing: res.data.isOtherFollowing && res.data.isOtherFriendRequest
             });
         }).catch((err) => {
             this.setState({

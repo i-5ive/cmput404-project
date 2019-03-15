@@ -65,9 +65,9 @@ export default class LoginView extends Reflux.Component {
                         </Alert>
                     )
                 }
-				{
-					this.state.isLoggingIn && <LoadingComponent />
-				}
+                {
+                    this.state.isLoggingIn && <LoadingComponent />
+                }
                 <CredentialsForm
                     username={this.state.enteredUsername}
                     password={this.state.enteredPassword}

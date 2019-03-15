@@ -28,7 +28,7 @@ export default class HomeStore extends Reflux.Store {
             errorLoadingPosts: false
         });
 
-        RestUtil.sendGET(`author/posts/`, {
+        RestUtil.sendGET("author/posts/", {
             page: page
         }).then((res) => {
             const posts = update(this.state.posts, {

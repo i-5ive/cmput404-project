@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Modal, ModalHeader, ModalBody, ModalTitle } from "react-bootstrap";
 import CreatePost from "./CreatePost";
 
-import {PostsActions} from "../discover/PostsStore";
+import { PostsActions } from "../discover/PostsStore";
 
 export default class PostModal extends React.Component {
     static propTypes = {
@@ -11,12 +11,12 @@ export default class PostModal extends React.Component {
         handleClose: PropTypes.func
     }
 
-	componentDidUpdate(prevProps) {
-		if (prevProps.show !== this.props.show && this.props.show) {
-			PostsActions.clearModalMessage();
-		}
-	}
-	
+    componentDidUpdate(prevProps) {
+        if (prevProps.show !== this.props.show && this.props.show) {
+            PostsActions.clearModalMessage();
+        }
+    }
+
     render() {
         return (
             <Modal
@@ -25,10 +25,10 @@ export default class PostModal extends React.Component {
                 onHide={this.props.handleClose}
                 className="create-post-modal">
                 <ModalHeader closeButton>
-					<ModalTitle>
+                    <ModalTitle>
 						Create Post
-					</ModalTitle>
-				</ModalHeader>
+                    </ModalTitle>
+                </ModalHeader>
                 <ModalBody>
                     <CreatePost handleClose={this.props.handleClose} />
                 </ModalBody>

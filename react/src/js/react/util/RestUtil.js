@@ -66,7 +66,7 @@ export default class RestUtil {
             withCredentials: true,
             method: "delete",
             url: `${SERVER_URL}/${path}`,
-			auth: getAuthObject()
+            auth: getAuthObject()
         };
         return axios(options);
     }

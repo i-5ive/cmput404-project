@@ -9,7 +9,7 @@ export const PostsActions = Reflux.createActions([
     "getPosts",
     "deletePost",
     "getPost",
-	"clearModalMessage"
+    "clearModalMessage"
 ]);
 
 /**
@@ -44,7 +44,7 @@ export class PostsStore extends Reflux.Store {
             creatingPost: true,
             successfullyCreatedPost: false,
             failedToCreatePost: false,
-			invalidSharedUsernames: null
+            invalidSharedUsernames: null
         });
         RestUtil.sendPOST("posts/", data).then(() => {
             this.setState({
@@ -55,7 +55,7 @@ export class PostsStore extends Reflux.Store {
             this.setState({
                 creatingPost: false,
                 failedToCreatePost: true,
-				invalidSharedUsernames: _.get(err, "response.data.invalidUsers")
+                invalidSharedUsernames: _.get(err, "response.data.invalidUsers")
             });
             console.error(err);
         });
@@ -142,12 +142,12 @@ export class PostsStore extends Reflux.Store {
             console.error(err);
         });
     }
-	
-	onClearModalMessage() {
-		this.setState({
-			failedToCreatePost: false
-		});
-	}
+
+    onClearModalMessage() {
+        this.setState({
+            failedToCreatePost: false
+        });
+    }
 }
 
 export default {

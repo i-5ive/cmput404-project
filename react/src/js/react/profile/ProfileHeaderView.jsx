@@ -115,8 +115,8 @@ export default class ProfileHeaderView extends Reflux.Component {
                     text = "Send friend request";
                     onClick = this._onSendRequestClicked;
                 } else {
-					return null;
-				}
+                    return null;
+                }
             } else {
                 return null;
             }

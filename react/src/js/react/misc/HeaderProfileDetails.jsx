@@ -39,10 +39,10 @@ class HeaderProfileDetails extends Reflux.Component {
 
     renderNotifications() {
         return (
-			<span className="notificationsBadge">
-				<span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
-				<NotificationsBadge />
-			</span>
+            <span className="notificationsBadge">
+                <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
+                <NotificationsBadge />
+            </span>
         );
     }
 
@@ -76,26 +76,26 @@ class HeaderProfileDetails extends Reflux.Component {
                         this.renderCreatePost()
                     }
                 </NavItem>,
-				<OverlayTrigger
-					trigger="click"
-					placement="bottom"
-					key="notifications"
-					overlay={
-						<Popover
-							id="notifications-popover"
-							title="Notifications"
-						>
-							<NotificationsPopover />
-						</Popover>
-					}
-					rootClose
-				>
-					<NavItem>
-						{
-							this.renderNotifications()
-						}
-					</NavItem>
-				</OverlayTrigger>,
+                <OverlayTrigger
+                    trigger="click"
+                    placement="bottom"
+                    key="notifications"
+                    overlay={
+                        <Popover
+                            id="notifications-popover"
+                            title="Notifications"
+                        >
+                            <NotificationsPopover />
+                        </Popover>
+                    }
+                    rootClose
+                >
+                    <NavItem>
+                        {
+                            this.renderNotifications()
+                        }
+                    </NavItem>
+                </OverlayTrigger>,
                 <NavDropdown key="profile-dropdown-item" title={this.state.username} id="profile-dropdown">
                     <MenuItem key="profile" onClick={this._onProfileClicked}>View Profile</MenuItem>
                     <MenuItem key="signOut" onClick={this._onSignOutClicked}>Sign Out</MenuItem>

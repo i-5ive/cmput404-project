@@ -94,7 +94,7 @@ class Post extends Reflux.Component {
 
     render() {
         const posts = this.props.post,
-			post = posts[0];
+            post = posts[0];
 
         return (
             <Thumbnail>
