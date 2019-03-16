@@ -27,7 +27,10 @@ export default class DiscoverView extends Reflux.Component {
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.fetchingPosts}
                     loadMorePosts={this._loadMorePosts}
+					onDeletePost={PostsActions.deletePost}
                     hasNextPage={Boolean(this.state.nextPage)}
+					errorDeletingPost={this.state.failedToDeletePost}
+					deletingPost={this.state.deletingPost}
                 />
             </div>
         );

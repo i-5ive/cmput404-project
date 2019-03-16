@@ -10,6 +10,7 @@ import PrivacyDropdown from "./PrivacyDropdown";
 import { PostsStore, PostsActions } from "../discover/PostsStore";
 import AuthStore from "../auth/AuthStore";
 import LoadingComponent from "../misc/LoadingComponent";
+import HomeActions from "../home/HomeActions";
 
 const PRIVATE_STATUS = "PRIVATE";
 
@@ -34,6 +35,7 @@ export default class CreatePost extends Reflux.Component {
             this.state.successfullyCreatedPost) {
             this.props.handleClose();
             PostsActions.getPosts();
+			HomeActions.loadPosts();
         }
     }
 
@@ -73,6 +75,13 @@ export default class CreatePost extends Reflux.Component {
         });
     }
 
+	_resetFiles = () => {
+		const files = document.getElementById("fileUpload");
+		if (files) {
+			files.value = "";
+		}
+	};
+	
     _onAddTag = (value) => {
         const tags = update(this.state.tags, {
             $push: [value]
@@ -354,7 +363,7 @@ export default class CreatePost extends Reflux.Component {
                                 multiple
                                 className="file-input-button"
                             />
-                            <Button type="reset"
+                            <Button onClick={this._resetFiles}
                                 bsStyle="primary">Clear Images</Button>
                         </FormGroup>
 

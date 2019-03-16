@@ -4,6 +4,7 @@ import update from "immutability-helper";
 import Actions from "./HomeActions";
 
 import RestUtil from "../util/RestUtil";
+import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
 
 /**
  * This store keeps track of the state of components that deal with posts on the home page of the app
@@ -34,7 +35,8 @@ export default class HomeStore extends Reflux.Store {
         this.setState(state);
 
         RestUtil.sendGET("posts/feed/", {
-            page: page
+            page: page,
+			size: POSTS_PAGE_SIZE
         }).then((res) => {
             const posts = update(this.state.posts, {
                 $push: res.data.posts
@@ -49,6 +51,30 @@ export default class HomeStore extends Reflux.Store {
                 isLoadingPosts: false,
                 errorLoadingPosts: true,
 				nextPage: null
+            });
+            console.error(err);
+        });
+    }
+	
+	onDeletePost(id, postId) {
+        this.setState({
+            deletingPost: id,
+            failedToDeletePost: false
+        });
+        RestUtil.sendDELETE(`posts/${id}/`).then(() => {
+            const index = this.state.posts.findIndex((post) => post.id === id);
+			const posts = update(this.state.posts, {
+				$splice: [[index, 1]]
+			});
+            this.setState({
+                posts: posts,
+                deletingPost: false,
+                failedToDeletePost: false
+            });
+        }).catch((err) => {
+            this.setState({
+                deletingPost: false,
+                failedToDeletePost: id
             });
             console.error(err);
         });

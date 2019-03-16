@@ -38,7 +38,10 @@ export default class HomeView extends Reflux.Component {
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.isLoadingPosts}
                     loadMorePosts={this._loadMorePosts}
+					onDeletePost={HomeActions.deletePost}
 					hasNextPage={Boolean(this.state.nextPage)}
+					errorDeletingPost={this.state.failedToDeletePost}
+					deletingPost={this.state.deletingPost}
                 />
             </div>
         );

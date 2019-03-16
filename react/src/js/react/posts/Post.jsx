@@ -4,10 +4,11 @@ import PropTypes from "prop-types";
 
 import ReactMarkdown from "react-markdown";
 import { withRouter, Link } from "react-router-dom";
-import { PostsStore, PostsActions } from "../discover/PostsStore";
-import { Thumbnail, Button } from "react-bootstrap";
+import { Thumbnail, Button, Badge } from "react-bootstrap";
 import { formatDate } from "../util/DateUtil";
 import AuthStore from "../auth/AuthStore";
+
+import LoadingComponent from "../misc/LoadingComponent";
 
 /**
  * Displays a singular post
@@ -16,7 +17,10 @@ class Post extends Reflux.Component {
     static propTypes = {
         post: PropTypes.object.isRequired,
         isPostView: PropTypes.bool,
-		images: PropTypes.array
+		images: PropTypes.array,
+		onDelete: PropTypes.func,
+		failedToDeletePost: PropTypes.bool,
+		isDeleting: PropTypes.bool
     }
 
     static defaultProps ={
@@ -25,25 +29,28 @@ class Post extends Reflux.Component {
 
     constructor(props) {
         super(props);
-        this.stores = [PostsStore, AuthStore];
+        this.store = AuthStore;
     }
 
     renderHeaderButtons = () => {
         // TODO Add edit button
-        const isCurrentUser = (this.props.post.author.id === this.state.userId);
+        const isCurrentUser = this.state.isLoggedIn && (this.props.post.author.id === this.state.userInfo.id);
         return (
             <div className="buttons">
-                <i className="fas fa-user-lock">{this.props.post.visibility}</i>
+				<span className="glyphicon glyphicon-eye-open" />
+				<span className="visibility-text">{this.props.post.visibility}</span>
                 <Button
-                    variant="primary"
+                    bsStyle="primary"
                     className="permalink-button"
+					disabled={this.props.isDeleting}
                     onClick={this.handlePermalink}>
                     <i className="fas fa-link" />
                 </Button>
                 {isCurrentUser
                     ? <Button
-                        variant="primary"
+                        bsStyle="danger"
                         className="delete-button"
+						disabled={this.props.isDeleting}
                         onClick={this.handleDeletePost}>
                         <i className="far fa-trash-alt" />
                     </Button>
@@ -54,6 +61,13 @@ class Post extends Reflux.Component {
 
     // From VinayC, https://stackoverflow.com/questions/8499633/how-to-display-base64-images-in-html
     renderContent = (posts) => {
+		if (posts.length === 1 && !posts[0].content) {
+			return (
+				<div className="empty">
+					This post has no content.
+				</div>
+			);
+		}
         const contentList = [];
         posts.forEach((post, index) => {
             const { contentType, content } = post;
@@ -74,25 +88,92 @@ class Post extends Reflux.Component {
         return null;
     }
 
+	renderCategory(category) {
+		return (
+			<Badge key={category} className="category-badge">
+				{
+					category
+				}
+			</Badge>
+		);
+	}
+	
+	renderTotalComments(commentsLength) {
+		const text = `${commentsLength} comments`;
+		if (this.props.isPostView) {
+			return (
+				<span className="comments-count">
+					{text}
+				</span>
+			);
+			
+		}
+		return (
+			<Link className="comments-count" to={`/post/${this.props.post.id}/`}>
+				{text}
+			</Link>
+		);
+	}
+	
     renderFooter() {
         const commentsLength = this.props.post.comments.length;
         return (
-            <div className="post-footer">
-                <p className="categories">{this.props.post.categories}</p>
-                { commentsLength ? <a onClick={this.handlePermalink}>{`${commentsLength} comments`}</a> : null}
+            <div>
+				<div className="categories-wrapper">
+					<span className="glyphicon glyphicon-tags" />
+					{
+						this.props.post.categories.length === 0 && (
+							<span>
+								No categories.
+							</span>
+						)
+					}
+					{
+						this.props.post.categories.map(this.renderCategory)
+					}
+				</div>
+				<span className="glyphicon glyphicon-comment" />
+				{
+					this.renderTotalComments(commentsLength)
+				}
+				
             </div>
         );
     }
 
+	handlePermalink = () => {
+		this.props.history.push(`/post/${this.props.post.id}/`);
+	};
+	
     handleDeletePost = () => {
-        PostsActions.deletePost(this.props.post.id, this.props.post.post_id);
+        this.props.onDelete(this.props.post.id, this.props.post.post_id);
     }
 
-    handlePermalink = () => {
-        this.props.history.push(`/post/${this.props.post.id}`);
-    }
-
+	renderTitle() {
+		if (this.props.post.title) {
+			return <h3 className="post-title">{this.props.post.title}</h3>;
+		}
+		return (
+			<h3 className="empty">
+				No title
+			</h3>
+		);
+	}
+	
     render() {
+		if (this.props.isDeleting) {
+			return (
+				<Thumbnail>
+					<div>
+						<LoadingComponent />
+						<span className="deleting-message">
+							This post is being deleted.
+						</span>
+					</div>
+				</Thumbnail>
+			);
+		}
+		
         const post = this.props.post;
 		let posts = [post];
 		if (this.props.images) {
@@ -100,19 +181,29 @@ class Post extends Reflux.Component {
 		}
         return (
             <Thumbnail>
+				{
+					this.props.failedToDeletePost && (
+						<Alert bsStyle="danger">
+							An error occurred while deleting the post.
+						</Alert>
+					)
+				}
                 <div className="post-header">
-                    <p className="post-time">
-                        Posted by <Link to={`/profile/${encodeURIComponent(post.author.url)}/`}>{post.author.displayName}</Link> on {formatDate(post.published)}
-                    </p>
+					{
+						this.renderTitle()
+					}
                     {!this.props.isPostView ? this.renderHeaderButtons() : null}
                 </div>
-                <h3 className="post-title">{this.props.post.title}</h3>
-                <p className="post-desc">{this.props.post.description}</p>
+				<div className="post-time">
+					Posted by <Link to={`/profile/${encodeURIComponent(post.author.url)}/`}>{post.author.displayName}</Link> on {formatDate(post.published)}
+				</div>
+				<hr />
                 <div className="post-body">
                     {
                         this.renderContent(posts)
                     }
                 </div>
+				<hr />
                 {this.renderFooter()}
                 {
                     this.renderComments()

@@ -322,4 +322,28 @@ export default class ProfileStore extends Reflux.Store {
             console.error(err);
         });
     }
+	
+	onDeletePost(id, postId) {
+        this.setState({
+            deletingPost: id,
+            failedToDeletePost: false
+        });
+        RestUtil.sendDELETE(`posts/${id}/`).then(() => {
+            const index = this.state.posts.findIndex((post) => post.id === id);
+			const posts = update(this.state.posts, {
+				$splice: [[index, 1]]
+			});
+            this.setState({
+                posts: posts,
+                deletingPost: false,
+                failedToDeletePost: false
+            });
+        }).catch((err) => {
+            this.setState({
+                deletingPost: false,
+                failedToDeletePost: id
+            });
+            console.error(err);
+        });
+    }
 }

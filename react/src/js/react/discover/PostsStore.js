@@ -3,6 +3,7 @@ import update from "immutability-helper";
 import _ from "lodash";
 
 import RestUtil from "../util/RestUtil";
+import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
 
 export const PostsActions = Reflux.createActions([
     "createPost",
@@ -27,7 +28,7 @@ export class PostsStore extends Reflux.Store {
             currentPost: null,
             fetchingPosts: false,
             failedToFetchPosts: false,
-            deletingPost: true,
+            deletingPost: false,
             failedToDeletePost: false,
             fetchingPost: false,
 			nextPage: null,
@@ -72,7 +73,8 @@ export class PostsStore extends Reflux.Store {
 		}
         this.setState(state);
         RestUtil.sendGET("posts/", {
-            page: page
+            page: page,
+			size: POSTS_PAGE_SIZE
         }).then((response) => {
             const posts = update(this.state.posts, {
 				$push: response.data.results
@@ -94,22 +96,23 @@ export class PostsStore extends Reflux.Store {
 
     onDeletePost(id, postId) {
         this.setState({
-            deletingPost: true,
+            deletingPost: id,
             failedToDeletePost: false
         });
         RestUtil.sendDELETE(`posts/${id}/`).then(() => {
-            // From mehulmpt, https://stackoverflow.com/questions/48302118/delete-nested-object-base-on-key-in-react
-            const newPosts = Object.assign({}, this.state.posts);
-            delete newPosts[postId];
+            const index = this.state.posts.findIndex((post) => post.id === id);
+			const posts = update(this.state.posts, {
+				$splice: [[index, 1]]
+			});
             this.setState({
-                posts: newPosts,
+                posts: posts,
                 deletingPost: false,
                 failedToDeletePost: false
             });
         }).catch((err) => {
             this.setState({
                 deletingPost: false,
-                failedToDeletePost: true
+                failedToDeletePost: id
             });
             console.error(err);
         });
@@ -123,10 +126,12 @@ export class PostsStore extends Reflux.Store {
 			currentPostImages: []
         });
         RestUtil.sendGET(`posts/${postId}/`).then((response) => {
+			const post = response.data.find((post) => post.contentType.includes("text"));
+			const images = response.data.filter((post) => post.contentType.includes("image"));
             this.setState({
                 fetchingPost: false,
-                currentPost: response.data[0],
-				currentPostImages: response.data.slice(1)
+                currentPost: post,
+				currentPostImages: images
             });
         }).catch((err) => {
             this.setState({
