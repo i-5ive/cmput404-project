@@ -126,9 +126,9 @@ export default class AuthStore extends Reflux.Store {
             username: username,
             password: password
         }, false).then((res) => {
-			CookieUtil.setCookie("core-username", username);
-			CookieUtil.setCookie("core-password", password);
-			CookieUtil.setCookie("core-userid", res.data.userId);
+            CookieUtil.setCookie("core-username", username);
+            CookieUtil.setCookie("core-password", password);
+            CookieUtil.setCookie("core-userid", res.data.userId);
             const loginState = getLoginStateFromCookies();
             this.setState(Object.assign(loginState, {
                 isLoggingIn: false,
@@ -150,7 +150,7 @@ export default class AuthStore extends Reflux.Store {
     onHandleLogout() {
         CookieUtil.deleteCookie("core-username");
         CookieUtil.deleteCookie("core-userid");
-		CookieUtil.deleteCookie("core-password");
+        CookieUtil.deleteCookie("core-password");
         this.setState({
             isLoggedIn: false,
             username: null,

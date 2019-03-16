@@ -22,3 +22,12 @@ https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-r
 
 Setting cookies in JavaScript  
 https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie  
+
+## Running local tests faster (mac instructions)
+`brew install postgres`
+`postgres -D /usr/local/var/postgres`
+`createdb social_dist`
+`psql social_dist`
+`CREATE USER postgres SUPERUSER;`
+Install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/)
+ * add a new server, choose a name and the host will be `127.0.0.1`

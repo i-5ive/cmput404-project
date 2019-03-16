@@ -15,7 +15,7 @@ export default class HomeStore extends Reflux.Store {
         this.state = {
             posts: [],
             isLoadingPosts: false,
-			nextPage: null
+            nextPage: null
         };
         this.listenables = Actions;
 
@@ -24,19 +24,19 @@ export default class HomeStore extends Reflux.Store {
         }
     }
 
-    onLoadPosts(page=0) {
-		const state = {
+    onLoadPosts(page = 0) {
+        const state = {
             isLoadingPosts: true,
             errorLoadingPosts: false
         };
-		if (page === 0) {
-			state.posts = [];
-		}
+        if (page === 0) {
+            state.posts = [];
+        }
         this.setState(state);
 
         RestUtil.sendGET("posts/feed/", {
             page: page,
-			size: POSTS_PAGE_SIZE
+            size: POSTS_PAGE_SIZE
         }).then((res) => {
             const posts = update(this.state.posts, {
                 $push: res.data.posts
@@ -44,28 +44,28 @@ export default class HomeStore extends Reflux.Store {
             this.setState({
                 posts: posts,
                 isLoadingPosts: false,
-				nextPage: res.data.next ? page + 1 : null
+                nextPage: res.data.next ? page + 1 : null
             });
         }).catch((err) => {
             this.setState({
                 isLoadingPosts: false,
                 errorLoadingPosts: true,
-				nextPage: null
+                nextPage: null
             });
             console.error(err);
         });
     }
-	
-	onDeletePost(id, postId) {
+
+    onDeletePost(id, postId) {
         this.setState({
             deletingPost: id,
             failedToDeletePost: false
         });
         RestUtil.sendDELETE(`posts/${id}/`).then(() => {
-            const index = this.state.posts.findIndex((post) => post.id === id);
-			const posts = update(this.state.posts, {
-				$splice: [[index, 1]]
-			});
+            const index = this.state.posts.findIndex((post) => post.id === id),
+			 posts = update(this.state.posts, {
+                    $splice: [[index, 1]]
+                });
             this.setState({
                 posts: posts,
                 deletingPost: false,

@@ -9,8 +9,8 @@ export default class CookieUtil {
     static getValue(name) {
         return cookie.parse(document.cookie)[name];
     }
-	
-	static setCookie(name, value) {
-		document.cookie = `${name}=${value}; max-age=86400`;
-	}
+
+    static setCookie(name, value) {
+        document.cookie = `${name}=${value}; max-age=86400`;
+    }
 }

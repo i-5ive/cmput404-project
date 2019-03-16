@@ -22,8 +22,6 @@ def can_user_view(user, post):
     elif (post.visibility == "FOAF"):
         author_url = post.author.get_url()
         requester_friends = get_friends_set(user.author.get_url())
-        if (author_url in requester_friends):
-            return False
         author_friends = get_friends_set(author_url)
         mutual_friends = requester_friends & author_friends
         return len(mutual_friends) > 0

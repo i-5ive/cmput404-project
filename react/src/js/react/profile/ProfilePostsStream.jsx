@@ -22,10 +22,10 @@ export default class ProfilePostsStream extends Reflux.Component {
         ProfileActions.loadActivityStream(this.props.id);
     }
 
-	_loadMorePosts = () => {
-		ProfileActions.loadActivityStream(this.props.id, this.state.nextPage);
-	};
-	
+    _loadMorePosts = () => {
+        ProfileActions.loadActivityStream(this.props.id, this.state.nextPage);
+    };
+
     render() {
         if (this.state.errorLoadingStream) {
             return (
@@ -38,13 +38,13 @@ export default class ProfilePostsStream extends Reflux.Component {
         }
         return (
             <div>
-				<PostFeed posts={this.state.posts}
+                <PostFeed posts={this.state.posts}
                     isLoading={this.state.isLoadingStream}
                     loadMorePosts={this.state._loadMorePosts}
-					onDeletePost={ProfileActions.deletePost}
-					hasNextPage={Boolean(this.state.nextPage)}
-					errorDeletingPost={this.state.failedToDeletePost}
-					deletingPost={this.state.deletingPost}
+                    onDeletePost={ProfileActions.deletePost}
+                    hasNextPage={Boolean(this.state.nextPage)}
+                    errorDeletingPost={this.state.failedToDeletePost}
+                    deletingPost={this.state.deletingPost}
                 />
             </div>
         );

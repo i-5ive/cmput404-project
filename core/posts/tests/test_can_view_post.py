@@ -129,6 +129,7 @@ class CanViewPostTests(TestCase):
         })
         
         make_friends(self.author2, self.author3)
-        make_friends(self.author3, self.author2)
+        make_friends(self.author3, self.author1)
+        make_friends(self.author1, self.author2)
         
-        self.assertFalse(can_user_view(self.author2.user, post))
+        self.assertTrue(can_user_view(self.author2.user, post))

@@ -17,7 +17,7 @@ export default class ProfileStore extends Reflux.Store {
         this.state = {
             isLoadingProfile: false,
             posts: [],
-			nextPage: null
+            nextPage: null
         };
         this.listenables = Actions;
 
@@ -70,18 +70,18 @@ export default class ProfileStore extends Reflux.Store {
      * @param {number} page - the page number to load data from
      */
     onLoadActivityStream(id, page = 0) {
-		const state = {
-            isLoadingStream: true,
-            errorLoadingStream: false
-        };
-		if (page === 0) {
-			state.posts = [];
-		}
+        const state = {
+                isLoadingStream: true,
+                errorLoadingStream: false
+            },
+            // TODO: should external authors be loaded client side or server side?
+            external = isExternalAuthor(id),
+            path = external ? `${id}/posts/` : `author/${getAuthorId(id)}/posts/`;
+        if (page === 0) {
+            state.posts = [];
+        }
         this.setState(state);
 
-        // TODO: should external authors be loaded client side or server side?
-        const external = isExternalAuthor(id),
-            path = external ? `${id}/posts/` : `author/${getAuthorId(id)}/posts/`;
         RestUtil.sendGET(path, {
             page: page,
             size: POSTS_PAGE_SIZE
@@ -98,7 +98,7 @@ export default class ProfileStore extends Reflux.Store {
             this.setState({
                 isLoadingStream: false,
                 errorLoadingStream: true,
-				nextPage: null
+                nextPage: null
             });
             console.error(err);
         });
@@ -322,17 +322,17 @@ export default class ProfileStore extends Reflux.Store {
             console.error(err);
         });
     }
-	
-	onDeletePost(id, postId) {
+
+    onDeletePost(id, postId) {
         this.setState({
             deletingPost: id,
             failedToDeletePost: false
         });
         RestUtil.sendDELETE(`posts/${id}/`).then(() => {
-            const index = this.state.posts.findIndex((post) => post.id === id);
-			const posts = update(this.state.posts, {
-				$splice: [[index, 1]]
-			});
+            const index = this.state.posts.findIndex((post) => post.id === id),
+			 posts = update(this.state.posts, {
+                    $splice: [[index, 1]]
+                });
             this.setState({
                 posts: posts,
                 deletingPost: false,

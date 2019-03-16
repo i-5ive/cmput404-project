@@ -35,7 +35,7 @@ export default class CreatePost extends Reflux.Component {
             this.state.successfullyCreatedPost) {
             this.props.handleClose();
             PostsActions.getPosts();
-			HomeActions.loadPosts();
+            HomeActions.loadPosts();
         }
     }
 
@@ -76,12 +76,12 @@ export default class CreatePost extends Reflux.Component {
     }
 
 	_resetFiles = () => {
-		const files = document.getElementById("fileUpload");
-		if (files) {
-			files.value = "";
-		}
+	    const files = document.getElementById("fileUpload");
+	    if (files) {
+	        files.value = "";
+	    }
 	};
-	
+
     _onAddTag = (value) => {
         const tags = update(this.state.tags, {
             $push: [value]
@@ -149,8 +149,8 @@ export default class CreatePost extends Reflux.Component {
         } else if (this.state.visibleTo.indexOf(username) > -1) {
             return "This user is already included.";
         } else if (username.length > 80) {
-			return "The maximum length of a username is 80 characters.";
-		}
+            return "The maximum length of a username is 80 characters.";
+        }
         return null;
     };
 
