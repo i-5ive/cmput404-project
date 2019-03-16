@@ -28,6 +28,7 @@ class CommonData(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-published']
     
 class Posts(CommonData):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -40,6 +41,7 @@ class Posts(CommonData):
     unlisted = models.BooleanField(default=False)
     visibleTo = ArrayField(models.CharField(max_length=100), default=list)
 
+    # DO NOT CHANGE THIS WITHOUT CHANGING EVERYTHING THAT USES THESE...
     VISIBILITY_CHOICES = (
         ('PUBLIC', 'Public'),
         ('FOAF', 'Friend of a Friend'),
