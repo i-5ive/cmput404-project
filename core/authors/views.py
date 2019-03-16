@@ -1,3 +1,5 @@
+from django.core.paginator import Paginator
+
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
@@ -6,10 +8,13 @@ from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
 from core.authors.friend_request_view import get_author_details
 
-from core.authors.util import get_author_url, get_author_summaries
+from core.authors.util import get_author_url, get_author_summaries, get_author_id
 from core.authors.friends_view import handle_friends_get, handle_friends_post
 from core.hostUtil import get_host_url
-from core.authors.friends_util import get_friends
+from core.authors.friends_util import get_friends, get_friends_from_pk
+
+from core.posts.models import Posts
+from core.posts.serializers import PostsSerializer
 
 def validate_friend_request_response(body, pk):
     success = True
@@ -187,3 +192,134 @@ class AuthorViewSet(viewsets.ModelViewSet):
         return Response({
             "isFollowingUser": follow.exists()
         }, status=200)
+
+    # All posts the currently auth'd user can see of pk
+    # /author/{AUTHOR_ID}/posts
+    @action(detail=True, url_path="posts")
+    def author_posts(self, request, pk=None):
+        page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
+        if page < 1:
+            return Response("Page number must be positive", status=400)
+
+        # TODO: size should be limited?
+        size = int(request.query_params.get("size", 50))
+        if size < 0:
+            return Response("Size must be positive", status=400)
+
+        if not pk:
+            # TODO should it be a text response?
+            return Response("You must specify an author.",status=400)
+
+        # Only return public posts if the user isn't authenticated
+        if request.user.is_anonymous:
+            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+        # else if is other_server:
+        #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
+        else:
+            requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
+
+            # post_types will track what level of posts a user can see
+            post_types = ["PUBLIC", "SERVERONLY"]
+            # convert to dict for dat O(1)
+            # Note: this is terrible, we should be using the database more directly
+            requesterFriends = {}
+            for friend in get_friends_from_pk(requestingAuthor):
+                friend = friend.split("/")[-1]
+                requesterFriends[friend] = True
+
+            # Check if they are direct friends
+            if requesterFriends.get(str(pk), False):
+                post_types += ["FRIENDS", "FOAF"]
+            else: # They are not direct friends, so we should check if they share any friends
+                for friend in get_friends_from_pk(pk):
+                    friend = friend.split("/")[-1]
+                    if requesterFriends.get(friend, False):
+                        post_types += ["FOAF"]
+                        break # we don't need to check any more friends
+
+            try:
+                posts = Posts.objects.all().filter(author=pk, visibility__in=post_types, unlisted=False)
+                # TODO: requestingAuthor is the one it should be visibleTo
+                posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))], unlisted=False)
+            except:
+                print("got except!")
+                return Response(status=500)
+
+        pages = Paginator(posts, size)
+        posts = PostsSerializer(pages.page(page), many=True)
+
+        response = {
+            "query": "posts",
+            "count": pages.count,
+            "size": size,
+            # Recall: the page the user specifies is offset by +1 for Paginator
+            "next": "/author/{}/posts?page={}".format(pk,page) if page < pages.num_pages else None,
+            "previous": "/author/{}/posts?page={}".format(pk,page-2) if page > 1 else None,
+            "posts": posts.data
+        }
+        return Response(response, status=200)
+
+    # All posts visible to the currently auth'd user
+    # /author/posts
+    @action(detail=False, url_path="posts")
+    def visible_posts(self, request):
+        page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
+        if page < 1:
+            return Response("Page number must be positive", status=400)
+        # TODO: size should be limited?
+        size = int(request.query_params.get("size", 50))
+        if size < 0:
+            return Response("Size must be positive", status=400)
+
+        # Only return public posts if the user isn't authenticated
+        if request.user.is_anonymous:
+            posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+        # else if is other_server:
+        #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
+        else:
+            requestingAuthor = request.user.author.id # Should be guaranteed because not anon
+            # Get direct friends and FOAFs into a dictionary
+            requesterFriends = {}
+            requesterFOAFs = {}
+            for friend in get_friends_from_pk(requestingAuthor):
+                friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                requesterFriends[friend] = True
+            for friend in requesterFriends:
+                for friend in get_friends_from_pk(friend):
+                    friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                    # Ensure we don't add direct friends as an FOAF
+                    if not requesterFriends.get(friend, False):
+                        requesterFOAFs[friend] = True
+            try:
+                # Grab the requesting user's posts
+                posts = Posts.objects.all().filter(author=requestingAuthor, unlisted=False)
+                # Grab all public posts
+                posts |= Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+
+                # Grab posts from direct friends
+                for friend in requesterFriends:
+                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF"], unlisted=False)
+
+                # Posts from FOAFs
+                for friend in requesterFOAFs:
+                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FOAF"], unlisted=False)
+
+                # PRIVATE posts that the author can see
+                posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))], unlisted=False)
+            except:
+                print("got except!")
+                return Response(status=500)
+        
+        pages = Paginator(posts, size)
+        posts = PostsSerializer(pages.page(page), many=True)
+
+        response = {
+            "query": "posts",
+            "count": pages.count,
+            "size": size,
+            # Recall: the page the user specifies is offset by +1 for Paginator
+            "next": "/author/posts?page={}".format(page) if page < pages.num_pages else None,
+            "previous": "/author/posts?page={}".format(page-2) if page > 1 else None,
+            "posts": posts.data
+        }
+        return Response(response, status=200)

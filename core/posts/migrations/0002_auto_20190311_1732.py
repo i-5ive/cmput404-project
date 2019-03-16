@@ -21,4 +21,13 @@ class Migration(migrations.Migration):
             name='author',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='post_author', to='authors.Author'),
         ),
+        # manually smooshed in
+        migrations.AlterModelOptions(
+            name='comments',
+            options={'ordering': ['-published']},
+        ),
+        migrations.AlterModelOptions(
+            name='posts',
+            options={'ordering': ['-published']},
+        ),
     ]
