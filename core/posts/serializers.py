@@ -20,7 +20,8 @@ class PostsSerializer(serializers.ModelSerializer):
         instance.author.host = get_host_url()
         instance.author.url = get_author_url(str(instance.author.id))
         representation['author'] = AuthorSummarySerializer(instance.author, read_only=True).data
-        representation['comments'] = CommentsSerializer(instance.comments.all(), many=True, read_only=True).data
+        # From https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets
+        representation['comments'] = CommentsSerializer(instance.comments.all()[:5], many=True, read_only=True).data
         return representation 
 
 class CommentsSerializer(serializers.ModelSerializer):
