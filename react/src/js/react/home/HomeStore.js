@@ -13,7 +13,8 @@ export default class HomeStore extends Reflux.Store {
         super();
         this.state = {
             posts: [],
-            isLoadingPosts: false
+            isLoadingPosts: false,
+			nextPage: null
         };
         this.listenables = Actions;
 
@@ -22,26 +23,32 @@ export default class HomeStore extends Reflux.Store {
         }
     }
 
-    onLoadPosts(page) {
-        this.setState({
+    onLoadPosts(page=0) {
+		const state = {
             isLoadingPosts: true,
             errorLoadingPosts: false
-        });
+        };
+		if (page === 0) {
+			state.posts = [];
+		}
+        this.setState(state);
 
-        RestUtil.sendGET("author/posts/", {
+        RestUtil.sendGET("posts/feed/", {
             page: page
         }).then((res) => {
             const posts = update(this.state.posts, {
-                $push: res.posts
+                $push: res.data.posts
             });
             this.setState({
                 posts: posts,
-                isLoadingPosts: false
+                isLoadingPosts: false,
+				nextPage: res.data.next ? page + 1 : null
             });
         }).catch((err) => {
             this.setState({
                 isLoadingPosts: false,
-                errorLoadingPosts: true
+                errorLoadingPosts: true,
+				nextPage: null
             });
             console.error(err);
         });

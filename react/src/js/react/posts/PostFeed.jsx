@@ -15,14 +15,17 @@ export default class PostFeed extends React.Component {
 	        PropTypes.object
 	    ]),
 	    isLoading: PropTypes.bool,
-	    currentPage: PropTypes.number
+	    hasNextPage: PropTypes.bool
 	}
 
     /**
-     * GET's to the database
+     * Loads more posts from the database
      */
+	 // TODO: call this somehow
     loadMorePosts = () => {
-        this.props.loadMorePosts(this.props.currentPage + 1);
+		if (this.props.hasNextPage) {
+			this.props.loadMorePosts();
+		}
     }
 
     render() {
@@ -32,9 +35,12 @@ export default class PostFeed extends React.Component {
 
         return (
             <div className="post-feed">
-                {Object.keys(this.props.posts).map((post) => (
-                    <Post key={post} post={this.props.posts[post]} />
+                {this.props.posts.map((post) => (
+                    <Post key={post.id} post={post} />
                 ))}
+				{
+					this.props.hasNextPage && (<p>Should Load More</p>)
+				}
             </div>
         );
     }

@@ -95,6 +95,43 @@ class PostViewsTest(TestCase):
         self.assertEqual(len(posts), 1)
         self.assertEqual(sorted(posts.first().visibleTo), sorted([self.author1.get_url(), self.author2.get_url()]))
     
+    def test_create_private_add_author(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PRIVATE",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data, 'visibleTo': json.dumps(["user2"])})
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.data.get("invalidUsers"))
+
+        posts = Posts.objects.all()
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(sorted(posts.first().visibleTo), sorted([self.author1.get_url(), self.author2.get_url()]))
+    
+    def test_create_post_public_no_visible_to(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True,
+            "visibility": "PUBLIC",
+            "categories": ["cool", "fun", "sad"]
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.data.get("invalidUsers"))
+
+        posts = Posts.objects.all()
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(len(posts.first().visibleTo), 0)
+    
+    
     def test_create_post(self):
         author_id = str(self.author1.id)
         data = {
@@ -172,7 +209,7 @@ class PostViewsTest(TestCase):
         response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
 
         post = Posts.objects.get(author=author_id)
-        response = self.client.delete('/posts/%s/' % (post.id))
+        response = self.client.delete('/posts/{0}/'.format(post.id))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["message"], "Post deleted successfully")
         self.assertEqual(len(Posts.objects.filter(id=post.id)), 0)
@@ -192,7 +229,6 @@ class PostViewsTest(TestCase):
         request = self.factory.get(reverse('posts-list'))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data)
         for post in response.data['results']:
             print(post['contentType'])
             self.assertNotIn("image", post['contentType'])
@@ -213,22 +249,40 @@ class PostViewsTest(TestCase):
         force_authenticate(request, user=get_user_model().objects.get(username="cry"))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data)
         for post in response.data['results']:
             if 'text' in post['contentType']:
                 continue
             self.assertIn("image", post['contentType'])
 
+    def test_list_posts_unlisted(self):
+        author_id = str(self.author1.id)
+        data = {
+            "author": author_id,
+            "title": "wild",
+            "unlisted": True
+        }
+        post_data = json.dumps(data)
+        response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
+        self.assertEqual(response.status_code, 200)
+
+        view = PostsViewSet.as_view({'get': 'list'})
+        request = self.factory.get(reverse('posts-list'))
+        force_authenticate(request, user=get_user_model().objects.get(username="cry"))
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 0)
+        self.assertEqual(len(Posts.objects.all()), 1)
+
     def test_deletion_unauthenticated(self):
         self.client.logout()
         post = Posts.objects.create(author=self.author1)
-        res = self.client.delete("/posts/%s/" % post.id)
+        res = self.client.delete("/posts/{0}/".format(post.id))
         self.assertEqual(res.status_code, 401)
         self.assertEqual(len(Posts.objects.all()), 1)
         
     def test_deletion_wrong_user_authentication(self):
         self.client.login(username="user2", password="password")
         post = Posts.objects.create(author=self.author1)
-        res = self.client.delete("/posts/%s/" % post.id)
+        res = self.client.delete("/posts/{0}/".format(post.id))
         self.assertEqual(res.status_code, 401)
         self.assertEqual(len(Posts.objects.all()), 1)

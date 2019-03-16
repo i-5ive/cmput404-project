@@ -49,6 +49,7 @@ def create_post(request, data):
             data["post_id"] = new_id
             data["content"] = str(encoded_image)
             data["contentType"] = content_type
+            data["unlisted"] = True
 
             serializer = PostsSerializer(data=data)
             serializer.is_valid()
@@ -64,8 +65,13 @@ def handle_visible_to(request, data):
         users = User.objects.filter(username__in=visible_to)
         if (len(users) == len(visible_to)):
             data["visibleTo"] = []
+            found_self = False
             for user in users:
                 data["visibleTo"].append(user.author.get_url())
+                if (user == request.user):
+                    found_self = True
+            if (not found_self):
+                data["visibleTo"].append(request.user.author.get_url())
         else:
             invalid_users = []
             seen_users = {}

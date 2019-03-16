@@ -5,7 +5,6 @@ from core.authors.models import Author
 from django.contrib.auth import authenticate
 
 QUERY = "login"
-LOGIN_TIME_IN_SECONDS = 86400 # 24 hours
 
 def handle_request(request):
     success = True
@@ -47,12 +46,10 @@ def login(request):
     response = Response({
         "query": QUERY,
         "success": success,
-        "message": message
+        "message": message,
+        "userId": str(userId)
     })
     if success:
-        response.set_cookie("core-username", request.data["username"], max_age=LOGIN_TIME_IN_SECONDS)
-        response.set_cookie("core-userid", str(userId), max_age=LOGIN_TIME_IN_SECONDS)
-        response.set_cookie("core-password", request.data["password"], max_age=LOGIN_TIME_IN_SECONDS)
         response.status_code = 200
     else:
         response.status_code = 400

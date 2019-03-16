@@ -19,3 +19,6 @@ TestCafe Documentation
 https://devexpress.github.io/testcafe/documentation/test-api/selecting-page-elements/selectors/  
 https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-requests/  
 https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-requests/mocking-http-requests.html  
+
+Setting cookies in JavaScript  
+https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie  

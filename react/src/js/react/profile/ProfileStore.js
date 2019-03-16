@@ -16,7 +16,8 @@ export default class ProfileStore extends Reflux.Store {
         super();
         this.state = {
             isLoadingProfile: false,
-            posts: []
+            posts: [],
+			nextPage: null
         };
         this.listenables = Actions;
 
@@ -68,11 +69,15 @@ export default class ProfileStore extends Reflux.Store {
      * @param {String} id - the ID of the user
      * @param {number} page - the page number to load data from
      */
-    onLoadActivityStream(id, page) {
-        this.setState({
+    onLoadActivityStream(id, page = 0) {
+		const state = {
             isLoadingStream: true,
             errorLoadingStream: false
-        });
+        };
+		if (page === 0) {
+			state.posts = [];
+		}
+        this.setState(state);
 
         // TODO: should external authors be loaded client side or server side?
         const external = isExternalAuthor(id),
@@ -86,13 +91,14 @@ export default class ProfileStore extends Reflux.Store {
             });
             this.setState({
                 isLoadingStream: false,
-                hasNextActivityPage: Boolean(res.data.next),
+                nextPage: res.data.next ? (page + 1) : null,
                 posts: posts
             });
         }).catch((err) => {
             this.setState({
                 isLoadingStream: false,
-                errorLoadingStream: true
+                errorLoadingStream: true,
+				nextPage: null
             });
             console.error(err);
         });

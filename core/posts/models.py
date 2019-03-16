@@ -36,7 +36,9 @@ class Posts(CommonData):
     title = models.CharField(max_length=100, blank=True, null=True)
     content = models.TextField(blank=True, null=True)
     unlisted = models.BooleanField(default=False)
-    visibleTo = ArrayField(models.CharField(max_length=100), default=list)
+    visibleTo = ArrayField(models.URLField(), default=list)
+    source = models.URLField(blank=True, null=True)
+    origin = models.URLField(blank=True, null=True)
 
     VISIBILITY_CHOICES = (
         ('PUBLIC', 'Public'),

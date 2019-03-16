@@ -14,8 +14,9 @@ import AuthStore from "../auth/AuthStore";
  */
 class Post extends Reflux.Component {
     static propTypes = {
-        post: PropTypes.array.isRequired,
-        isPostView: PropTypes.bool
+        post: PropTypes.object.isRequired,
+        isPostView: PropTypes.bool,
+		images: PropTypes.array
     }
 
     static defaultProps ={
@@ -25,15 +26,14 @@ class Post extends Reflux.Component {
     constructor(props) {
         super(props);
         this.stores = [PostsStore, AuthStore];
-        this.currentPost = this.props.post[0];
     }
 
     renderHeaderButtons = () => {
         // TODO Add edit button
-        const isCurrentUser = (this.currentPost.author.id === this.state.userId);
+        const isCurrentUser = (this.props.post.author.id === this.state.userId);
         return (
             <div className="buttons">
-                <i className="fas fa-user-lock">{this.currentPost.visibility}</i>
+                <i className="fas fa-user-lock">{this.props.post.visibility}</i>
                 <Button
                     variant="primary"
                     className="permalink-button"
@@ -75,27 +75,29 @@ class Post extends Reflux.Component {
     }
 
     renderFooter() {
-        const commentsLength = this.currentPost.comments.length;
+        const commentsLength = this.props.post.comments.length;
         return (
             <div className="post-footer">
-                <p className="categories">{this.currentPost.categories}</p>
+                <p className="categories">{this.props.post.categories}</p>
                 { commentsLength ? <a onClick={this.handlePermalink}>{`${commentsLength} comments`}</a> : null}
             </div>
         );
     }
 
     handleDeletePost = () => {
-        PostsActions.deletePost(this.currentPost.id, this.currentPost.post_id);
+        PostsActions.deletePost(this.props.post.id, this.props.post.post_id);
     }
 
     handlePermalink = () => {
-        this.props.history.push(`/post/${this.currentPost.id}`);
+        this.props.history.push(`/post/${this.props.post.id}`);
     }
 
     render() {
-        const posts = this.props.post,
-            post = posts[0];
-
+        const post = this.props.post;
+		let posts = [post];
+		if (this.props.images) {
+			posts = posts.concat(this.props.images);
+		}
         return (
             <Thumbnail>
                 <div className="post-header">
@@ -104,8 +106,8 @@ class Post extends Reflux.Component {
                     </p>
                     {!this.props.isPostView ? this.renderHeaderButtons() : null}
                 </div>
-                <h3 className="post-title">{this.currentPost.title}</h3>
-                <p className="post-desc">{this.currentPost.description}</p>
+                <h3 className="post-title">{this.props.post.title}</h3>
+                <p className="post-desc">{this.props.post.description}</p>
                 <div className="post-body">
                     {
                         this.renderContent(posts)

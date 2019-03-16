@@ -33,8 +33,7 @@ export default class CreatePost extends Reflux.Component {
         if (this.state.successfullyCreatedPost !== prevState.successfullyCreatedPost &&
             this.state.successfullyCreatedPost) {
             this.props.handleClose();
-            // TODO: remove argument
-            PostsActions.getPosts(1);
+            PostsActions.getPosts();
         }
     }
 
@@ -57,7 +56,7 @@ export default class CreatePost extends Reflux.Component {
             categories: this.state.tags,
             visibility: this.state.privacyKey,
             author: this.state.userId,
-            unlisted: form.elements.unlisted.value
+            unlisted: form.elements.unlisted.checked
         };
         if (data.visibility === PRIVATE_STATUS) {
             formData.append("visibleTo", JSON.stringify(this.state.visibleTo));
@@ -140,7 +139,9 @@ export default class CreatePost extends Reflux.Component {
             return "The username can not be blank.";
         } else if (this.state.visibleTo.indexOf(username) > -1) {
             return "This user is already included.";
-        }
+        } else if (username.length > 80) {
+			return "The maximum length of a username is 80 characters.";
+		}
         return null;
     };
 
@@ -333,14 +334,14 @@ export default class CreatePost extends Reflux.Component {
                             Title
                         </ControlLabel>
                         <FormGroup controlId="title">
-                            <FormControl name="title" type="text" placeholder="Enter the title of the post" />
+                            <FormControl name="title" type="text" placeholder="Enter the title of the post" maxLength="100" />
                         </FormGroup>
 
                         <ControlLabel>
                             Description
                         </ControlLabel>
                         <FormGroup controlId="description">
-                            <FormControl componentClass="textarea" name="desc" type="text" placeholder="Enter a description about the post" />
+                            <FormControl componentClass="textarea" name="desc" type="text" placeholder="Enter a description about the post" maxLength="100" />
                         </FormGroup>
 
                         <ControlLabel>

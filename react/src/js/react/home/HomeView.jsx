@@ -18,11 +18,11 @@ export default class HomeView extends Reflux.Component {
     }
 
     componentDidMount() {
-        HomeActions.loadPosts(0);
+        HomeActions.loadPosts();
     }
 
-    _loadMorePosts = (pageNumber) => {
-        HomeActions.loadPosts(pageNumber);
+    _loadMorePosts = () => {
+        HomeActions.loadPosts(this.state.nextPage);
     };
 
     render() {
@@ -37,7 +37,8 @@ export default class HomeView extends Reflux.Component {
                 }
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.isLoadingPosts}
-                    loadMorePosts={HomeActions.loadPosts}
+                    loadMorePosts={this._loadMorePosts}
+					hasNextPage={Boolean(this.state.nextPage)}
                 />
             </div>
         );

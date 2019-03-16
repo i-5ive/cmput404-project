@@ -1,32 +1,35 @@
 from rest_framework import serializers
 
 from core.posts.models import Posts, Comments
-from core.authors.serializers import AuthorSummarySerializer
+from core.authors.serializers import get_summary
 from core.hostUtil import get_host_url
-from core.authors.util import get_author_url
 
 class PostsSerializer(serializers.ModelSerializer):
-    visibleTo = serializers.ListField(child=serializers.CharField(max_length=100), default=list)
+    visibleTo = serializers.ListField(child=serializers.URLField(), default=list)
     comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Posts
-        fields = ('id', 'post_id', 'author', 'contentType', 'unlisted', 'comments',
+        fields = ('id', 'post_id', 'author', 'contentType', 'source', 'origin', 'unlisted', 'comments',
             'content', 'title', 'description', 'published', 'visibleTo', 'visibility', "categories")
 
     # Credits to Ivan Semochkin, https://stackoverflow.com/questions/41248271/django-rest-framework-not-responding-to-read-only-on-nested-data
     def to_representation(self, instance):
         representation = super(PostsSerializer, self).to_representation(instance)
-        instance.author.host = get_host_url()
-        instance.author.url = get_author_url(str(instance.author.id))
-        representation['author'] = AuthorSummarySerializer(instance.author, read_only=True).data
+        representation['author'] = get_summary(instance.author)
         # TODO: integration with other servers
-        representation["origin"] = get_host_url() + "/posts/" + str(instance.id)
-        representation["source"] = representation["origin"]
+        if (not instance.origin):
+            representation["origin"] = get_host_url() + "/posts/" + str(instance.id)
+        if (not instance.source):
+            representation["source"] = representation["origin"]
         return representation 
 
 class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comments
-        fields = ('post', 'author', 'contentType', 'id', 'comment', 'published')
+        fields = ('contentType', 'id', 'comment', 'published')
 
+    def to_representation(self, instance):
+        representation = super(CommentsSerializer, self).to_representation(instance)
+        representation['author'] = get_summary(instance.author)
+        return representation

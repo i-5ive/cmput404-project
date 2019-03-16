@@ -24,13 +24,14 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedPost: false,
             failedToCreatePost: false,
             posts: [],
-            allPosts: [],
-            currentPost: [],
+            currentPost: null,
             fetchingPosts: false,
             failedToFetchPosts: false,
             deletingPost: true,
             failedToDeletePost: false,
-            fetchingPost: false
+            fetchingPost: false,
+			nextPage: null,
+			currentPostImages: []
         };
         this.listenables = PostsActions;
 
@@ -62,35 +63,30 @@ export class PostsStore extends Reflux.Store {
     }
 
     onGetPosts(page = 0) {
-        this.setState({
+		const state = {
             fetchingPosts: true,
             failedToFetchPosts: false
-        });
+        };
+		if (page === 0) {
+			state.posts = [];
+		}
+        this.setState(state);
         RestUtil.sendGET("posts/", {
             page: page
         }).then((response) => {
-            const posts = update(this.state.allPosts, {
-                    $push: response.data.results
-                }),
-                hash = Object.create(null);
-
-            posts.forEach((post) => {
-                if (hash[post.post_id]) {
-                    hash[post.post_id].push(post);
-                } else {
-                    hash[post.post_id] = [post];
-                }
-            });
+            const posts = update(this.state.posts, {
+				$push: response.data.results
+			});
             this.setState({
                 fetchingPosts: false,
-                posts: hash,
-                allPosts: posts,
-                currentPageNumber: page
+                posts: posts,
+                nextPage: response.data.next ? page + 1 : null
             });
         }).catch((err) => {
             this.setState({
                 fetchingPosts: false,
-                failedToFetchPosts: true
+                failedToFetchPosts: true,
+				nextPage: null
             });
             console.error(err);
         });
@@ -123,16 +119,14 @@ export class PostsStore extends Reflux.Store {
         this.setState({
             fetchingPost: true,
             failedToFetchPost: false,
-            currentPost: []
+            currentPost: null,
+			currentPostImages: []
         });
         RestUtil.sendGET(`posts/${postId}/`).then((response) => {
-            const post = update(this.state.currentPost, {
-                $set: response.data
-            });
-
             this.setState({
                 fetchingPost: false,
-                currentPost: post
+                currentPost: response.data[0],
+				currentPostImages: response.data.slice(1)
             });
         }).catch((err) => {
             this.setState({

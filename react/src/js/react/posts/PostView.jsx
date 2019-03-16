@@ -7,6 +7,9 @@ import { PostsStore, PostsActions } from "../discover/PostsStore";
 import LoadingComponent from "../misc/LoadingComponent";
 import Post from "./Post";
 
+/**
+ * Renders details about one specific post
+ */
 export default class PostView extends Reflux.Component {
     constructor(props) {
         super(props);
@@ -19,14 +22,15 @@ export default class PostView extends Reflux.Component {
 
     render() {
         if (this.state.failedToFetchPost) {
-            return <Alert className="alert alert-danger">Failed to fetch post :(</Alert>;
-        } else if (this.state.currentPost.length === 0) {
+            return <Alert bsStyle="danger">An error occurred while fetching the post</Alert>;
+        } else if (!this.state.currentPost) {
             return <LoadingComponent />;
         }
         return (
             <div className="postView">
                 <Post
                     post={this.state.currentPost}
+					images={this.state.currentPostImages}
                     isPostView />
             </div>
         );
