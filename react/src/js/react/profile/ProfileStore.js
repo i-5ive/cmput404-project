@@ -16,7 +16,8 @@ export default class ProfileStore extends Reflux.Store {
         super();
         this.state = {
             isLoadingProfile: false,
-            posts: []
+            posts: [],
+            nextPage: null
         };
         this.listenables = Actions;
 
@@ -68,15 +69,19 @@ export default class ProfileStore extends Reflux.Store {
      * @param {String} id - the ID of the user
      * @param {number} page - the page number to load data from
      */
-    onLoadActivityStream(id, page) {
-        this.setState({
-            isLoadingStream: true,
-            errorLoadingStream: false
-        });
-
-        // TODO: should external authors be loaded client side or server side?
-        const external = isExternalAuthor(id),
+    onLoadActivityStream(id, page = 0) {
+        const state = {
+                isLoadingStream: true,
+                errorLoadingStream: false
+            },
+            // TODO: should external authors be loaded client side or server side?
+            external = isExternalAuthor(id),
             path = external ? `${id}/posts/` : `author/${getAuthorId(id)}/posts/`;
+        if (page === 0) {
+            state.posts = [];
+        }
+        this.setState(state);
+
         RestUtil.sendGET(path, {
             page: page,
             size: POSTS_PAGE_SIZE
@@ -86,13 +91,14 @@ export default class ProfileStore extends Reflux.Store {
             });
             this.setState({
                 isLoadingStream: false,
-                hasNextActivityPage: Boolean(res.data.next),
+                nextPage: res.data.next ? (page + 1) : null,
                 posts: posts
             });
         }).catch((err) => {
             this.setState({
                 isLoadingStream: false,
-                errorLoadingStream: true
+                errorLoadingStream: true,
+                nextPage: null
             });
             console.error(err);
         });
@@ -226,7 +232,8 @@ export default class ProfileStore extends Reflux.Store {
         }).then((res) => {
             this.setState({
                 isFollowingUser: res.data.isFollowingUser,
-                isLoadingFollowStatus: false
+                isLoadingFollowStatus: false,
+                isOtherFollowing: res.data.isOtherFollowing && res.data.isOtherFriendRequest
             });
         }).catch((err) => {
             this.setState({
@@ -311,6 +318,30 @@ export default class ProfileStore extends Reflux.Store {
         }).catch((err) => {
             this.setState({
                 errorLoadingGithubRepos: true
+            });
+            console.error(err);
+        });
+    }
+
+    onDeletePost(id, postId) {
+        this.setState({
+            deletingPost: id,
+            failedToDeletePost: false
+        });
+        RestUtil.sendDELETE(`posts/${id}/`).then(() => {
+            const index = this.state.posts.findIndex((post) => post.id === id),
+			 posts = update(this.state.posts, {
+                    $splice: [[index, 1]]
+                });
+            this.setState({
+                posts: posts,
+                deletingPost: false,
+                failedToDeletePost: false
+            });
+        }).catch((err) => {
+            this.setState({
+                deletingPost: false,
+                failedToDeletePost: id
             });
             console.error(err);
         });

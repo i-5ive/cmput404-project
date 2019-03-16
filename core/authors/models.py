@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from core.users.models import User
-
+from core.hostUtil import get_host_url
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -25,6 +25,9 @@ class Author(models.Model):
     def get_display_name(self):
         return self.displayName
 
+    def get_url(self):
+        return get_host_url() + "/author/" + str(self.id)
+        
     def __str__(self):
         return self.user.username
 

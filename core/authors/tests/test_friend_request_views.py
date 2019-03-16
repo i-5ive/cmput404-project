@@ -33,10 +33,34 @@ def get_local_authors_body(author1, author2, query="friendrequest"):
 class FriendRequestViewTestCase(TestCase):
 
     def setUp(self):
-        self.author1 = setupUser("yeet")
-        self.author2 = setupUser("yaw")
-        self.author3 = setupUser("yaw2")
+        self.author1 = setupUser("yeet", "password")
+        self.author2 = setupUser("yaw", "password")
+        self.author3 = setupUser("yaw2", "password")
+        
+        self.client.login(username="yeet", password="password")
 
+    @patch("core.hostUtil.is_external_host")
+    @patch("core.authors.util.get_author_id")
+    def test_wrong_user_authenticated(self, author_id_mock, host_mock):
+        self.client.login(username="yaw2", password="password")
+        author_id_mock.side_effect = lambda x : x.split("/author/")[1]
+        host_mock.return_value = False
+
+        body = get_local_authors_body(self.author1, self.author2)
+        response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        
+    @patch("core.hostUtil.is_external_host")
+    @patch("core.authors.util.get_author_id")
+    def test_not_authenticated(self, author_id_mock, host_mock):
+        self.client.logout()
+        author_id_mock.side_effect = lambda x : x.split("/author/")[1]
+        host_mock.return_value = False
+
+        body = get_local_authors_body(self.author1, self.author2)
+        response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        
     def test_get(self):
         response = self.client.get(reverse('friendrequest'))
         self.assertEqual(response.status_code, 405)
@@ -97,10 +121,7 @@ class FriendRequestViewTestCase(TestCase):
         self.author3.delete()
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data["query"], "friendrequest")
-        self.assertEqual(response.data["success"], False)
-        self.assertIsNotNone(response.data["message"])
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(len(FriendRequest.objects.all()), 0)
         self.assertEqual(len(Follow.objects.all()), 0)
 
@@ -162,7 +183,6 @@ class FriendRequestViewTestCase(TestCase):
         body = get_local_authors_body(self.author1, self.author2)
 
         res = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        print(res.data["message"])
         self.assertEqual(len(FriendRequest.objects.all()), 1)
         self.assertEqual(len(Follow.objects.all()), 1)
 
@@ -181,11 +201,13 @@ class FriendRequestViewTestCase(TestCase):
         author_id_mock.side_effect = lambda x : x.split("/author/")[1]
         host_mock.return_value = False
 
+        self.client.login(username="yaw", password="password")
         self.client.post(reverse('friendrequest'), data=get_local_authors_body(self.author2, self.author1), content_type="application/json")
         self.assertEqual(len(FriendRequest.objects.all()), 1)
         FriendRequest.objects.all()[0].delete()
         self.assertEqual(len(FriendRequest.objects.all()), 0)
 
+        self.client.login(username="yeet", password="password")
         response = self.client.post(reverse('friendrequest'), data=get_local_authors_body(self.author1, self.author2), content_type="application/json")
         
         self.assertEqual(response.status_code, 200)
@@ -363,10 +385,32 @@ def get_respond_to_request_body(author1, approve, query="friendResponse"):
 class RespondFriendRequestViewsTest(TestCase):
 
     def setUp(self):
-        self.author1 = setupUser("one")
-        self.author2 = setupUser("two")
-        self.author3 = setupUser("three")
+        self.author1 = setupUser("one", "password")
+        self.author2 = setupUser("two", "password")
+        self.author3 = setupUser("three", "password")
+        
+        self.client.login(username="one", password="password")
 
+    def test_unauthenticated(self):
+        self.client.logout()
+        author1Url = get_author_url(str(self.author1.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
+
+        body = get_respond_to_request_body(self.author3.id, False)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        
+    def test_authenticated_wrong_user(self):
+        self.client.login(username="two", password="password")
+        author1Url = get_author_url(str(self.author1.id))
+        author3Url = get_author_url(str(self.author3.id))
+        FriendRequest.objects.create(requester=author3Url, friend=author1Url)
+
+        body = get_respond_to_request_body(self.author3.id, False)
+        response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        
     def test_get(self):
         response = self.client.get(get_respond_to_requests_path(str(self.author1.id)))
         self.assertEqual(response.status_code, 405)

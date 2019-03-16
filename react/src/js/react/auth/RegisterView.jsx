@@ -8,6 +8,8 @@ import CredentialsForm from "./CredentialsForm";
 import AuthActions from "./AuthActions";
 import AuthStore from "./AuthStore";
 
+import LoadingComponent from "../misc/LoadingComponent";
+
 export default class RegisterView extends Reflux.Component {
     constructor() {
         super();
@@ -56,6 +58,9 @@ export default class RegisterView extends Reflux.Component {
                             Your account has been created. It must be approved by an administrator before you can use it.
                         </Alert>
                     )
+                }
+                {
+                    this.state.isRegistering && <LoadingComponent />
                 }
                 <CredentialsForm
                     username={this.state.enteredUsername}

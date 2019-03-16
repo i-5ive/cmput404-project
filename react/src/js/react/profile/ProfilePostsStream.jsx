@@ -7,6 +7,11 @@ import ProfileActions from "./ProfileActions";
 import ProfileStore from "./ProfileStore";
 import LoadingComponent from "../misc/LoadingComponent";
 
+import PostFeed from "../posts/PostFeed";
+
+/**
+ * Renders the posts made by the current viewed user that is visible to the authenticated user
+ */
 export default class ProfilePostsStream extends Reflux.Component {
     constructor(props) {
         super(props);
@@ -17,9 +22,9 @@ export default class ProfilePostsStream extends Reflux.Component {
         ProfileActions.loadActivityStream(this.props.id);
     }
 
-    shouldComponentUpdate(prevProps, prevState) {
-        return this.state.posts.length !== prevState.posts.length || this.state.errorLoadingStream !== prevState.errorLoadingStream;
-    }
+    _loadMorePosts = () => {
+        ProfileActions.loadActivityStream(this.props.id, this.state.nextPage);
+    };
 
     render() {
         if (this.state.errorLoadingStream) {
@@ -31,12 +36,16 @@ export default class ProfilePostsStream extends Reflux.Component {
         } else if (this.state.isLoadingStream) {
             return <LoadingComponent />;
         }
-        // TODO: posts
         return (
             <div>
-                {
-                    this.state.posts.map((post) => <div>{post.title}</div>)
-                }
+                <PostFeed posts={this.state.posts}
+                    isLoading={this.state.isLoadingStream}
+                    loadMorePosts={this.state._loadMorePosts}
+                    onDeletePost={ProfileActions.deletePost}
+                    hasNextPage={Boolean(this.state.nextPage)}
+                    errorDeletingPost={this.state.failedToDeletePost}
+                    deletingPost={this.state.deletingPost}
+                />
             </div>
         );
     }

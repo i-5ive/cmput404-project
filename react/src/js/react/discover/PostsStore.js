@@ -1,13 +1,16 @@
 import Reflux from "reflux";
 import update from "immutability-helper";
+import _ from "lodash";
 
 import RestUtil from "../util/RestUtil";
+import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
 
 export const PostsActions = Reflux.createActions([
     "createPost",
     "getPosts",
     "deletePost",
-    "getPost"
+    "getPost",
+    "clearModalMessage"
 ]);
 
 /**
@@ -22,13 +25,14 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedPost: false,
             failedToCreatePost: false,
             posts: [],
-            allPosts: [],
-            currentPost: [],
+            currentPost: null,
             fetchingPosts: false,
             failedToFetchPosts: false,
-            deletingPost: true,
+            deletingPost: false,
             failedToDeletePost: false,
-            fetchingPost: false
+            fetchingPost: false,
+            nextPage: null,
+            currentPostImages: []
         };
         this.listenables = PostsActions;
 
@@ -41,54 +45,50 @@ export class PostsStore extends Reflux.Store {
         this.setState({
             creatingPost: true,
             successfullyCreatedPost: false,
-            failedToCreatePost: false
+            failedToCreatePost: false,
+            invalidSharedUsernames: null
         });
         RestUtil.sendPOST("posts/", data).then(() => {
             this.setState({
                 creatingPost: false,
-                successfullyCreatedPost: true,
-                failedToCreatePost: false
+                successfullyCreatedPost: true
             });
         }).catch((err) => {
             this.setState({
                 creatingPost: false,
-                successfullyCreatedPost: false,
-                failedToCreatePost: true
+                failedToCreatePost: true,
+                invalidSharedUsernames: _.get(err, "response.data.invalidUsers")
             });
             console.error(err);
         });
     }
 
-    onGetPosts(page) {
-        this.setState({
+    onGetPosts(page = 0) {
+        const state = {
             fetchingPosts: true,
             failedToFetchPosts: false
-        });
+        };
+        if (page === 0) {
+            state.posts = [];
+        }
+        this.setState(state);
         RestUtil.sendGET("posts/", {
-            page: page
+            page: page,
+            size: POSTS_PAGE_SIZE
         }).then((response) => {
-            const posts = update(this.state.allPosts, {
-                    $push: response.data.results
-                }),
-                hash = Object.create(null);
-
-            posts.forEach(function(post) {
-                if (hash[post.post_id]) {
-                    hash[post.post_id].push(post);
-                } else {
-                    hash[post.post_id] = [post];
-                }
+            const posts = update(this.state.posts, {
+                $push: response.data.results
             });
             this.setState({
                 fetchingPosts: false,
-                posts: hash,
-                allPosts: posts,
-                currentPageNumber: page
+                posts: posts,
+                nextPage: response.data.next ? page + 1 : null
             });
         }).catch((err) => {
             this.setState({
                 fetchingPosts: false,
-                failedToFetchPosts: true
+                failedToFetchPosts: true,
+                nextPage: null
             });
             console.error(err);
         });
@@ -96,22 +96,23 @@ export class PostsStore extends Reflux.Store {
 
     onDeletePost(id, postId) {
         this.setState({
-            deletingPost: true,
+            deletingPost: id,
             failedToDeletePost: false
         });
         RestUtil.sendDELETE(`posts/${id}/`).then(() => {
-            // From mehulmpt, https://stackoverflow.com/questions/48302118/delete-nested-object-base-on-key-in-react
-            const newPosts = Object.assign({}, this.state.posts);
-            delete newPosts[postId];
+            const index = this.state.posts.findIndex((post) => post.id === id),
+			 posts = update(this.state.posts, {
+                    $splice: [[index, 1]]
+                });
             this.setState({
-                posts: newPosts,
+                posts: posts,
                 deletingPost: false,
                 failedToDeletePost: false
             });
         }).catch((err) => {
             this.setState({
                 deletingPost: false,
-                failedToDeletePost: true
+                failedToDeletePost: id
             });
             console.error(err);
         });
@@ -121,16 +122,16 @@ export class PostsStore extends Reflux.Store {
         this.setState({
             fetchingPost: true,
             failedToFetchPost: false,
-            currentPost: []
+            currentPost: null,
+            currentPostImages: []
         });
         RestUtil.sendGET(`posts/${postId}/`).then((response) => {
-            const post = update(this.state.currentPost, {
-                $set: response.data
-            });
-
+            const post = response.data.find((post) => post.contentType.includes("text")),
+			 images = response.data.filter((post) => post.contentType.includes("image"));
             this.setState({
                 fetchingPost: false,
-                currentPost: post
+                currentPost: post,
+                currentPostImages: images
             });
         }).catch((err) => {
             this.setState({
@@ -138,6 +139,12 @@ export class PostsStore extends Reflux.Store {
                 failedToFetchPost: true
             });
             console.error(err);
+        });
+    }
+
+    onClearModalMessage() {
+        this.setState({
+            failedToCreatePost: false
         });
     }
 }

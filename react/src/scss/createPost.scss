@@ -8,4 +8,87 @@
     .submit-button {
         float: right;
     }
+	
+	.form-group input[type="radio"], input[type="checkbox"] {
+		width: auto;
+	}
+	
+	.type-buttons-row {
+		display: flex;
+		
+		.radio ~ .radio {
+			margin-top: auto;
+			margin-left: 1em;
+		}
+	}
+	
+	.unlisted-group {
+		margin-left: auto;
+		display: flex;
+		
+		span {
+			margin-top: 0.75em;
+			margin-left: 0.7em;
+			margin-right: 1em;
+		}
+	}
+	
+	.tags-container {
+		display: flex;
+		flex-wrap: wrap;
+		margin-bottom: 0.5em;
+	}
+	
+	.create-tag-wrapper {
+		display: flex;
+		width: 50%;
+		
+		.btn {
+			margin-left: 1em;
+		}
+	}
+	
+	.modal-footer button:nth-child(2) {
+		margin-left: 1em;
+	}
+	
+	.visible-to {
+		margin-top: 0.7em;
+	}
+	
+	.error-text {
+		margin-top: 0.5em;
+	}
+	
+	.share-user-wrapper {
+		display: flex;
+		width: 75%;
+		margin-top: 0.4em;
+		
+		.btn {
+			margin-left: 1em;
+		}
+	}
+	
+	.tags-container {
+		.tag {
+			margin-right: 0.5em;
+			& > span {
+				background-color: $primary;
+			}
+			
+			.close {
+				color: lightgrey;
+				opacity: 1;
+				text-shadow: none;
+				margin-left: 0.3em;
+				line-height: 0.7;
+			}
+		}
+	}
+	
+	.scrollable {
+		height: 70vh;
+		overflow: auto;
+	}
 }
