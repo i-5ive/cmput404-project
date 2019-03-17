@@ -30,10 +30,34 @@ def get_body(author1, author2, query=QUERY):
 class UnfollowViewTest(TestCase):
 
     def setUp(self):
-        self.author1 = get_author_url(str(setupUser("yeet").id))
-        self.author2 = get_author_url(str(setupUser("yaw").id))
-        self.author3 = get_author_url(str(setupUser("yaw2").id))
+        self.author1 = get_author_url(str(setupUser("yeet", "password").id))
+        self.author2 = get_author_url(str(setupUser("yaw", "password").id))
+        self.author3 = get_author_url(str(setupUser("yaw2", "password").id))
+        
+        self.client.login(username="yeet", password="password")
 
+    def test_wrong_user_authentication(self):
+        Follow.objects.create(follower=self.author1, followed=self.author3)
+        body = get_body(self.author3, self.author1)
+        
+        self.client.login(username="yaw2", password="password")
+        response = self.client.post(reverse('unfollow'), data=body, content_type="application/json")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.data["query"], QUERY)
+        self.assertEqual(response.data["success"], False)
+        
+    def test_no_authentication(self):
+        Follow.objects.create(follower=self.author1, followed=self.author3)
+        body = get_body(self.author3, self.author1)
+        
+        self.client.logout()
+        response = self.client.post(reverse('unfollow'), data=body, content_type="application/json")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.data["query"], QUERY)
+        self.assertEqual(response.data["success"], False)
+        
     def test_get(self):
         response = self.client.get(reverse('unfollow'))
         self.assertEqual(response.status_code, 405)

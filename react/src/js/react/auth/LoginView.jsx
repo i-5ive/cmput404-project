@@ -8,6 +8,8 @@ import CredentialsForm from "./CredentialsForm";
 import AuthActions from "./AuthActions";
 import AuthStore from "./AuthStore";
 
+import LoadingComponent from "../misc/LoadingComponent";
+
 export default class LoginView extends Reflux.Component {
     constructor() {
         super();
@@ -62,6 +64,9 @@ export default class LoginView extends Reflux.Component {
                             }
                         </Alert>
                     )
+                }
+                {
+                    this.state.isLoggingIn && <LoadingComponent />
                 }
                 <CredentialsForm
                     username={this.state.enteredUsername}

@@ -32,7 +32,7 @@ class FriendRequestView extends Reflux.Component {
     render() {
         return (
             <div className="friendRequest">
-                <Link className="name" to={`/profile/${encodeURIComponent(this.props.request.id)}`}>
+                <Link className="name" to={`/profile/${encodeURIComponent(this.props.request.id)}/`}>
                     {
                         this.props.request.displayName
                     }

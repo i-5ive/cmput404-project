@@ -20,7 +20,10 @@ https://devexpress.github.io/testcafe/documentation/test-api/selecting-page-elem
 https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-requests/  
 https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-requests/mocking-http-requests.html  
 
-# Running local tests faster (mac instructions)
+Setting cookies in JavaScript  
+https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie  
+
+## Running local tests faster (mac instructions)
 `brew install postgres`
 `postgres -D /usr/local/var/postgres`
 `createdb social_dist`

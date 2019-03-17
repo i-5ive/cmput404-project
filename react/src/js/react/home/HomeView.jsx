@@ -7,7 +7,6 @@ import PostFeed from "../posts/PostFeed";
 
 import HomeStore from "./HomeStore";
 import HomeActions from "./HomeActions";
-import AuthStore from "../auth/AuthStore";
 
 /**
  * Displays posts visible to the currently logged in user
@@ -15,39 +14,16 @@ import AuthStore from "../auth/AuthStore";
 export default class HomeView extends Reflux.Component {
     constructor(props) {
         super(props);
-        this.stores = [HomeStore, AuthStore];
+        this.store = HomeStore;
     }
 
     componentDidMount() {
-        if (this.state.userId) {
-            HomeActions.loadPosts(1, this.state.userId);
-        } else {
-            this.props.history.push("/discover");
-        }
+        HomeActions.loadPosts();
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.state.userId !== prevState.userId && this.state.userId) {
-            HomeActions.loadPosts(1, this.state.userId);
-        } else if (!this.state.userId) {
-            this.props.history.push("/discover");
-        }
-    }
-
-    _loadMorePosts = (pageNumber) => {
-        HomeActions.loadPosts(pageNumber, this.state.userId);
+    _loadMorePosts = () => {
+        HomeActions.loadPosts(this.state.nextPage);
     };
-
-    renderFilters() {
-        return (
-            <div className="filter-posts-wrapper">
-                <input type="checkbox" name="Friends" value="Friends" />
-                <label htmlFor="Friends">Friends</label>
-                <input type="checkbox" name="FOAF" value="FOAF" />
-                <label htmlFor="FOAF">FOAF</label>
-            </div>
-        );
-    }
 
     render() {
         return (
@@ -59,12 +35,13 @@ export default class HomeView extends Reflux.Component {
                         </Alert>
                     )
                 }
-                {
-                    this.renderFilters()
-                }
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.isLoadingPosts}
-                    loadMorePosts={HomeActions.loadPosts}
+                    loadMorePosts={this._loadMorePosts}
+                    onDeletePost={HomeActions.deletePost}
+                    hasNextPage={Boolean(this.state.nextPage)}
+                    errorDeletingPost={this.state.failedToDeletePost}
+                    deletingPost={this.state.deletingPost}
                 />
             </div>
         );

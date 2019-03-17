@@ -52,7 +52,4 @@ class LoginTest(TestCase):
         body = get_body(VALID_USERNAME, VALID_PASSWORD)
         response = self.client.post(reverse('login'), data=body, content_type="application/json")
         self.assertEqual(response.status_code, 200)
-        cookies = response.client.cookies
-        self.assertEqual(cookies["core-username"].value, VALID_USERNAME)
-        self.assertEqual(cookies["core-userid"].value, str(self.user.id))
-
+        self.assertEqual(response.data["userId"], str(self.user.id))

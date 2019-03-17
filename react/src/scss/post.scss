@@ -1,6 +1,6 @@
 .thumbnail {
     .caption {
-        padding: 10px 20px;
+		margin-left: 0.7em;
         .post-header {
             display: flex;
             justify-content: space-between;
@@ -24,12 +24,34 @@
             }
         }
 
-        .post-footer {
-            display: flex;
-            justify-content: flex-start;
-            a {
-                margin: 0 0 0 5px;
-            }
-        }
+		.categories-wrapper {
+			display: flex;
+			flex-wrap: wrap;
+			
+			.glyphicon {
+				margin-right: 0.5em;
+			}
+			
+			.category-badge {
+				margin-right: 0.5em;
+				background-color: $primary;
+			}
+		}
+
+		.empty {
+			font-style: italic;
+		}
+		
+		.comments-count {
+			margin-left: 0.5em;
+		}
+		
+		.visibility-text {
+			margin-left: 0.3em;
+		}
+		
+		.deleting-message {
+			margin-left: 1em;
+		}
     }
 }

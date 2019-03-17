@@ -25,6 +25,13 @@ def handle_unfollow_request(request):
         validate_request_body(request)
         authorUrl = request.data["author"]["url"]
         requesterUrl = request.data["requester"]["url"]
+        
+        if ((not request.user.is_authenticated) or request.user.author.get_url() != requesterUrl):
+            return Response({
+                "query": QUERY,
+                "success": False,
+                "message": "You are not authenticated as the requesting user"
+            }, status=401)
 
         follow = Follow.objects.get(follower=requesterUrl, followed=authorUrl)
         friendRequest = FriendRequest.objects.filter(requester=requesterUrl, friend=authorUrl)

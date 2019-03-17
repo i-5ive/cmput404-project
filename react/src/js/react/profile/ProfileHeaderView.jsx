@@ -111,9 +111,11 @@ export default class ProfileHeaderView extends Reflux.Component {
                 if (this.state.isFollowingUser) {
                     text = "Unfollow";
                     onClick = this._onUnfollowClicked;
-                } else {
+                } else if (!this.state.isOtherFollowing) {
                     text = "Send friend request";
                     onClick = this._onSendRequestClicked;
+                } else {
+                    return null;
                 }
             } else {
                 return null;

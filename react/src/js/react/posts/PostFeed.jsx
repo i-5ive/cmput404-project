@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import { Thumbnail } from "react-bootstrap";
+
 import Post from "./Post";
 import LoadingComponent from "../misc/LoadingComponent";
 /**
@@ -8,33 +10,56 @@ import LoadingComponent from "../misc/LoadingComponent";
  * From here it will dynamically create components for all the posts
  */
 export default class PostFeed extends React.Component {
-	static propTypes = {
-	    loadMorePosts: PropTypes.func,
-	    posts: PropTypes.oneOfType([
-	        PropTypes.array,
-	        PropTypes.object
-	    ]),
-	    isLoading: PropTypes.bool,
-	    currentPage: PropTypes.number
-	}
+    static propTypes = {
+        loadMorePosts: PropTypes.func,
+        posts: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.object
+        ]),
+        isLoading: PropTypes.bool,
+        hasNextPage: PropTypes.bool,
+        onDeletePost: PropTypes.func,
+        deletingPost: PropTypes.bool,
+        errorDeletingPost: PropTypes.bool
+    }
 
     /**
-     * GET's to the database
+     * Loads more posts from the database
      */
     loadMorePosts = () => {
-        this.props.loadMorePosts(this.props.currentPage + 1);
+        if (this.props.hasNextPage) {
+            this.props.loadMorePosts();
+        }
+    }
+
+    // Credit to Brendan McGill for this: https://stackoverflow.com/a/49573628
+    handleScroll = (e) => {
+        const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+        if (bottom) {
+            this.loadMorePosts();
+        }
     }
 
     render() {
-        if (this.props.isLoading) {
-            return <LoadingComponent />;
-        }
-
         return (
-            <div className="post-feed">
-                {Object.keys(this.props.posts).map((post) => (
-                    <Post key={post} post={this.props.posts[post]} />
+            <div className="post-feed" onScroll={(this.props.hasNextPage && !this.props.isLoading) ? this.handleScroll : undefined}>
+                {this.props.posts.map((post) => (
+                    <Post key={post.id}
+                        onDelete={this.props.onDeletePost}
+                        isDeleting={this.props.deletingPost === post.id}
+                        failedToDeletePost={this.props.errorDeletingPost === post.id}
+                        post={post} />
                 ))}
+                {
+                    this.props.isLoading && <LoadingComponent />
+                }
+                {
+                    !this.props.isLoading && this.props.posts.length === 0 && (
+                        <Thumbnail>
+                            No posts were found.
+                        </Thumbnail>
+                    )
+                }
             </div>
         );
     }

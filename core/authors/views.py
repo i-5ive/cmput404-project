@@ -82,6 +82,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def handle_friend_request_response(self, request, pk):
         try:
             author = Author.objects.get(pk=pk)
+            if ((not request.user.is_authenticated) or request.user.author != author):
+                return Response({
+                    "query": "friendResponse",
+                    "success": False,
+                    "message": "You must be authenticated as the requested user to perform this action."
+                }, status=401)
         except:
             return Response({
                 "query": "friendResponse",
@@ -182,7 +188,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
             followed = request.data["author"]
             if ("/author/" not in followed):
                 followed = get_author_url(followed)
-            follow = Follow.objects.filter(follower=get_author_url(pk), followed=followed)
+            pk_url = get_author_url(pk)
+            follow = Follow.objects.filter(follower=pk_url, followed=followed)
+            reverse = Follow.objects.filter(follower=followed, followed=pk_url)
         except:
             return Response({
                 "success": False,
@@ -190,7 +198,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
             }, status=400)
         
         return Response({
-            "isFollowingUser": follow.exists()
+            "isFollowingUser": follow.exists(),
+            "isOtherFollowing": reverse.exists(),
+            "isOtherFriendRequest": FriendRequest.objects.filter(requester=followed, friend=pk_url).exists()
         }, status=200)
 
     # All posts the currently auth'd user can see of pk

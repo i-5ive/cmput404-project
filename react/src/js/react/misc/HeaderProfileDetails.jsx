@@ -39,28 +39,14 @@ class HeaderProfileDetails extends Reflux.Component {
 
     renderNotifications() {
         return (
-            <OverlayTrigger
-                trigger="click"
-                placement="bottom"
-                overlay={
-                    <Popover
-                        id="notifications-popover"
-                        title="Notifications"
-                    >
-                        <NotificationsPopover />
-                    </Popover>
-                }
-                rootClose
-            >
-                <span className="notificationsBadge">
-                    <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
-                    <NotificationsBadge />
-                </span>
-            </OverlayTrigger>
+            <span className="notificationsBadge">
+                <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
+                <NotificationsBadge />
+            </span>
         );
     }
 
-    handleShow = () => {
+    onCreatePostClicked = () => {
         this.setState({
             showModal: true
         });
@@ -75,7 +61,7 @@ class HeaderProfileDetails extends Reflux.Component {
     renderCreatePost() {
         return (
             <React.Fragment>
-                <span className="createPostBadge" onClick={this.handleShow}>
+                <span className="createPostBadge" onClick={this.onCreatePostClicked}>
                     <span className="glyphicon glyphicon-pencil" aria-hidden="true" />
                 </span>
             </React.Fragment>
@@ -85,16 +71,31 @@ class HeaderProfileDetails extends Reflux.Component {
     render() {
         const contents = this.state.isLoggedIn ? (
             [
-                <NavItem key="create-post">
+                <NavItem key="create-post" onClick={this.onCreatePostClicked}>
                     {
                         this.renderCreatePost()
                     }
                 </NavItem>,
-                <NavItem key="notifications">
-                    {
-                        this.renderNotifications()
+                <OverlayTrigger
+                    trigger="click"
+                    placement="bottom"
+                    key="notifications"
+                    overlay={
+                        <Popover
+                            id="notifications-popover"
+                            title="Notifications"
+                        >
+                            <NotificationsPopover />
+                        </Popover>
                     }
-                </NavItem>,
+                    rootClose
+                >
+                    <NavItem>
+                        {
+                            this.renderNotifications()
+                        }
+                    </NavItem>
+                </OverlayTrigger>,
                 <NavDropdown key="profile-dropdown-item" title={this.state.username} id="profile-dropdown">
                     <MenuItem key="profile" onClick={this._onProfileClicked}>View Profile</MenuItem>
                     <MenuItem key="signOut" onClick={this._onSignOutClicked}>Sign Out</MenuItem>

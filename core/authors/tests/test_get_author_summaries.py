@@ -110,7 +110,8 @@ class TestGetAuthorSummaries(TestCase):
 
         requests_mock.assert_any_call(EXTERNAL_HOST_ONE + "/authorSummaries", data=json.dumps([author1]), headers={"Content-Type": "application/json"})
         requests_mock.assert_any_call(EXTERNAL_HOST_TWO + "/authorSummaries", data=json.dumps([author2]), headers={"Content-Type": "application/json"})
-        self.assertEqual(summaries, [author1Summary, author2Summary])
+        self.maxDiff = None
+        self.assertEqual(sorted(summaries, key=lambda x : x["displayName"]), sorted([author1Summary, author2Summary], key=lambda x : x["displayName"]))
 
     @patch("requests.post")
     @patch("core.hostUtil.get_host_url")
@@ -149,4 +150,4 @@ class TestGetAuthorSummaries(TestCase):
 
         requests_mock.assert_any_call(EXTERNAL_HOST_ONE + "/authorSummaries", data=json.dumps([author1]), headers={"Content-Type": "application/json"})
         requests_mock.assert_any_call(EXTERNAL_HOST_TWO + "/authorSummaries", data=json.dumps([author2]), headers={"Content-Type": "application/json"})
-        self.assertEqual(summaries, [author3Summary, author1Summary, author2Summary])
+        self.assertEqual(sorted(summaries, key=lambda x : x["displayName"]), sorted([author3Summary, author1Summary, author2Summary], key=lambda x : x["displayName"]))

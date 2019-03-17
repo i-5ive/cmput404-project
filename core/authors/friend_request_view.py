@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSummarySerializer
 
-from core.authors.util import get_author_id
+from core.authors.util import get_author_id, get_author_url
 from core.hostUtil import is_external_host
 
 def are_authors_friends(author_one, author_two):
@@ -57,6 +57,12 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
 def handle_follow_request(request):
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
+        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["id"]):
+            return Response({
+                "query": "friendrequest",
+                "success": False,
+                "message": "You must be authenticated as the requester to perform this action."
+            }, status=401)
         authorUrl = author["url"]
         friendUrl = friend["url"]
     except:

@@ -4,6 +4,7 @@ import update from "immutability-helper";
 import Actions from "./HomeActions";
 
 import RestUtil from "../util/RestUtil";
+import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
 
 /**
  * This store keeps track of the state of components that deal with posts on the home page of the app
@@ -13,7 +14,8 @@ export default class HomeStore extends Reflux.Store {
         super();
         this.state = {
             posts: [],
-            isLoadingPosts: false
+            isLoadingPosts: false,
+            nextPage: null
         };
         this.listenables = Actions;
 
@@ -22,26 +24,57 @@ export default class HomeStore extends Reflux.Store {
         }
     }
 
-    onLoadPosts(page, authorId) {
-        this.setState({
+    onLoadPosts(page = 0) {
+        const state = {
             isLoadingPosts: true,
             errorLoadingPosts: false
-        });
+        };
+        if (page === 0) {
+            state.posts = [];
+        }
+        this.setState(state);
 
-        RestUtil.sendGET(`author/${authorId}/posts/`, {
-            page: page
+        RestUtil.sendGET("posts/feed/", {
+            page: page,
+            size: POSTS_PAGE_SIZE
         }).then((res) => {
             const posts = update(this.state.posts, {
-                $push: res.posts
+                $push: res.data.posts
             });
             this.setState({
                 posts: posts,
-                isLoadingPosts: false
+                isLoadingPosts: false,
+                nextPage: res.data.next ? page + 1 : null
             });
         }).catch((err) => {
             this.setState({
                 isLoadingPosts: false,
-                errorLoadingPosts: true
+                errorLoadingPosts: true,
+                nextPage: null
+            });
+            console.error(err);
+        });
+    }
+
+    onDeletePost(id, postId) {
+        this.setState({
+            deletingPost: id,
+            failedToDeletePost: false
+        });
+        RestUtil.sendDELETE(`posts/${id}/`).then(() => {
+            const index = this.state.posts.findIndex((post) => post.id === id),
+			 posts = update(this.state.posts, {
+                    $splice: [[index, 1]]
+                });
+            this.setState({
+                posts: posts,
+                deletingPost: false,
+                failedToDeletePost: false
+            });
+        }).catch((err) => {
+            this.setState({
+                deletingPost: false,
+                failedToDeletePost: id
             });
             console.error(err);
         });

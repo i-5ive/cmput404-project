@@ -12,17 +12,13 @@ const privacyConfig = [
         key: "FOAF"
     },
     {
-        title: "Local Friends",
+        title: "Server Only",
         key: "SERVERONLY"
     },
     {
         title: "Private",
         key: "PRIVATE"
     }
-    // {
-    //     title: "Custom Authors",
-    //     key: "PRIVATE"
-    // }
 ];
 
 export default privacyConfig;
