@@ -77,7 +77,7 @@ export class PostsStore extends Reflux.Store {
             size: POSTS_PAGE_SIZE
         }).then((response) => {
             const posts = update(this.state.posts, {
-                $push: response.data.results
+                $push: response.data.posts
             });
             this.setState({
                 fetchingPosts: false,

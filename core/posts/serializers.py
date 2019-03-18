@@ -4,7 +4,7 @@ from core.posts.models import Posts, Comments
 from core.authors.serializers import get_summary
 from core.hostUtil import get_host_url
 
-PAGE_SIZE = 50
+PAGE_SIZE = 5
 
 class PostsSerializer(serializers.ModelSerializer):
     visibleTo = serializers.ListField(child=serializers.URLField(), default=list)
@@ -32,7 +32,7 @@ class PostsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super(PostsSerializer, self).to_representation(instance)
         # From https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets
-        representation['comments'] = CommentsSerializer(instance.comments.all().order_by('-published')[:5], many=True, read_only=True).data
+        representation['comments'] = CommentsSerializer(instance.comments.all().order_by('-published')[:PAGE_SIZE], many=True, read_only=True).data
         representation['author'] = get_summary(instance.author)
         # TODO: integration with other servers
         if (not instance.origin):
