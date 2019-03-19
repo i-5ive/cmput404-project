@@ -36,75 +36,75 @@ const validateUsername = (field) => {
         const usernameMessage = validateUsername(props.username),
             passwordMessage = validatePassword(props.password),
             usernameState = getValidationState(usernameMessage),
-            passwordState = getValidationState(passwordMessage);
-			
-		const body = props.disableSubmit ? <LoadingComponent /> : (
-			<div>
-				<FormGroup controlId="username" validationState={usernameState}>
-                    <ControlLabel>Username</ControlLabel>
-                    <FormControl
-                        type="username"
-                        value={props.username}
-                        onChange={props.onUsernameChange}
-                        autoFocus
-                        placeholder="Username" />
-                    {
-                        usernameState && (
-                            <h5 className="error-text">
-                                {
-                                    usernameMessage
-                                }
-                            </h5>
-                        )
-                    }
-                </FormGroup>
-                <FormGroup controlId="password" validationState={passwordState}>
-                    <ControlLabel>Password</ControlLabel>
-                    <FormControl
-                        value={props.password}
-                        onChange={props.onPasswordChange}
-                        type="password"
-                        placeholder="Password" />
-                    {
-                        passwordState && (
-                            <h5 className="error-text">
-                                {
-                                    passwordMessage
-                                }
-                            </h5>
-                        )
-                    }
-                </FormGroup>
-			</div>
-		);
-			
+            passwordState = getValidationState(passwordMessage),
+
+            body = props.disableSubmit ? <LoadingComponent /> : (
+                <div>
+                    <FormGroup controlId="username" validationState={usernameState}>
+                        <ControlLabel>Username</ControlLabel>
+                        <FormControl
+                            type="username"
+                            value={props.username}
+                            onChange={props.onUsernameChange}
+                            autoFocus
+                            placeholder="Username" />
+                        {
+                            usernameState && (
+                                <h5 className="error-text">
+                                    {
+                                        usernameMessage
+                                    }
+                                </h5>
+                            )
+                        }
+                    </FormGroup>
+                    <FormGroup controlId="password" validationState={passwordState}>
+                        <ControlLabel>Password</ControlLabel>
+                        <FormControl
+                            value={props.password}
+                            onChange={props.onPasswordChange}
+                            type="password"
+                            placeholder="Password" />
+                        {
+                            passwordState && (
+                                <h5 className="error-text">
+                                    {
+                                        passwordMessage
+                                    }
+                                </h5>
+                            )
+                        }
+                    </FormGroup>
+                </div>
+            );
+
         return (
-			<div>
-				<div className="header">
-					<h3>
-						{
-							props.action
-						}
-					</h3>
-				</div>
-				<Thumbnail>
-					{
-						body
-					}
-					<Button bsStyle="primary"
-						onClick={props.onSubmit}
-						disabled={props.disableSubmit || Boolean(passwordState || usernameState)}>
-						{
-							props.action
-						}
-					</Button>
-					<Link to={props.switchRoute} className="credentialsSwitchAction">
-						{
-							props.switchActionText
-						}
-					</Link>
-				</Thumbnail>
-			</div>
+            <div>
+                <div className="header">
+                    <h3>
+                        {
+                            props.action
+                        }
+                    </h3>
+                </div>
+                <Thumbnail>
+                    {
+                        body
+                    }
+                    <Button bsStyle="primary"
+                        onClick={props.onSubmit}
+                        disabled={props.disableSubmit || Boolean(passwordState || usernameState)}>
+                        {
+                            props.action
+                        }
+                    </Button>
+                    <Link to={props.switchRoute} className="credentialsSwitchAction">
+                        {
+                            props.switchActionText
+                        }
+                    </Link>
+                </Thumbnail>
+            </div>
         );
     };
 
