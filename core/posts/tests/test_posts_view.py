@@ -229,7 +229,7 @@ class PostViewsTest(TestCase):
         request = self.factory.get(reverse('posts-list'))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for post in response.data['results']:
+        for post in response.data['posts']:
             print(post['contentType'])
             self.assertNotIn("image", post['contentType'])
 
@@ -249,7 +249,7 @@ class PostViewsTest(TestCase):
         force_authenticate(request, user=get_user_model().objects.get(username="cry"))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for post in response.data['results']:
+        for post in response.data['posts']:
             if 'text' in post['contentType']:
                 continue
             self.assertIn("image", post['contentType'])
@@ -270,7 +270,7 @@ class PostViewsTest(TestCase):
         force_authenticate(request, user=get_user_model().objects.get(username="cry"))
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 0)
+        self.assertEqual(len(response.data["posts"]), 0)
         self.assertEqual(len(Posts.objects.all()), 1)
 
     def test_deletion_unauthenticated(self):
