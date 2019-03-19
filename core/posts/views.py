@@ -36,14 +36,34 @@ class PostsViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        posts = self.get_queryset().exclude(unlisted=True)
-        page = self.paginate_queryset(posts)
-        if page is not None:
+        size = int(request.query_params.get("size", 5))
+        queryPage = int(request.query_params.get('page', 0))
+        if (size < 1 or queryPage < 0 or size > 100):
+            return Response({
+                "success": False,
+                "message": "The query parameters were invalid",
+                "query": "posts"
+            }, 400)
+        
+        try:
+            qs_posts = self.get_queryset().exclude(unlisted=True)
+            paginator = Paginator(qs_posts, size)
+            page = paginator.page(queryPage + 1)
             serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(posts, many=True)
-        return Response(serializer.data)
+            pages_to_return = serializer.data
+        except:
+            pages_to_return = []
+        
+        data = {
+            "posts": pages_to_return,
+            "query": "posts",
+            "count": len(qs_posts),
+            "size": size
+        }
+        if (len(pages_to_return) > 0):
+            add_page_details_to_response(request, data, page, queryPage)
+        
+        return Response(data)
 
     @action(detail=True)
     def comments(self, request, pk):

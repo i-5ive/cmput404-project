@@ -1,70 +1,84 @@
-.authorProfile {
-    display: flex;
-    word-break: break-all;
+.profile-page {
 
-    & > *:first-child {
-        margin: auto;
-    }
+	display: flex;
+	width: auto;
 
-    .details {
-        width: 80vw;
-        display: flex;
+	.authorProfile {
+		display: flex;
+		flex-direction: column;
 
-        .header {
-            display: flex;
+		.details {
+			margin-right: 1.5em;
+			margin-left: -0.8em;
+			
+			.header {
+				display: flex;
 
-            .name {
-                text-align: center;
-            }
+				.name {
+					text-align: center;
+				}
 
-            .email {
-                margin-left: auto;
-            }
-        }
+				.email {
+					margin-left: auto;
+				}
+			}
 
-        .thumbnail:nth-child(1) {
-            width: 45vw;
-            height: 100%;
+			.thumbnail {
+				width: 45vw;
+				height: 100%;
+				
+				overflow-x: auto;
+			}
+			
+			.thumbnail:nth-child(1) {
+				.caption {
+					display: flex;
+					flex-direction: column;
 
-            .caption {
-                display: flex;
-                flex-direction: column;
+					.footer {
+						margin-top: auto;
+					}
+				}
+			}
 
-                .footer {
-                    margin-top: auto;
-                }
-            }
-        }
+			.thumbnail:nth-child(2) {
+				.repos {
+					max-height: 35vh;
+					overflow-y: auto;
+				}
+			}
+		}
+	}
 
-        .thumbnail:nth-child(2) {
-            width: 30vw;
-            margin-left: 3em;
-            height: 100%;
+	.formNamesRow {
+		display: flex;
 
-            .repos {
-                max-height: 35vh;
-                overflow-y: auto;
-            }
-        }
-    }
-}
+		& > div:first-child {
+			margin-right: 3em;
+		}
+	}
 
-.formNamesRow {
-    display: flex;
+	.friendSummary {
+		margin-top: 1em;
+		display: flex;
+		width: 20em;
 
-    & > div:first-child {
-        margin-right: 3em;
-    }
-}
+		h5 {
+			margin-top: auto;
+			margin-bottom: auto;
+			margin-left: auto;
+		}
+	}
 
-.friendSummary {
-    margin-top: 1em;
-    display: flex;
-    width: 20em;
-
-    h5 {
-        margin-top: auto;
-        margin-bottom: auto;
-        margin-left: auto;
-    }
+	.posts-background {
+		background-color: $background;
+		
+		.post-feed {
+			margin: 0px auto;
+		}
+	}
+	
+	.thumbnail:nth-child(2) {
+		width: 100%;
+	}
 }

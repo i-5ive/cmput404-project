@@ -37,7 +37,7 @@ export default class ProfilePostsStream extends Reflux.Component {
             return <LoadingComponent />;
         }
         return (
-            <div>
+            <div className="posts-background">
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.isLoadingStream}
                     loadMorePosts={this.state._loadMorePosts}
