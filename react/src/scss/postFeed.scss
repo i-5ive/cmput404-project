@@ -4,11 +4,22 @@
     background-color: $very-light-grey;
     border-radius: 5px;
     max-width: 40em;
-    margin: 0px auto;
     padding-top: 10px;
     padding-bottom: 10px;
 	height: 80vh;
 	overflow: auto;
+	
+	& > .coreSpinner {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+	}
+}
+
+@media (min-width: 950px) {
+	.post-feed {
+		margin: 0px auto;
+	}
 }
 
 .filter-posts-wrapper {

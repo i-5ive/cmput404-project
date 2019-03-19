@@ -6,6 +6,8 @@ import { Button, FormGroup, FormControl, ControlLabel, Thumbnail } from "react-b
 
 import { INVERSE_ALPHANUMERIC_REGEX } from "../constants/RegexConstants";
 
+import LoadingComponent from "../misc/LoadingComponent";
+
 const validateUsername = (field) => {
         if (field.length >= 150) {
             return "Your username is too long. It must be less than 150 characters.";
@@ -35,14 +37,10 @@ const validateUsername = (field) => {
             passwordMessage = validatePassword(props.password),
             usernameState = getValidationState(usernameMessage),
             passwordState = getValidationState(passwordMessage);
-        return (
-            <Thumbnail>
-                <h3>
-                    {
-                        props.action
-                    }
-                </h3>
-                <FormGroup controlId="username" validationState={usernameState}>
+			
+		const body = props.disableSubmit ? <LoadingComponent /> : (
+			<div>
+				<FormGroup controlId="username" validationState={usernameState}>
                     <ControlLabel>Username</ControlLabel>
                     <FormControl
                         type="username"
@@ -77,20 +75,36 @@ const validateUsername = (field) => {
                         )
                     }
                 </FormGroup>
-
-                <Button bsStyle="primary"
-                    onClick={props.onSubmit}
-                    disabled={props.disableSubmit || Boolean(passwordState || usernameState)}>
-                    {
-                        props.action
-                    }
-                </Button>
-                <Link to={props.switchRoute} className="credentialsSwitchAction">
-                    {
-                        props.switchActionText
-                    }
-                </Link>
-            </Thumbnail>
+			</div>
+		);
+			
+        return (
+			<div>
+				<div className="header">
+					<h3>
+						{
+							props.action
+						}
+					</h3>
+				</div>
+				<Thumbnail>
+					{
+						body
+					}
+					<Button bsStyle="primary"
+						onClick={props.onSubmit}
+						disabled={props.disableSubmit || Boolean(passwordState || usernameState)}>
+						{
+							props.action
+						}
+					</Button>
+					<Link to={props.switchRoute} className="credentialsSwitchAction">
+						{
+							props.switchActionText
+						}
+					</Link>
+				</Thumbnail>
+			</div>
         );
     };
 

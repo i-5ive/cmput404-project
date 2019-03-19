@@ -64,7 +64,7 @@ class ProfileView extends Reflux.Component {
         const id = getId(this.props.match.params.id);
 
         return (
-            <div>
+            <div className="profile-page">
                 <div className="authorProfile">
                     <ProfileHeaderView id={id} />
                 </div>

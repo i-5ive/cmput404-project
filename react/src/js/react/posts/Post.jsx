@@ -123,7 +123,7 @@ class Post extends Reflux.Component {
                     {
                         this.props.post.categories.length === 0 && (
                             <span>
-								No categories.
+								No categories
                             </span>
                         )
                     }
