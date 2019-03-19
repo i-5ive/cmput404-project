@@ -1,7 +1,7 @@
 import React from "react";
 import Reflux from "reflux";
 
-import {Alert} from "react-bootstrap";
+import { Alert } from "react-bootstrap";
 
 import PostFeed from "../posts/PostFeed";
 import { PostsStore, PostsActions } from "./PostsStore";
@@ -26,13 +26,13 @@ export default class DiscoverView extends Reflux.Component {
     render() {
         return (
             <div className="discoverPage">
-				{
-					this.state.failedToFetchPosts && (
-						<Alert bsStyle="danger">
+                {
+                    this.state.failedToFetchPosts && (
+                        <Alert bsStyle="danger">
 							An error occurred while fetching posts.
-						</Alert>
-					)
-				}
+                        </Alert>
+                    )
+                }
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.fetchingPosts}
                     loadMorePosts={this._loadMorePosts}
