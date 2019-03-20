@@ -59,7 +59,7 @@ class Post extends Reflux.Component {
         );
     }
 
-    // From VinayC, https://stackoverflow.com/questions/8499633/how-to-display-base64-images-in-html
+    // From VinayC, https://stackoverflow.com/a/8499716
     renderContent = (posts) => {
         if (posts.length === 1 && !posts[0].content) {
             return (
