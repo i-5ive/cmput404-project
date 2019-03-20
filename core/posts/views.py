@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 
 # Create your views here.
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -30,7 +30,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You are not authorized to view this post.",
                 "query": "post"
-            }, status=403)
+            }, status=status.HTTP_403_FORBIDDEN)
         posts = Posts.objects.filter(post_id=post.post_id)
         serializer = PostsSerializer(posts, many=True, context={'request': request})
         return Response(serializer.data)
@@ -82,7 +82,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You are not authorized to view this post's comments.",
                 "query": "comments"
-            }, status=403)
+            }, status=status.HTTP_403_FORBIDDEN)
     
         comments = Comments.objects.filter(post=post)
         
@@ -116,7 +116,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You must be logged in as the author of the post to delete it.",
                 "query": "deletePost"
-            }, status=403)
+            }, status=status.HTTP_403_FORBIDDEN)
         
         Posts.objects.filter(post_id=post.post_id).delete()
         return Response({

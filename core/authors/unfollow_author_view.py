@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -31,7 +32,7 @@ def handle_unfollow_request(request):
                 "query": QUERY,
                 "success": False,
                 "message": "You are not authenticated as the requesting user"
-            }, status=403)
+            }, status=status.HTTP_403_FORBIDDEN)
 
         follow = Follow.objects.get(follower=requesterUrl, followed=authorUrl)
         friendRequest = FriendRequest.objects.filter(requester=requesterUrl, friend=authorUrl)
