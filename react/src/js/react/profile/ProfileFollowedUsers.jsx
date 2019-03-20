@@ -1,7 +1,7 @@
 import React from "react";
 import Reflux from "reflux";
 
-import {Alert} from "react-bootstrap";
+import { Alert } from "react-bootstrap";
 
 import ProfileStore from "./ProfileStore";
 import ProfileActions from "./ProfileActions";

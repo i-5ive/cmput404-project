@@ -159,7 +159,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
         except:
-            return Response("Invalid author ID specified", status=404)
+            return Response({
+                "query": "friends",
+                "author": pk,
+                "message": "The author ID was invalid",
+                "success": False
+            }, status=404)
         
         if (request.method == "POST"):
             return handle_friends_post(request, pk)
@@ -247,16 +252,27 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def author_posts(self, request, pk=None):
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
-            return Response("Page number must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Page number must be positive",
+                "success": False
+            }, status=400)
 
         # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
-            return Response("Size must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Size must be positive",
+                "success": False
+            }, status=400)
 
         if not pk:
-            # TODO should it be a text response?
-            return Response("You must specify an author.",status=400)
+            return Response({
+                "query": "posts",
+                "message": "You must specify an author.",
+                "success": False
+            }, status=400)
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
@@ -313,11 +329,19 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def visible_posts(self, request):
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
-            return Response("Page number must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Page number must be positive",
+                "success": False
+            }, status=400)
         # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
-            return Response("Size must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Size must be positive",
+                "success": False
+            }, status=400)
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
