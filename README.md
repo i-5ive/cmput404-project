@@ -1,4 +1,7 @@
 # cmput404-project
+
+[![Build Status](https://travis-ci.com/i-5ive/cmput404-project.svg?branch=master)](https://travis-ci.com/i-5ive/cmput404-project)
+
 CMPUT404 Wi19 Team Project
 
 We are making a distributed social network!
@@ -54,11 +57,13 @@ You can run `python3 manage.py test` to run the django unit tests (if you have i
 ##### Running local tests faster (mac instructions)
 
 Run these commands:
-- `brew install postgres`
-- `postgres -D /usr/local/var/postgres`
-- `createdb social_dist`
-- `psql social_dist`
-- `CREATE USER postgres SUPERUSER;`
+```bash
+brew install postgres
+postgres -D /usr/local/var/postgres
+createdb social_dist
+psql social_dist
+CREATE USER postgres SUPERUSER;
+```
 
 Now you can install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/), add a new server, choose a name, and the host will be `127.0.0.1`.
  
