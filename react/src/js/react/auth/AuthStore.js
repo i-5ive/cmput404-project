@@ -8,6 +8,8 @@ import RestUtil from "../util/RestUtil";
 import { SERVER_URL } from "../constants/ServerConstants";
 import CookieUtil from "../util/CookieUtil";
 
+import HomeActions from "../home/HomeActions";
+
 const getLoginStateFromCookies = () => {
     const cookies = cookie.parse(document.cookie),
         username = cookies["core-username"],
@@ -157,5 +159,6 @@ export default class AuthStore extends Reflux.Store {
             userInfo: null,
             userId: null
         });
+        HomeActions.reloadPosts();
     }
 }

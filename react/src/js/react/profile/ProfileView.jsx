@@ -59,7 +59,11 @@ class ProfileView extends Reflux.Component {
                 </Alert>
             );
         } else if (this.state.isLoadingProfile || !this.state.profileDetails) {
-            return <LoadingComponent />;
+            return (
+                <div className="center-loader">
+                    <LoadingComponent />
+                </div>
+            );
         }
         const id = getId(this.props.match.params.id);
 

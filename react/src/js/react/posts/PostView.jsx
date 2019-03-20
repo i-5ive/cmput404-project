@@ -24,7 +24,11 @@ export default class PostView extends Reflux.Component {
         if (this.state.failedToFetchPost) {
             return <Alert bsStyle="danger">An error occurred while fetching the post</Alert>;
         } else if (!this.state.currentPost) {
-            return <LoadingComponent />;
+            return (
+                <div className="center-loader">
+                    <LoadingComponent />
+                </div>
+            );
         }
         return (
             <div className="postView">
