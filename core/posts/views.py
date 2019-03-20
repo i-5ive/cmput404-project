@@ -22,6 +22,9 @@ COMMENT_ADDED = 'Comment Added'
 
 def create_comment(request, pk=None):
     post = Posts.objects.get(pk=pk)
+    requester = request.user.author.get_url()
+    if requester not in post.visibleTo or post.visibility != "PUBLIC":
+        return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data
         print(data)
@@ -42,7 +45,6 @@ def create_comment(request, pk=None):
                 "query": "addComment",
                 "success": False,
                 "message": COMMENT_NOT_ALLOWED,
-                "errors": serializer.errors
             }, status=status.HTTP_403_FORBIDDEN)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -56,7 +58,7 @@ def list_comments(request, pk=None):
             "success": False,
             "message": "The query parameters were invalid",
             "query": "comments"
-        }, 400)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     post = Posts.objects.get(pk=pk)
     if not can_user_view(request.user, post):
@@ -64,7 +66,7 @@ def list_comments(request, pk=None):
             "success": False,
             "message": "You are not authorized to view this post's comments.",
             "query": "comments"
-        }, status=401)
+        }, status=status.HTTP_403_FORBIDDEN)
 
     comments = Comments.objects.filter(post=post)
 
@@ -92,14 +94,14 @@ class PostsViewSet(viewsets.ModelViewSet):
     queryset = Posts.objects.filter(visibility="PUBLIC").order_by('-published')
     serializer_class = PostsSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        post = self.get_object()
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        post = Posts.objects.get(pk=pk)
         if not can_user_view(request.user, post):
             return Response({
                 "success": False,
                 "message": "You are not authorized to view this post.",
                 "query": "post"
-            }, status=401)
+            }, status=status.HTTP_403_FORBIDDEN)
         posts = Posts.objects.filter(post_id=post.post_id)
         serializer = PostsSerializer(posts, many=True, context={'request': request})
         return Response(serializer.data)
@@ -112,7 +114,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "The query parameters were invalid",
                 "query": "posts"
-            }, 400)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             qs_posts = self.get_queryset().exclude(unlisted=True)
@@ -141,7 +143,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         elif request.method == "POST":
             return create_comment(request, pk=pk)
         else:
-            Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create(self, request, **kwargs):
         return handle_posts(request)
