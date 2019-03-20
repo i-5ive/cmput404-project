@@ -22,8 +22,7 @@ COMMENT_ADDED = 'Comment Added'
 
 def create_comment(request, pk=None):
     post = Posts.objects.get(pk=pk)
-    requester = request.user.author.get_url()
-    if requester not in post.visibleTo or post.visibility != "PUBLIC":
+    if not can_user_view(request.user, post):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data

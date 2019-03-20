@@ -1,4 +1,5 @@
 from django.test import TestCase
+from rest_framework import status
 from rest_framework.reverse import reverse
 
 from core.authors.tests.util import setupUser
@@ -21,7 +22,7 @@ class CommentsViewTests(TestCase):
         self.client.logout()
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         res = self.client.get("/posts/{0}/comments/".format(post.id))
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 403)
 
     def test_unauthenticated_public_post(self):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
@@ -165,7 +166,7 @@ class CommentsViewTests(TestCase):
         })
 
     def test_create_comment(self):
-        post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
+        post = Posts.objects.create(visibility="PUBLIC", author=self.author1, visibleTo=[self.author2.get_url()])
         comment_data = {
             "query": "addComment",
             "post": "http://localhost:8000/posts/{id}".format(id=post.id),
@@ -180,6 +181,9 @@ class CommentsViewTests(TestCase):
                 "published": "2015-03-09T13:07:04+00:00"
             }
         }
-        self.client.post(reverse('posts-comments', kwargs={"pk": post.id}), comment_data,
+        self.client.logout()
+        self.client.login(username="cole", password="password")
+        response = self.client.post(reverse('posts-comments', kwargs={"pk": post.id}), comment_data,
                          content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(post.comments.count(), 1)
