@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 # Create your views here.
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from core.authors.models import Follow
@@ -59,7 +60,7 @@ def list_comments(request, pk=None):
             "query": "comments"
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    post = Posts.objects.get(pk=pk)
+    post = get_object_or_404(Posts, pk=pk)
     if not can_user_view(request.user, post):
         return Response({
             "success": False,
