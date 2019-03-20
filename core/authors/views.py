@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
@@ -88,7 +88,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                     "query": "friendResponse",
                     "success": False,
                     "message": "You must be authenticated as the requested user to perform this action."
-                }, status=401)
+                }, status=status.HTTP_403_FORBIDDEN)
         except:
             return Response({
                 "query": "friendResponse",
@@ -170,7 +170,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
             if (request.user != author.user):
-                return Response("Invalid authentication credentials" + str(request.user), status=401)
+                return Response("Invalid authentication credentials" + str(request.user), status=status.HTTP_403_FORBIDDEN)
         except:
             return Response("Invalid author ID specified", status=404)
 

@@ -1,6 +1,7 @@
 import base64
 import json
 
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -96,7 +97,7 @@ def handle_posts(request):
             "query": query,
             "message": "You are not authenticated as the post's specified author",
             "post": None
-        }, status=401)
+        }, status=status.HTTP_403_FORBIDDEN)
     success = False
     message = "There was a problem parsing the request body"
 

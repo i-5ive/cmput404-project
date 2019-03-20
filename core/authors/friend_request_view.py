@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -62,7 +63,7 @@ def handle_follow_request(request):
                 "query": "friendrequest",
                 "success": False,
                 "message": "You must be authenticated as the requester to perform this action."
-            }, status=401)
+            }, status=status.HTTP_403_FORBIDDEN)
         authorUrl = author["url"]
         friendUrl = friend["url"]
     except:
