@@ -35,14 +35,16 @@ def handle_friends_post(request, pk):
         return Response({
             "query": "friends",
             "author": authorUrl,
-            "message": "There was an error parsing the request body"
+            "message": "There was an error parsing the request body",
+            "success": False
         }, status=400)
 
     if not success:
         return Response({
             "query": "friends",
             "author": authorUrl,
-            "message": message
+            "message": message,
+            "success": False
         }, status=400)
 
     authors = set(request.data["authors"])

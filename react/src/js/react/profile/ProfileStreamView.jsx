@@ -6,6 +6,8 @@ import PropTypes from "prop-types";
 
 import ProfilePostsStream from "./ProfilePostsStream";
 import ProfileFriendsList from "./ProfileFriendsList";
+import ProfileFollowedUsers from "./ProfileFollowedUsers";
+import ProfileFollowerUsers from "./ProfileFollowerUsers";
 
 const ProfileStreamView = (props) => {
     return (
@@ -16,6 +18,12 @@ const ProfileStreamView = (props) => {
                 </Tab>
                 <Tab eventKey="friends" title="Friends">
                     <ProfileFriendsList />
+                </Tab>
+                <Tab eventKey="followed" title="Following">
+                    <ProfileFollowedUsers id={props.id} />
+                </Tab>
+                <Tab eventKey="followers" title="Followers">
+                    <ProfileFollowerUsers id={props.id} />
                 </Tab>
             </Tabs>
         </Thumbnail>
