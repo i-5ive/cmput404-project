@@ -25,7 +25,7 @@ def create_post(request, data):
 
     # if image, make another post with generated post_id
     if (request.FILES):
-        # Credits to Justin Voss, https://stackoverflow.com/questions/851336/multiple-files-upload-using-same-input-name-in-django
+        # Credits to Justin Voss, https://stackoverflow.com/a/856126
         for img_file in request.FILES.getlist('imageFiles'):
             new_id = new_post.post_id
             image_type = img_file.content_type
@@ -42,8 +42,8 @@ def create_post(request, data):
             if image_size > MAX_UPLOAD_SIZE:
                 return False, "The maximum file size that can be uploaded is 10MB", None
 
-            # Credits to Ykh, https://stackoverflow.com/questions/44489375/django-have-admin-take-image-file-but-store-it-as-a-base64-string
-            # Credits to Willem Van Onsem, https://stackoverflow.com/questions/52444818/how-to-convert-a-png-image-to-string-and-send-it-through-django-api
+            # Credits to Ykh, https://stackoverflow.com/a/44492948
+            # Credits to Willem Van Onsem, https://stackoverflow.com/a/52444999
             encoded_image = base64.b64encode(img_file.read()).decode()
 
             data["post_id"] = new_id
