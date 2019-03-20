@@ -1,7 +1,7 @@
 import React from "react";
 import Reflux from "reflux";
 
-import { Alert, Button, Form, FormGroup, FormControl, Thumbnail } from "react-bootstrap";
+import { Alert, Button, Form, FormGroup, FormControl, Thumbnail, Radio } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 import { PostsStore, PostsActions } from "../discover/PostsStore";
@@ -67,20 +67,26 @@ export default class PostView extends Reflux.Component {
 
     renderMakeComments() {
         return (
-            <Form onSubmit={this.handleCommentSubmit}>
-                <FormGroup controlId="comment">
-                    <FormControl name="comment" componentClass="textarea" rows="5" placeholder="Enter comment here..." />
-                </FormGroup>
-                <FormGroup controlId="contentType">
-                    <FormControl name="contentType" className="comments-content-type" componentClass="select">
-                        <option value="text/plain">Plaintext</option>
-                        <option value="text/markdown">Markdown</option>
-                    </FormControl>
-                    <Button bsStyle="primary" className="submit-button submit-button-comment" type="submit">
-                        Comment
-                    </Button>
-                </FormGroup>
-            </Form>
+            <Thumbnail>
+                <Form onSubmit={this.handleCommentSubmit}>
+                    <FormGroup controlId="comment">
+                        <FormControl name="comment" componentClass="textarea" rows="5" placeholder="Enter comment here..." />
+                    </FormGroup>
+                    <FormGroup controlId="contentType">
+                        <div className="comment-type-buttons-row">
+                            <Radio radioGroup="contentTypeGroup" name="contentType" value="text/plain" defaultChecked>
+                                Plaintext
+                            </Radio>
+                            <Radio radioGroup="contentTypeGroup" name="contentType" value="text/markdown">
+                                Markdown
+                            </Radio>
+                        </div>
+                        <Button bsStyle="primary" className="submit-button submit-button-comment" type="submit">
+                            Comment
+                        </Button>
+                    </FormGroup>
+                </Form>
+            </Thumbnail>
         );
     }
 
@@ -101,10 +107,10 @@ export default class PostView extends Reflux.Component {
                     images={this.state.currentPostImages}
                     isPostView />
                 <hr className="comment-hr" />
+                {this.renderMakeComments()}
                 {
                     this.renderComments()
                 }
-                {this.renderMakeComments()}
             </div>
         );
     }

@@ -1,10 +1,5 @@
-.postView {
-    max-width: 70em;
-    margin: 0 auto;
-}
-
-.comments-content-type {
-    max-width: 10em;
+.comment-type-buttons-row {
+    max-width: 20em;
     float: left;
     margin-bottom: 1em;
 }
@@ -20,4 +15,13 @@
 
 .comment-hr {
     border-color: black;
+}
+
+.comment-type-buttons-row {
+    display: flex;
+
+    .radio ~ .radio {
+        margin-top: auto;
+        margin-left: 1em;
+    }
 }
