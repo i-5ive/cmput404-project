@@ -1,9 +1,77 @@
 # cmput404-project
+
+[![Build Status](https://travis-ci.com/i-5ive/cmput404-project.svg?branch=master)](https://travis-ci.com/i-5ive/cmput404-project)
+
 CMPUT404 Wi19 Team Project
 
 We are making a distributed social network!
 
-## Resources
+# Setup
+
+## React
+
+#### Development
+1. Ensure you have [Node v8 (Carbon)](https://nodejs.org/en/) installed. Note that this is not the highest version of the LTS right now (v10).
+
+2. Run `npm install`
+
+3. Run `npm start` to start running a local server hosting the react changes
+
+#### Testing
+
+You can run `npm test` to start the test runner. This will run Karma, the test runner, and show you the passing and failing front-end tests. This also runs a code-coverage check at the end of it, which shows you how much of the code is "covered". Karma hot-reloads when you make a file change, so you do not need to reboot or re-run karma with every change.
+
+`npm run-script lint` will scan for styling errors and keep the codebase consistent. The build will fail if this fails.
+
+#### Deployment
+
+Running `npm run-script build` will generate `dist/index.html` you can open the path to this file in your browser to see the results of what was built.
+
+## Django
+
+Django 2.1.6
+
+### Installation
+
+#### Windows
+- Install [Python 3.5+](https://www.python.org/downloads/)
+- [Add \python and \python\scripts to your system variables](https://www.java.com/en/download/help/path.xml)
+- You can verify they are installed and attached to the path by typing `Python -v` and `pip -V`
+- Run `pip install -r requirements.txt` to install all dependencies.
+- run `python manage.py runserver` to start the server locally.
+
+#### Mac
+ - Get [Homebrew](https://brew.sh/), if you haven't.
+ - Install Python3 `brew install python3`
+ - Create a virtual env by typing `virtualenv venv --python=python3`
+   - This will help keep your packages for this project separate from other packages 
+ - You can activate the venv by typing `source venv/bin/activate`
+ - Now type `pip install -r requirements.txt`
+   - This will install Django, psycopyg2, etc, needed to run the project backend.
+ - You should now be able to run `python3 src/django/manage.py runserver` to start the backend.
+ 
+### Testing
+
+You can run `python3 manage.py test` to run the django unit tests (if you have installed postgres locally (see below)). Otherwise run `pytest` to use a web-based database for the tests (slow).
+
+##### Running local tests faster (mac instructions)
+
+Run these commands:
+```bash
+brew install postgres
+postgres -D /usr/local/var/postgres
+createdb social_dist
+psql social_dist
+CREATE USER postgres SUPERUSER;
+```
+
+Now you can install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/), add a new server, choose a name, and the host will be `127.0.0.1`.
+ 
+Now when you run `python manage.py test` it should run significiantly faster by using the local database you created.
+
+# Resources Used
+
+## Bootstrapping Resources and References
 The boilerplate code for setting up React and Django was written by Bennett Hreherchuk for CMPUT401 and is reused here to form the foundation of this project. The code is the Intellectual Property of Bennett Hreherchuk and their team "The Indoors Club" under a non-competing agreement with the University of Alberta Outdoor's Club for six months after December 2018. 
 Files Included:
  - Most if not all of the configuration files (`.babelrc`, `.eslintrc.json`, `package.json`, etc)
@@ -101,12 +169,3 @@ Django-rest-framework permissions for create in viewset
   [Answer by argaen](https://stackoverflow.com/a/22767325)  
   [argaen](https://www.stackoverflow.com/users/3481357/argaen), [adi](https://www.stackoverflow.com/users/1223265/adi), [argaen](https://www.stackoverflow.com/users/3481357/argaen)  
   License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)    
-
-## Running local tests faster (mac instructions)
-`brew install postgres`
-`postgres -D /usr/local/var/postgres`
-`createdb social_dist`
-`psql social_dist`
-`CREATE USER postgres SUPERUSER;`
-Install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/)
- * add a new server, choose a name and the host will be `127.0.0.1`
