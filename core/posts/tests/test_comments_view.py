@@ -1,16 +1,20 @@
 from django.test import TestCase
+from rest_framework.reverse import reverse
 
 from core.authors.tests.util import setupUser
-from core.posts.models import Posts, Comments
 from core.hostUtil import get_host_url
+from core.posts.models import Posts, Comments
+
 
 def date_to_str(date):
     return str(date).replace("+00:00", "Z").replace(" ", "T")
+
 
 class CommentsViewTests(TestCase):
 
     def setUp(self):
         self.author1 = setupUser("cry", "password")
+        self.author2 = setupUser("cole", "password")
         self.client.login(username="cry", password="password")
 
     def test_unauthenticated_non_public(self):
@@ -18,7 +22,7 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         res = self.client.get("/posts/{0}/comments/".format(post.id))
         self.assertEqual(res.status_code, 401)
-        
+
     def test_unauthenticated_public_post(self):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         res = self.client.get("/posts/{0}/comments/".format(post.id))
@@ -28,7 +32,7 @@ class CommentsViewTests(TestCase):
             "size": 5,
             "comments": []
         })
-    
+
     def test_last_page(self):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
@@ -61,7 +65,7 @@ class CommentsViewTests(TestCase):
             "previous": "http://testserver/posts/{0}/comments/?page=18".format(post.id),
             "comments": expected_comments
         })
-        
+
     def test_first_page(self):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
@@ -69,7 +73,7 @@ class CommentsViewTests(TestCase):
             comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 0})
         self.assertEqual(res.status_code, 200)
-        
+
         author_details = {
             "id": self.author1.get_url(),
             "url": self.author1.get_url(),
@@ -94,7 +98,7 @@ class CommentsViewTests(TestCase):
             "next": "http://testserver/posts/{0}/comments/?page=1".format(post.id),
             "comments": expected_comments
         })
-        
+
     def test_next_and_prev_page(self):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
@@ -110,7 +114,7 @@ class CommentsViewTests(TestCase):
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 0})
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.data["comments"]), 0)
-        
+
     def test_invalid_page(self):
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         comments = []
@@ -118,7 +122,7 @@ class CommentsViewTests(TestCase):
             comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": -1})
         self.assertEqual(res.status_code, 400)
-        
+
     def test_invalid_size(self):
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         comments = []
@@ -159,3 +163,23 @@ class CommentsViewTests(TestCase):
             "next": "http://testserver/posts/{0}/comments/?page=1".format(post.id),
             "comments": expected_comments
         })
+
+    def test_create_comment(self):
+        post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
+        comment_data = {
+            "query": "addComment",
+            "post": "http://localhost:8000/posts/{id}".format(id=post.id),
+            "comment": {
+                "author": {
+                    "id": "http://localhost:8000/author/{id}".format(id=self.author2.id),
+                    "host": "http://localhost:8000/",
+                    "displayName": "Cole Mackenzie"
+                },
+                "comment": "This is a comment",
+                "contentType": "text/plain",
+                "published": "2015-03-09T13:07:04+00:00"
+            }
+        }
+        self.client.post(reverse('posts-comments', kwargs={"pk": post.id}), comment_data,
+                         content_type='application/json')
+        self.assertEqual(post.comments.count(), 1)
