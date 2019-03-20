@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 COMMENT_NOT_ALLOWED = 'Comment not allowed'
 COMMENT_ADDED = 'Comment Added'
 
-
 def create_comment(request, pk=None):
     post = get_object_or_404(Posts, pk=pk)
     if not can_user_view(request.user, post):
@@ -94,8 +93,15 @@ class PostsViewSet(viewsets.ModelViewSet):
     queryset = Posts.objects.filter(visibility="PUBLIC").order_by('-published')
     serializer_class = PostsSerializer
 
-    def retrieve(self, request, pk=None, *args, **kwargs):
-        post = get_object_or_404(Posts, pk=pk)
+    def retrieve(self, request, pk):
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "post"
+            }, status=404)
         if not can_user_view(request.user, post):
             return Response({
                 "success": False,
@@ -106,6 +112,24 @@ class PostsViewSet(viewsets.ModelViewSet):
         serializer = PostsSerializer(posts, many=True, context={'request': request})
         return Response(serializer.data)
 
+    def update(self, request, pk):
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "updatePost"
+            }, status=404)
+        
+        if (not can_user_view(request.user, post)):
+            return Response({
+                "success": False,
+                "message": "You are not authorized to view this post.",
+                "query": "updatePost"
+            }, status=401)
+        return super().update(request, pk)
+    
     def list(self, request, *args, **kwargs):
         size = int(request.query_params.get("size", 5))
         queryPage = int(request.query_params.get('page', 0))
@@ -133,6 +157,53 @@ class PostsViewSet(viewsets.ModelViewSet):
         }
         if len(pages_to_return) > 0:
             add_page_details_to_response(request, data, page, queryPage)
+        return Response(data, status=200)
+
+    @action(detail=True)
+    def comments(self, request, pk):
+        size = int(request.query_params.get("size", 5))
+        queryPage = int(request.query_params.get('page', 0))
+        if (size < 1 or queryPage < 0 or size > 100):
+            return Response({
+                "success": False,
+                "message": "The query parameters were invalid",
+                "query": "comments"
+            }, 400)
+        
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "comments"
+            }, status=404)
+        
+        if (not can_user_view(request.user, post)):
+            return Response({
+                "success": False,
+                "message": "You are not authorized to view this post's comments.",
+                "query": "comments"
+            }, status=401)
+    
+        comments = Comments.objects.filter(post=post)
+        
+        try:
+            paginator = Paginator(comments, size)
+            page = paginator.page(queryPage + 1)
+            serializer = CommentsSerializer(page, many=True, context={'request': request})
+            comments_to_return = serializer.data
+        except:
+            comments_to_return = []
+        
+        data = {
+            "comments": comments_to_return,
+            "query": "comments",
+            "count": len(comments),
+            "size": size
+        }
+        if (len(comments_to_return) > 0):
+            add_page_details_to_response(request, data, page, queryPage)
 
         return Response(data)
 
@@ -150,7 +221,14 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None, **kwargs):
         # Use post_id to delete all related image posts too
-        post = Posts.objects.get(pk=pk)
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "deletePost"
+            }, status=404)
         if (not request.user.is_authenticated) or request.user.author != post.author:
             return Response({
                 "success": False,
