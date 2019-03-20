@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
 from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
@@ -158,13 +159,46 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
         except:
-            return Response("Invalid author ID specified", status=404)
+            return Response({
+                "query": "friends",
+                "author": pk,
+                "message": "The author ID was invalid",
+                "success": False
+            }, status=404)
         
         if (request.method == "POST"):
             return handle_friends_post(request, pk)
 
         return handle_friends_get(request, pk)
   
+    @action(methods=['get'], detail=True, url_path='followed', url_name='followed_users')
+    def list_followed_users(self, request, pk):
+        author = get_object_or_404(Author, pk=pk)
+        author_url = author.get_url()
+        follows = Follow.objects.filter(follower=author_url)
+        followed_urls = []
+        for follow in follows:
+            followed_urls.append(follow.followed)
+        info = get_author_summaries(followed_urls)
+        return Response({
+            "query": "listFollowed",
+            "followed": info
+        }, status=200)
+
+    @action(methods=['get'], detail=True, url_path='followers', url_name='follower_users')
+    def list_follower_users(self, request, pk):
+        author = get_object_or_404(Author, pk=pk)
+        author_url = author.get_url()
+        follows = Follow.objects.filter(followed=author_url)
+        followed_urls = []
+        for follow in follows:
+            followed_urls.append(follow.follower)
+        info = get_author_summaries(followed_urls)
+        return Response({
+            "query": "listFollowing",
+            "followers": info
+        }, status=200)
+
     @action(methods=['post'], detail=True, url_path='update', url_name='update')
     def update_profile(self, request, pk):
         try:
@@ -232,16 +266,27 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def author_posts(self, request, pk=None):
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
-            return Response("Page number must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Page number must be positive",
+                "success": False
+            }, status=400)
 
         # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
-            return Response("Size must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Size must be positive",
+                "success": False
+            }, status=400)
 
         if not pk:
-            # TODO should it be a text response?
-            return Response("You must specify an author.",status=400)
+            return Response({
+                "query": "posts",
+                "message": "You must specify an author.",
+                "success": False
+            }, status=400)
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
@@ -298,11 +343,19 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def visible_posts(self, request):
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
-            return Response("Page number must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Page number must be positive",
+                "success": False
+            }, status=400)
         # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
-            return Response("Size must be positive", status=400)
+            return Response({
+                "query": "posts",
+                "message": "Size must be positive",
+                "success": False
+            }, status=400)
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:

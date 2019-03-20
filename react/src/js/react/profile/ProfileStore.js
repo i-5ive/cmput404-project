@@ -17,7 +17,9 @@ export default class ProfileStore extends Reflux.Store {
         this.state = {
             isLoadingProfile: false,
             posts: [],
-            nextPage: null
+            nextPage: null,
+            followedUsers: [],
+            followingUsers: []
         };
         this.listenables = Actions;
 
@@ -255,10 +257,15 @@ export default class ProfileStore extends Reflux.Store {
             requester: requester,
             query: "unfollow"
         }).then(() => {
+            const followingIndex = this.state.followingUsers.findIndex((user) => user.id === requester.id),
+                followingUsers = update(this.state.followingUsers, {
+                    $splice: [[followingIndex, 1]]
+                });
             this.setState({
                 isProfileActionDisabled: false,
                 profileActionSuccess: "You are no longer following this user",
-                isFollowingUser: false
+                isFollowingUser: false,
+                followingUsers: followingUsers
             });
         }).catch((err) => {
             this.setState({
@@ -282,11 +289,15 @@ export default class ProfileStore extends Reflux.Store {
         }).then(() => {
             // remove any existing friend request from the other user, because it has technically now been accepted
             FriendsActions.removeFriendRequest(friend);
+            const followingUsers = update(this.state.followingUsers, {
+                $push: [requester]
+            });
             this.setState({
                 isProfileActionDisabled: false,
                 profileActionSuccess: "Your friend request has been sent.",
                 sentFriendRequestToUser: false,
-                isFollowingUser: true
+                isFollowingUser: true,
+                followingUsers: followingUsers
             });
         }).catch((err) => {
             this.setState({
@@ -342,6 +353,46 @@ export default class ProfileStore extends Reflux.Store {
             this.setState({
                 deletingPost: false,
                 failedToDeletePost: id
+            });
+            console.error(err);
+        });
+    }
+
+    onLoadFollowedUsers(id) {
+        this.setState({
+            isLoadingFollowedUsers: true,
+            failedToLoadFollowed: false,
+            followedUsers: []
+        });
+        RestUtil.sendGET(`author/${id}/followed/`).then((res) => {
+            this.setState({
+                followedUsers: res.data.followed,
+                isLoadingFollowedUsers: false
+            });
+        }).catch((err) => {
+            this.setState({
+                failedToLoadFollowed: true,
+                isLoadingFollowedUsers: false
+            });
+            console.error(err);
+        });
+    }
+
+    onLoadFollowingUsers(id) {
+        this.setState({
+            isLoadingFollowingUsers: true,
+            failedToLoadFollowing: false,
+            followingUsers: []
+        });
+        RestUtil.sendGET(`author/${id}/followers/`).then((res) => {
+            this.setState({
+                followingUsers: res.data.followers,
+                isLoadingFollowingUsers: false
+            });
+        }).catch((err) => {
+            this.setState({
+                failedToLoadFollowing: true,
+                isLoadingFollowingUsers: false
             });
             console.error(err);
         });

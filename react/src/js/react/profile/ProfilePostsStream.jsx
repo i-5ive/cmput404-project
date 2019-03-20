@@ -35,14 +35,14 @@ export default class ProfilePostsStream extends Reflux.Component {
                     An error occurred while loading the user's activity stream.
                 </Alert>
             );
-        } else if (this.state.isLoadingStream) {
+        } else if (this.state.isLoadingStream && this.state.posts.length === 0) {
             return <LoadingComponent />;
         }
         return (
             <div className="posts-background">
                 <PostFeed posts={this.state.posts}
                     isLoading={this.state.isLoadingStream}
-                    loadMorePosts={this.state._loadMorePosts}
+                    loadMorePosts={this._loadMorePosts}
                     onDeletePost={ProfileActions.deletePost}
                     hasNextPage={Boolean(this.state.nextPage)}
                     errorDeletingPost={this.state.failedToDeletePost}
