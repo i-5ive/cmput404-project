@@ -22,7 +22,7 @@ COMMENT_ADDED = 'Comment Added'
 
 
 def create_comment(request, pk=None):
-    post = Posts.objects.get(pk=pk)
+    post = get_object_or_404(Posts, pk=pk)
     if not can_user_view(request.user, post):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
@@ -95,7 +95,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostsSerializer
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        post = Posts.objects.get(pk=pk)
+        post = get_object_or_404(Posts, pk=pk)
         if not can_user_view(request.user, post):
             return Response({
                 "success": False,
