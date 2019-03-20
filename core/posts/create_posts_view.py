@@ -96,7 +96,7 @@ def handle_posts(request):
             "query": query,
             "message": "You are not authenticated as the post's specified author",
             "post": None
-        }, status=401)
+        }, status=403)
     success = False
     message = "There was a problem parsing the request body"
 

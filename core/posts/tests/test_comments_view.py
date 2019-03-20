@@ -17,7 +17,7 @@ class CommentsViewTests(TestCase):
         self.client.logout()
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         res = self.client.get("/posts/{0}/comments/".format(post.id))
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 403)
         
     def test_unauthenticated_public_post(self):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)

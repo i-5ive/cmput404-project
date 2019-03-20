@@ -48,7 +48,7 @@ class FriendRequestViewTestCase(TestCase):
 
         body = get_local_authors_body(self.author1, self.author2)
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     @patch("core.hostUtil.is_external_host")
     @patch("core.authors.util.get_author_id")
@@ -59,7 +59,7 @@ class FriendRequestViewTestCase(TestCase):
 
         body = get_local_authors_body(self.author1, self.author2)
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_get(self):
         response = self.client.get(reverse('friendrequest'))
@@ -121,7 +121,7 @@ class FriendRequestViewTestCase(TestCase):
         self.author3.delete()
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(len(FriendRequest.objects.all()), 0)
         self.assertEqual(len(Follow.objects.all()), 0)
 
@@ -399,7 +399,7 @@ class RespondFriendRequestViewsTest(TestCase):
 
         body = get_respond_to_request_body(self.author3.id, False)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_authenticated_wrong_user(self):
         self.client.login(username="two", password="password")
@@ -409,7 +409,7 @@ class RespondFriendRequestViewsTest(TestCase):
 
         body = get_respond_to_request_body(self.author3.id, False)
         response = self.client.post(get_respond_to_requests_path(str(self.author1.id)), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_get(self):
         response = self.client.get(get_respond_to_requests_path(str(self.author1.id)))

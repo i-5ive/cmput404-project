@@ -62,7 +62,7 @@ def handle_follow_request(request):
                 "query": "friendrequest",
                 "success": False,
                 "message": "You must be authenticated as the requester to perform this action."
-            }, status=401)
+            }, status=403)
         authorUrl = author["url"]
         friendUrl = friend["url"]
     except:

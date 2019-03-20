@@ -33,7 +33,7 @@ class PostViewsTest(TestCase):
         }
         post_data = json.dumps(data)
         response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_create_post_unauthenticated(self):
         self.client.logout()
@@ -47,7 +47,7 @@ class PostViewsTest(TestCase):
         }
         post_data = json.dumps(data)
         response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_unfound_users(self):
         author_id = str(self.author1.id)
@@ -277,12 +277,12 @@ class PostViewsTest(TestCase):
         self.client.logout()
         post = Posts.objects.create(author=self.author1)
         res = self.client.delete("/posts/{0}/".format(post.id))
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 403)
         self.assertEqual(len(Posts.objects.all()), 1)
         
     def test_deletion_wrong_user_authentication(self):
         self.client.login(username="user2", password="password")
         post = Posts.objects.create(author=self.author1)
         res = self.client.delete("/posts/{0}/".format(post.id))
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 403)
         self.assertEqual(len(Posts.objects.all()), 1)

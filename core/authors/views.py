@@ -87,7 +87,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                     "query": "friendResponse",
                     "success": False,
                     "message": "You must be authenticated as the requested user to perform this action."
-                }, status=401)
+                }, status=403)
         except:
             return Response({
                 "query": "friendResponse",
@@ -147,7 +147,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
             if (request.user != author.user):
-                return Response("Invalid authentication credentials" + str(request.user), status=401)
+                return Response("Invalid authentication credentials" + str(request.user), status=403)
         except:
             return Response("Invalid author ID specified", status=404)
 

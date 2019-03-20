@@ -30,7 +30,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You are not authorized to view this post.",
                 "query": "post"
-            }, status=401)
+            }, status=403)
         posts = Posts.objects.filter(post_id=post.post_id)
         serializer = PostsSerializer(posts, many=True, context={'request': request})
         return Response(serializer.data)
@@ -82,7 +82,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You are not authorized to view this post's comments.",
                 "query": "comments"
-            }, status=401)
+            }, status=403)
     
         comments = Comments.objects.filter(post=post)
         
@@ -116,7 +116,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You must be logged in as the author of the post to delete it.",
                 "query": "deletePost"
-            }, status=401)
+            }, status=403)
         
         Posts.objects.filter(post_id=post.post_id).delete()
         return Response({
