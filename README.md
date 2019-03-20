@@ -23,6 +23,12 @@ https://devexpress.github.io/testcafe/documentation/test-api/intercepting-http-r
 Setting cookies in JavaScript  
 https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie  
 
+Restricting file size in Django  
+http://www.learningaboutelectronics.com/Articles/How-to-restrict-the-size-of-file-uploads-with-Python-in-Django.php  
+
+Limiting Django querysets  
+https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets  
+
 ## Running local tests faster (mac instructions)
 `brew install postgres`
 `postgres -D /usr/local/var/postgres`
