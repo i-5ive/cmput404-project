@@ -6,10 +6,10 @@
     max-width: 40em;
     padding-top: 10px;
     padding-bottom: 10px;
-	height: 80vh;
+	height: 85vh;
 	overflow: auto;
 	
-	& > .coreSpinner {
+	& > .coreSpinner:nth-child(1) {
 		position: absolute;
 		left: 50%;
 		top: 50%;

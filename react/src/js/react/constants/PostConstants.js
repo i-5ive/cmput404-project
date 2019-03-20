@@ -1,1 +1,1 @@
-export const POSTS_PAGE_SIZE = 25;
+export const POSTS_PAGE_SIZE = 5;
