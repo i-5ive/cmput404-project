@@ -58,7 +58,7 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
 def handle_follow_request(request):
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
-        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["id"]):
+        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["url"]):
             return Response({
                 "query": "friendrequest",
                 "success": False,
