@@ -29,3 +29,9 @@ body {
 .error-text {
 	color: red;
 }
+
+.center-loader > .coreSpinner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+}

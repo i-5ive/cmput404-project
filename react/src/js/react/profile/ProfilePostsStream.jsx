@@ -19,7 +19,9 @@ export default class ProfilePostsStream extends Reflux.Component {
     }
 
     componentDidMount() {
-        ProfileActions.loadActivityStream(this.props.id);
+        if (!this.state.isLoadingStream) {
+            ProfileActions.loadActivityStream(this.props.id);
+        }
     }
 
     _loadMorePosts = () => {

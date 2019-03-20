@@ -15,6 +15,7 @@ from core.authors.friends_util import get_friends, get_friends_from_pk
 
 from core.posts.models import Posts
 from core.posts.serializers import PostsSerializer
+from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 
 def validate_friend_request_response(body, pk):
     success = True
@@ -130,6 +131,28 @@ class AuthorViewSet(viewsets.ModelViewSet):
         }
         return Response(response, status=200)
 
+    ## Gets whether the author is following the one specified in the body
+    @action(methods=['get'], detail=True, url_path='friends/(?P<other_user>[^/.]+)', url_name='friend_to_friend')
+    def friend_to_friend_query(self, request, pk, other_user):
+        try:
+            author_url = Author.objects.get(pk=pk).get_url()
+            other_url = get_author_url(other_user)
+            
+            follow = Follow.objects.filter(follower=author_url, followed=other_url)
+            reverse = Follow.objects.filter(follower=other_url, followed=author_url)
+        except:
+            return Response({
+                "success": False,
+                "message": "Invalid author ID url parameter specified",
+                "query": "friends"
+            }, status=404)
+
+        return Response({
+            "query": "friends",
+            "authors": [author_url, other_url],
+            "friends": follow.exists() and reverse.exists()
+        }, status=200)
+
     @action(methods=['get', 'post'], detail=True, url_path='friends', url_name='friends')
     def friends(self, request, pk):
         try:
@@ -141,7 +164,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return handle_friends_post(request, pk)
 
         return handle_friends_get(request, pk)
-
+  
     @action(methods=['post'], detail=True, url_path='update', url_name='update')
     def update_profile(self, request, pk):
         try:
@@ -202,7 +225,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             "isOtherFollowing": reverse.exists(),
             "isOtherFriendRequest": FriendRequest.objects.filter(requester=followed, friend=pk_url).exists()
         }, status=200)
-
+        
     # All posts the currently auth'd user can see of pk
     # /author/{AUTHOR_ID}/posts
     @action(detail=True, url_path="posts")
@@ -212,7 +235,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("Page number must be positive", status=400)
 
         # TODO: size should be limited?
-        size = int(request.query_params.get("size", 50))
+        size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
             return Response("Size must be positive", status=400)
 
@@ -277,7 +300,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         if page < 1:
             return Response("Page number must be positive", status=400)
         # TODO: size should be limited?
-        size = int(request.query_params.get("size", 50))
+        size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
             return Response("Size must be positive", status=400)
 

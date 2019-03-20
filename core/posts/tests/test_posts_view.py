@@ -230,7 +230,6 @@ class PostViewsTest(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for post in response.data['posts']:
-            print(post['contentType'])
             self.assertNotIn("image", post['contentType'])
 
     def test_list_posts_authenticated(self):

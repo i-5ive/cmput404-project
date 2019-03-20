@@ -79,4 +79,11 @@ export default class HomeStore extends Reflux.Store {
             console.error(err);
         });
     }
+
+    onReloadPosts() {
+        this.setState({
+            posts: []
+        });
+        this.onLoadPosts();
+    }
 }
