@@ -151,7 +151,7 @@ class PostViewsTest(TestCase):
         self.assertEqual(len(posts), 1)
         self.assertEqual(len(posts.first().visibleTo), 0)
 
-    # From https://stackoverflow.com/questions/11170425/how-to-unit-test-file-upload-in-django, credits to Danilo Cabello
+    # From https://stackoverflow.com/a/27345260, credits to Danilo Cabello
     def test_valid_file_type(self):
         author_id = str(self.author1.id)
         data = {
