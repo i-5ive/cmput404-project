@@ -17,7 +17,8 @@ export default class ProfileStore extends Reflux.Store {
         this.state = {
             isLoadingProfile: false,
             posts: [],
-            nextPage: null
+            nextPage: null,
+            followedUsers: []
         };
         this.listenables = Actions;
 
@@ -342,6 +343,26 @@ export default class ProfileStore extends Reflux.Store {
             this.setState({
                 deletingPost: false,
                 failedToDeletePost: id
+            });
+            console.error(err);
+        });
+    }
+
+    onLoadFollowedUsers(id) {
+        this.setState({
+            isLoadingFollowedUsers: true,
+            failedToLoadFollowed: false,
+            followedUsers: []
+        });
+        RestUtil.sendGET(`author/${id}/followed/`).then((res) => {
+            this.setState({
+                followedUsers: res.data.followed,
+                isLoadingFollowedUsers: false
+            });
+        }).catch((err) => {
+            this.setState({
+                failedToLoadFollowed: true,
+                isLoadingFollowedUsers: false
             });
             console.error(err);
         });

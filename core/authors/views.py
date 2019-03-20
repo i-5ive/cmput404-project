@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
 from core.authors.models import Author, Follow, FriendRequest
 from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
@@ -165,6 +166,20 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         return handle_friends_get(request, pk)
   
+    @action(methods=['get'], detail=True, url_path='followed', url_name='followed_users')
+    def list_followed_users(self, request, pk):
+        author = get_object_or_404(Author, pk=pk)
+        author_url = author.get_url()
+        follows = Follow.objects.filter(follower=author_url)
+        followed_urls = []
+        for follow in follows:
+            followed_urls.append(follow.followed)
+        info = get_author_summaries(followed_urls)
+        return Response({
+            "query": "listFollowed",
+            "followed": info
+        }, status=200)
+
     @action(methods=['post'], detail=True, url_path='update', url_name='update')
     def update_profile(self, request, pk):
         try:
