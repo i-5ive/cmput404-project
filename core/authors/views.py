@@ -185,6 +185,20 @@ class AuthorViewSet(viewsets.ModelViewSet):
             "followed": info
         }, status=200)
 
+    @action(methods=['get'], detail=True, url_path='followers', url_name='follower_users')
+    def list_follower_users(self, request, pk):
+        author = get_object_or_404(Author, pk=pk)
+        author_url = author.get_url()
+        follows = Follow.objects.filter(followed=author_url)
+        followed_urls = []
+        for follow in follows:
+            followed_urls.append(follow.follower)
+        info = get_author_summaries(followed_urls)
+        return Response({
+            "query": "listFollowing",
+            "followers": info
+        }, status=200)
+
     @action(methods=['post'], detail=True, url_path='update', url_name='update')
     def update_profile(self, request, pk):
         try:
