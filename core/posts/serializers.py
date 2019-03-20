@@ -28,7 +28,7 @@ class PostsSerializer(serializers.ModelSerializer):
     def get_next(self, instance):
         return "{}/posts/{}/comments".format(get_host_url(), instance.id)
 
-    # Credits to Ivan Semochkin, https://stackoverflow.com/questions/41248271/django-rest-framework-not-responding-to-read-only-on-nested-data
+    # Credits to Ivan Semochkin, https://stackoverflow.com/a/41261614
     def to_representation(self, instance):
         representation = super(PostsSerializer, self).to_representation(instance)
         # From https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets
@@ -46,7 +46,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         model = Comments
         fields = ('author', 'comment', 'contentType', 'published', 'id')
 
-    # Credits to Ivan Semochkin, https://stackoverflow.com/questions/41248271/django-rest-framework-not-responding-to-read-only-on-nested-data
+    # Credits to Ivan Semochkin, https://stackoverflow.com/a/41261614
     def to_representation(self, instance):
         representation = super(CommentsSerializer, self).to_representation(instance)
         representation['author'] = get_summary(instance.author)
