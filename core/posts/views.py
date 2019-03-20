@@ -184,7 +184,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You are not authorized to view this post's comments.",
                 "query": "comments"
-            }, status=401)
+            }, status=status.HTTP_403_FORBIDDEN)
     
         comments = Comments.objects.filter(post=post)
         
@@ -234,8 +234,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "You must be logged in as the author of the post to delete it.",
                 "query": "deletePost"
-            }, status=401)
-
+            }, status=status.HTTP_403_FORBIDDEN)
         Posts.objects.filter(post_id=post.post_id).delete()
         return Response({
             "success": True,

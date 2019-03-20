@@ -35,14 +35,14 @@ class UpdateProfileTests(TestCase):
         self.client.logout()
         body = get_request_body("abc", "a", "b", "x@y.com", "https://github.com/username", "abcd")
         response = self.client.post(get_path(str(self.author1.id)), body, type="json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_unauthenticated_diff_user(self):
         setupUser("two", "password")
         self.client.login(username="two", password="password")
         body = get_request_body("abc", "a", "b", "x@y.com", "https://github.com/username", "abcd")
         response = self.client.post(get_path(str(self.author1.id)), body, type="json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
     def test_invalid_user(self):
         deletedId = self.author1.id

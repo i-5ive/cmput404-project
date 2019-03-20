@@ -43,7 +43,7 @@ class UnfollowViewTest(TestCase):
         self.client.login(username="yaw2", password="password")
         response = self.client.post(reverse('unfollow'), data=body, content_type="application/json")
 
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data["query"], QUERY)
         self.assertEqual(response.data["success"], False)
         
@@ -54,7 +54,7 @@ class UnfollowViewTest(TestCase):
         self.client.logout()
         response = self.client.post(reverse('unfollow'), data=body, content_type="application/json")
 
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data["query"], QUERY)
         self.assertEqual(response.data["success"], False)
         
