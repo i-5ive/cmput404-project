@@ -46,12 +46,19 @@
 			margin-left: 0.5em;
 		}
 		
-		.visibility-text {
-			margin-left: 0.3em;
-		}
-		
 		.deleting-message {
 			margin-left: 1em;
+		}
+
+		.bottom-row {
+			display: flex;
+			
+			.visibility-details {
+				margin-left: auto;
+				.visibility-text {
+					margin-left: 0.3em;
+				}	
+			}
 		}
     }
 }
