@@ -157,6 +157,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         }
         if len(pages_to_return) > 0:
             add_page_details_to_response(request, data, page, queryPage)
+        return Response(data, status=200)
 
     @action(detail=True)
     def comments(self, request, pk):
