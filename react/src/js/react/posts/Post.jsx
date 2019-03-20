@@ -37,8 +37,6 @@ class Post extends Reflux.Component {
         const isCurrentUser = this.state.isLoggedIn && (this.props.post.author.id === this.state.userInfo.id);
         return (
             <div className="buttons">
-                <span className="glyphicon glyphicon-eye-open" />
-                <span className="visibility-text">{this.props.post.visibility}</span>
                 <Button
                     bsStyle="primary"
                     className="permalink-button"
@@ -131,10 +129,16 @@ class Post extends Reflux.Component {
                         this.props.post.categories.map(this.renderCategory)
                     }
                 </div>
-                <span className="glyphicon glyphicon-comment" />
-                {
-                    this.renderTotalComments(commentsLength)
-                }
+                <div className="bottom-row">
+                    <span className="glyphicon glyphicon-comment" />
+                    {
+                        this.renderTotalComments(commentsLength)
+                    }
+                    <div className="visibility-details">
+                        <span className="glyphicon glyphicon-eye-open" />
+                        <span className="visibility-text">{this.props.post.visibility}</span>
+                    </div>
+                </div>
 
             </div>
         );
