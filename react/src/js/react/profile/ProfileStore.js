@@ -268,13 +268,13 @@ export default class ProfileStore extends Reflux.Store {
                     isFollowingUser: false,
                     followingUsers: followingUsers
                 };
-                if (friendsIndex > -1) {
-                    state.profileDetails = update(this.state.profileDetails, {
-                        friends: {
-                            $splice: [[friendsIndex, 1]]
-                        }
-                    });
-                }
+            if (friendsIndex > -1) {
+                state.profileDetails = update(this.state.profileDetails, {
+                    friends: {
+                        $splice: [[friendsIndex, 1]]
+                    }
+                });
+            }
             this.setState(state);
         }).catch((err) => {
             this.setState({
