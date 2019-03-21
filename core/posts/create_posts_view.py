@@ -54,9 +54,7 @@ def create_post(request, data):
 
             serializer = PostsSerializer(data=data)
             serializer.is_valid()
-            p = serializer.save()
-            p.post_id = new_id
-            p.save()
+            serializer.save()
 
     return success, message, post_serializer.data
 
