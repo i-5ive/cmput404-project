@@ -71,6 +71,7 @@ class Post extends Reflux.Component {
             const { contentType, content } = post;
             if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
                 const name = `data:${contentType},${content}`;
+                contentList.push(<br />);
                 contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
             } else if (contentType === "text/markdown") {
                 contentList.push(<ReactMarkdown key={post.id} source={content} />);
