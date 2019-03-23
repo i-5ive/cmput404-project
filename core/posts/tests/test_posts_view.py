@@ -139,7 +139,9 @@ class PostViewsTest(TestCase):
             "title": "wild",
             "unlisted": True,
             "visibility": "PRIVATE",
-            "categories": ["cool", "fun", "sad"]
+            "categories": ["cool", "fun", "sad"],
+            "description": "A description about the post",
+            "content": "!! POST CONTENT !! [imgTag](https://somefakeimage11111111111.core)"
         }
         post_data = json.dumps(data)
         response = self.client.post('/posts/', {'query': 'createpost', 'postData': post_data})
@@ -150,6 +152,17 @@ class PostViewsTest(TestCase):
         posts = Posts.objects.all()
         self.assertEqual(len(posts), 1)
         self.assertEqual(len(posts.first().visibleTo), 0)
+
+        post = posts[0]
+        self.assertEqual(post.author, self.author1)
+        self.assertEqual(post.title, data["title"])
+        self.assertEqual(post.unlisted, data["unlisted"])
+        self.assertEqual(post.visibility, data["visibility"])
+        self.assertEqual(post.categories, data["categories"])
+        self.assertEqual(post.description, data["description"])
+        self.assertEqual(post.content, data["content"])
+        self.assertEqual(post.contentType, "text/markdown")
+        self.assertEqual(post.comments.count(), 0)
 
     # From https://stackoverflow.com/a/27345260, credits to Danilo Cabello
     def test_valid_file_type(self):
@@ -190,14 +203,27 @@ class PostViewsTest(TestCase):
         author_id = str(self.author1.id)
         data = {
             "author": author_id,
-            "title": "wild"
+            "title": "wild",
+            "contentType": "text/plain"
         }
         post_data = json.dumps(data)
         fp = SimpleUploadedFile("file.jpg", b"file_content", content_type="image/jpeg")
         fp2 = SimpleUploadedFile("file2.jpg", b"file_content", content_type="image/png")
         response = self.client.post('/posts/', {'imageFiles': {fp, fp2}, 'query': 'createpost', 'postData': post_data})
         self.assertEqual(response.status_code, 200)
+
         self.assertEqual(len(Posts.objects.filter(author=author_id)), 3)
+        
+        text_post = Posts.objects.filter(contentType="text/plain")
+        self.assertEqual(len(text_post), 1)
+
+        # Checks the post_id attribute to make sure it matches the actual text post
+        image_posts = Posts.objects.filter(post_id=text_post[0].post_id, contentType__icontains="image/")
+        self.assertEqual(len(image_posts), 2)
+
+        # Checks the content of each image (base64 encoded)
+        self.assertEqual(Posts.objects.get(contentType="image/jpeg;base64").content, "ZmlsZV9jb250ZW50")
+        self.assertEqual(Posts.objects.get(contentType="image/png;base64").content, "ZmlsZV9jb250ZW50")
 
     def test_delete_post(self):
         author_id = str(self.author1.id)

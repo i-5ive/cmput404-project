@@ -181,9 +181,13 @@ class CommentsViewTests(TestCase):
                 "published": "2015-03-09T13:07:04+00:00"
             }
         }
-        self.client.logout()
         self.client.login(username="cole", password="password")
         response = self.client.post(reverse('posts-comments', kwargs={"pk": post.id}), comment_data,
                          content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(post.comments.count(), 1)
+
+        comment = post.comments.first()
+        self.assertEqual(comment.author, self.author2)
+        self.assertEqual(comment.comment, comment_data["comment"]["comment"])
+        self.assertEqual(comment.contentType, comment_data["comment"]["contentType"])

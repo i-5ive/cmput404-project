@@ -90,7 +90,7 @@ export default class ProfileDetailsForm extends Reflux.Component {
         return null;
     }
 
-    renderElement(id, errorMessage, label, placeholder, value, onChange, inputType = "text", autoFocus = false, componentClass = undefined) {
+    renderElement(id, errorMessage, label, placeholder, value, onChange, inputType = "text", autoFocus = false, componentClass = undefined, rows = undefined) {
         return (
             <FormGroup controlId={id} validationState={getValidationState(errorMessage)}>
                 <ControlLabel>{label}</ControlLabel>
@@ -100,10 +100,11 @@ export default class ProfileDetailsForm extends Reflux.Component {
                     onChange={onChange}
                     autoFocus={autoFocus}
                     componentClass={componentClass}
+                    rows={rows}
                 />
                 {
                     errorMessage && (
-                        <h5>
+                        <h5 className="error-text">
                             {
                                 errorMessage
                             }
@@ -155,7 +156,7 @@ export default class ProfileDetailsForm extends Reflux.Component {
                 {
                     this.renderElement("bio", validity.bio, "Description",
                         "Enter a description about you to show in your profile", this.state.editProfileDetails.bio,
-                        this._onBioChange, "text", false, "textarea")
+                        this._onBioChange, "text", false, "textarea", "6")
                 }
             </div>
         );
