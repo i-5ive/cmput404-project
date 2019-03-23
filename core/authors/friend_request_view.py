@@ -14,7 +14,7 @@ def are_authors_friends(author_one, author_two):
 def get_author_details(raw_object):
     data = AuthorSummarySerializer(data=raw_object)
     data.is_valid(raise_exception=True)
-    return data.validated_data
+    return raw_object
 
 def validate_request_body(request):
     body = request.data
@@ -58,15 +58,18 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
 def handle_follow_request(request):
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
-        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["id"]):
+        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["url"]):
+            # TODO: remove the debug message later
             return Response({
                 "query": "friendrequest",
                 "success": False,
-                "message": "You must be authenticated as the requester to perform this action."
+                "message": "You must be authenticated as the requester to perform this action.",
+                "debug": get_author_url(str(request.user.author.pk if request.user.is_authenticated else "/author/awoejaiweowae")) + " should be " + author["url"]
             }, status=status.HTTP_403_FORBIDDEN)
         authorUrl = author["url"]
         friendUrl = friend["url"]
-    except:
+    except Exception as e:
+        print(e)
         return Response({
                 "query": "friendrequest",
                 "success": False,

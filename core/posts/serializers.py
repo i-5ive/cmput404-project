@@ -17,7 +17,7 @@ class PostsSerializer(serializers.ModelSerializer):
         model = Posts
         fields = ('title', 'source', 'origin', 'description', 'contentType', 'content', 'author',
             'categories', 'count', 'size', 'next', 'comments', 'published', 'id', 'visibility',
-            'visibleTo', 'unlisted')
+            'visibleTo', 'unlisted', 'post_id')
 
     def get_count(self, instance):
         return instance.comments.count()
@@ -39,6 +39,7 @@ class PostsSerializer(serializers.ModelSerializer):
             representation["origin"] = get_host_url() + "/posts/" + str(instance.id)
         if (not instance.source):
             representation["source"] = representation["origin"]
+        del representation["post_id"]
         return representation 
 
 class CommentsSerializer(serializers.ModelSerializer):

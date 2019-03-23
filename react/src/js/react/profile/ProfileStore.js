@@ -260,13 +260,22 @@ export default class ProfileStore extends Reflux.Store {
             const followingIndex = this.state.followingUsers.findIndex((user) => user.id === requester.id),
                 followingUsers = update(this.state.followingUsers, {
                     $splice: [[followingIndex, 1]]
+                }),
+                friendsIndex = this.state.profileDetails.friends.findIndex((user) => user.id === requester.id),
+                state = {
+                    isProfileActionDisabled: false,
+                    profileActionSuccess: "You are no longer following this user",
+                    isFollowingUser: false,
+                    followingUsers: followingUsers
+                };
+            if (friendsIndex > -1) {
+                state.profileDetails = update(this.state.profileDetails, {
+                    friends: {
+                        $splice: [[friendsIndex, 1]]
+                    }
                 });
-            this.setState({
-                isProfileActionDisabled: false,
-                profileActionSuccess: "You are no longer following this user",
-                isFollowingUser: false,
-                followingUsers: followingUsers
-            });
+            }
+            this.setState(state);
         }).catch((err) => {
             this.setState({
                 isProfileActionDisabled: false,
