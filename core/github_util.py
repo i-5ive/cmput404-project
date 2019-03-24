@@ -75,16 +75,16 @@ def get_event_data(type, payload, repo_name):
 def parse_event(author, event):
     user_details = event.get("actor") or event.get("sender")
     repo_name = event["repo"]["name"] if event.get("repo") else ""
-    description, path = get_event_data(event["type"], event["payload"], repo_name)
+    content, path = get_event_data(event["type"], event["payload"], repo_name)
     if ("https://" not in path):
         event_url = urljoin("https://github.com", path)
     else:
         event_url = path
     
     post_data = {
-        "contentType": "text/plain",
+        "contentType": "text/markdown",
         "origin": event_url,
-        "content": description,
+        "content": "[{0}]({1})".format(content, event_url),
         "author": author,
         "title": get_event_title(event["type"]),
         "description": "{0} at {1}".format(event["type"], repo_name),

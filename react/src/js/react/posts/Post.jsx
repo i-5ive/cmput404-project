@@ -33,9 +33,9 @@ class Post extends Reflux.Component {
     }
 
     renderHeaderButtons = () => {
-		if (this.props.post.categories.includes("github")) {
-			return null;
-		}
+        if (this.props.post.categories.includes("github")) {
+            return null;
+        }
         // TODO Add edit button
         const isCurrentUser = this.state.isLoggedIn && (this.props.post.author.id === this.state.userInfo.id);
         return (
