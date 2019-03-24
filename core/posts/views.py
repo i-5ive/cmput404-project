@@ -13,7 +13,9 @@ from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.create_posts_view import handle_posts
 from core.posts.models import Posts, Comments
 from core.posts.serializers import PostsSerializer, CommentsSerializer
-from core.posts.util import can_user_view, add_page_details_to_response
+from core.posts.util import can_user_view, add_page_details_to_response, merge_posts_with_github_activity
+
+from core.github_util import get_github_activity
 
 logger = logging.getLogger(__name__)
 
@@ -265,9 +267,12 @@ class PostsViewSet(viewsets.ModelViewSet):
             posts |= Posts.objects.filter(author__id__in=followedIds, unlisted=False).exclude(visibility="PRIVATE")
             posts |= Posts.objects.filter(author__id__in=followedIds, unlisted=False, visibility="PRIVATE",
                                           visibleTo__contains=[requester_url])
+
+            github_stream = get_github_activity(request.user.author)
+            posts = merge_posts_with_github_activity(posts, github_stream)
         else:
             posts = Posts.objects.filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
-
+        
         paginator = Paginator(posts, size)
         try:
             page = paginator.page(queryPage + 1)
