@@ -17,7 +17,7 @@ class ServerUtil:
         except:
             return False
 
-    # function is __mangled, as it is unsafe (throws exceptions)
+    # Kind of a dangerous function
     @staticmethod
     def get_auth_tuple_for_host(host):
         try:
