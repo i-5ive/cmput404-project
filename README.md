@@ -169,3 +169,22 @@ Django-rest-framework permissions for create in viewset
   [Answer by argaen](https://stackoverflow.com/a/22767325)  
   [argaen](https://www.stackoverflow.com/users/3481357/argaen), [adi](https://www.stackoverflow.com/users/1223265/adi), [argaen](https://www.stackoverflow.com/users/3481357/argaen)  
   License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)    
+
+[Github Events API](https://developer.github.com/v3/activity/events/types/)  
+
+azu's github event parser for JavaScript (we converted his JavaScript/TypeScript code into Python, so credit for the Github events parser we're using goes to him)  
+https://github.com/azu/parse-github-event/blob/master/src/parse-github-event.ts  
+[MIT License](https://github.com/azu/parse-github-event/blob/master/LICENSE)  
+[Github Profile](https://github.com/azu)  
+
+Create an instance from serializer without persisting it to db  
+[Question](https://www.stackoverflow.com/questions/35004398/create-an-instance-from-serializer-without-persisting-it-to-db)  
+[Answer by Soufiaane](https://stackoverflow.com/a/35026359)  
+[Soufiaane](https://www.stackoverflow.com/users/1882311/soufiaane), [Tomas Walch](https://www.stackoverflow.com/users/5798503/tomas-walch), [wim](https://www.stackoverflow.com/users/674039/wim), [knite](https://www.stackoverflow.com/users/649167/knite)  
+License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  
+
+How to do CamelCase split in python  
+[Question](https://www.stackoverflow.com/questions/29916065/how-to-do-camelcase-split-in-python)  
+[Answer by Jossef Harush](https://stackoverflow.com/a/37697078)  
+[Jossef Harush](https://www.stackoverflow.com/users/3191896/jossef-harush), [nfs](https://www.stackoverflow.com/users/1654255/nfs)  
+License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  
