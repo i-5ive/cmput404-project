@@ -17,6 +17,9 @@ from core.authors.friends_util import get_friends, get_friends_from_pk
 from core.posts.models import Posts
 from core.posts.serializers import PostsSerializer
 from core.posts.constants import DEFAULT_POST_PAGE_SIZE
+from core.posts.util import add_page_details_to_response, merge_posts_with_github_activity
+
+from core.github_util import get_github_activity
 
 from core.servers.SafeServerUtil import ServerUtil
 
@@ -333,7 +336,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False
             }, status=400)
 
-        if not pk:
+        try:
+            author = Author.objects.get(pk=pk)
+        except:
             return Response({
                 "query": "posts",
                 "message": "You must specify an author.",
@@ -375,18 +380,19 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 print("got except!")
                 return Response(status=500)
 
-        pages = Paginator(posts, size)
-        posts = PostsSerializer(pages.page(page), many=True)
-
+        github_stream = get_github_activity(author)
+        combined_stream = merge_posts_with_github_activity(posts, github_stream)
+        
+        pages = Paginator(combined_stream, size)
+        current_page = pages.page(page)
+        posts = PostsSerializer(current_page, many=True)
         response = {
             "query": "posts",
             "count": pages.count,
             "size": size,
-            # Recall: the page the user specifies is offset by +1 for Paginator
-            "next": "/author/{}/posts?page={}".format(pk,page) if page < pages.num_pages else None,
-            "previous": "/author/{}/posts?page={}".format(pk,page-2) if page > 1 else None,
             "posts": posts.data
         }
+        add_page_details_to_response(request, response, current_page, page - 1)
         return Response(response, status=200)
 
     # All posts visible to the currently auth'd user
@@ -450,15 +456,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 return Response(status=500)
         
         pages = Paginator(posts, size)
-        posts = PostsSerializer(pages.page(page), many=True)
+        current_page = pages.page(page)
+        posts = PostsSerializer(current_page, many=True)
 
         response = {
             "query": "posts",
             "count": pages.count,
             "size": size,
-            # Recall: the page the user specifies is offset by +1 for Paginator
-            "next": "/author/posts?page={}".format(page) if page < pages.num_pages else None,
-            "previous": "/author/posts?page={}".format(page-2) if page > 1 else None,
             "posts": posts.data
         }
+        add_page_details_to_response(request, response, current_page, page - 1)
         return Response(response, status=200)
