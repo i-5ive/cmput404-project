@@ -38,9 +38,10 @@ class ServerUtil:
                 url += "/"
             auth = ServerUtil.get_auth_tuple_for_host(url)
             url += "friendrequest"
-            resp = requests.post(url, data=json.dumps(body), auth=auth)
-            print(resp.json())
-            return resp.json()["success"] == True
+            print("body:", body)
+            headers={"Content-type": "application/json"}
+            resp = requests.post(url, data=json.dumps(body), auth=auth, headers=headers)
+            return resp.status_code == 200
         except Exception as e:
             print(e)
             return False
