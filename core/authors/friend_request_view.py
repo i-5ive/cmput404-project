@@ -8,6 +8,8 @@ from core.authors.serializers import AuthorSummarySerializer
 from core.authors.util import get_author_id, get_author_url
 from core.hostUtil import is_external_host
 
+from core.servers.SafeServerUtil import ServerUtil
+
 def are_authors_friends(author_one, author_two):
     return Follow.objects.filter(follower=author_one, friend=author_two).exists() and Follow.objects.filter(follower=author_two, friend=author_one).exists()
     
@@ -48,7 +50,7 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
         message = "The two authors already have a friend request pending"
     elif (not externalAuthor and not Author.objects.filter(id=authorId).exists()) or (not externalFriend and not Author.objects.filter(id=friendId).exists()):
         success = False
-        message = "At least one of the two authors are not external and do not exist on this server"
+        message = "One of the authors must be from this server, neither could be found on this server"
     elif (Follow.objects.filter(follower=authorUrl, followed=friendUrl).exists()):
         success = False
         message = "The requester is already following this friend"
@@ -56,28 +58,46 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
 
 @api_view(['POST'])
 def handle_follow_request(request):
+    user = request.user
+    # Block unauthenticated requests
+    if not user.is_authenticated:
+        return Response({
+            "query": "friendrequest",
+            "success": False,
+            "message": "You must be authenticated to perform that action."
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    # validate_request_body(...) will helplessly throw if there are errors in the request
+    # wrangle those errors and deny the request in that case
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
-        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["url"]):
-            # TODO: remove the debug message later
-            return Response({
-                "query": "friendrequest",
-                "success": False,
-                "message": "You must be authenticated as the requester to perform this action.",
-                "debug": get_author_url(str(request.user.author.pk if request.user.is_authenticated else "/author/awoejaiweowae")) + " should be " + author["url"]
-            }, status=status.HTTP_403_FORBIDDEN)
-        authorUrl = author["url"]
-        friendUrl = friend["url"]
     except Exception as e:
         print(e)
         return Response({
-                "query": "friendrequest",
-                "success": False,
-                "message": "The body did not contain all of the required parameters"
-            }, status=400)
-    
-    success, message = validate_friend_details(authorId, friendId, externalAuthor, externalFriend, authorUrl, friendUrl)
+            "query": "friendrequest",
+            "success": False,
+            "message": "The body did not contain all of the required parameters"
+        }, status=400)
 
+    # If it's an author making the request, ensure it's the correct user sending the request
+    # In most cases this wouldn't happen, unless there's malformed data or hackerz editing the json
+    if ServerUtil.is_author(user) and get_author_url(str(request.user.author.pk)) != author["url"]:
+        # TODO: remove the debug message later
+        return Response({
+            "query": "friendrequest",
+            "success": False,
+            "message": "You must be authenticated as the requester to perform this action.",
+            "debug": get_author_url(str(request.user.author.pk if request.user.is_authenticated else "/author/awoejaiweowae")) + " should be " + author["url"]
+        }, status=status.HTTP_403_FORBIDDEN)
+    elif ServerUtil.is_server(user):
+        pass
+    else:
+        assert(False, "This should never happen?")
+    
+    # Extract the URLs into variables
+    authorUrl = author["url"]
+    friendUrl = friend["url"]
+    success, message = validate_friend_details(authorId, friendId, externalAuthor, externalFriend, authorUrl, friendUrl)
     if not success:
         return Response({
             "query": "friendrequest",
@@ -85,7 +105,7 @@ def handle_follow_request(request):
             "message": message
         }, status=400)
 
-    # TODO: update other server if remote host
+    # TODO: notify other server if remote host? (failure?)
     
     reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
     if not reverseFollow.exists():
