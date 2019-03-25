@@ -73,8 +73,15 @@ def handle_follow_request(request):
     # wrangle those errors and deny the request in that case
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
-    except Exception as e:
-        print(e)
+        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["url"]):
+            return Response({
+                "query": "friendrequest",
+                "success": False,
+                "message": "You must be authenticated as the requester to perform this action."
+            }, status=status.HTTP_403_FORBIDDEN)
+        authorUrl = author["url"]
+        friendUrl = friend["url"]
+    except:
         return Response({
             "query": "friendrequest",
             "success": False,
