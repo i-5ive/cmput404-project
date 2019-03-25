@@ -4,6 +4,8 @@ import json
 from core.authors.models import Author
 from core.hostUtil import is_external_host, get_host_url
 
+from posixpath import join as urljoin
+
 ## Gets the unique ID of a local or external author. If external, returns the URL. If local, returns just the uuid
 ## @param {String} url - the unique URL of the author
 ## @return {String} - the unique ID used to refer to the author
@@ -16,7 +18,7 @@ def get_author_id(url):
 ## @param {String} id - the author's unique ID
 ## @return {String} - the unique URL to the author
 def get_author_url(id):
-    return get_host_url() + "/author/" + id
+    return urljoin(get_host_url(), "author", id)
 
 ## Gets a summary of each specified author
 ## @param {List<String>} authorUrls - a list of author URLs to get details from (can be both external and internal)

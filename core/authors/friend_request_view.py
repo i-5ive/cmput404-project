@@ -59,17 +59,14 @@ def handle_follow_request(request):
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
         if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["url"]):
-            # TODO: remove the debug message later
             return Response({
                 "query": "friendrequest",
                 "success": False,
-                "message": "You must be authenticated as the requester to perform this action.",
-                "debug": get_author_url(str(request.user.author.pk if request.user.is_authenticated else "/author/awoejaiweowae")) + " should be " + author["url"]
+                "message": "You must be authenticated as the requester to perform this action."
             }, status=status.HTTP_403_FORBIDDEN)
         authorUrl = author["url"]
         friendUrl = friend["url"]
-    except Exception as e:
-        print(e)
+    except:
         return Response({
                 "query": "friendrequest",
                 "success": False,
