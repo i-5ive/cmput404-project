@@ -92,7 +92,7 @@ def handle_follow_request(request):
     elif ServerUtil.is_server(user):
         pass
     else:
-        assert(False, "This should never happen?")
+        assert(False, "This should never happen...")
     
     # Extract the URLs into variables
     authorUrl = author["url"]
@@ -105,7 +105,17 @@ def handle_follow_request(request):
             "message": message
         }, status=400)
 
-    # TODO: notify other server if remote host? (failure?)
+    # Author begins following Friend
+    # We need to notify other servers if Author is internal to external
+    # Another server is notifying us if Author is external to internal
+    # We couldn't notify the other server, and should not proceed
+    if externalFriend and not ServerUtil.notify_server_of_friendship(request.data):
+        return Response({
+            "query": "friendrequest",
+            "success": False,
+            "message": "Failed to notify external server."
+        }, status=500)
+
     
     reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
     if not reverseFollow.exists():
