@@ -14,7 +14,7 @@ class Server(models.Model):
     share_pictures = models.BooleanField(default=False)
 
     # Other Servers to Ours (Must add a URL, but maybe not necessary)
-    base_url = models.CharField(max_length=250, blank=False, validators=[base_url_validator])
+    base_url = models.CharField(max_length=250, blank=True, validators=[base_url_validator])
     fetch_posts = models.BooleanField(default=False)
     # Should have a function to check if these are blank, to avoid useless requests
     fetching_username = models.CharField(max_length=250, blank=True)

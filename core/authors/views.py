@@ -18,6 +18,8 @@ from core.posts.models import Posts
 from core.posts.serializers import PostsSerializer
 from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 
+from core.servers.SafeServerUtil import ServerUtil
+
 def validate_friend_request_response(body, pk):
     success = True
     message = "Your response has been recorded"
@@ -360,8 +362,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
             posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
-        # else if is other_server:
-        #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
+        elif ServerUtil.is_server(request.user):
+            posts = Posts.objects.all().filter(visibility__in=["PUBLIC"])
+            # do extra based on header?
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because not anon
             # Get direct friends and FOAFs into a dictionary
