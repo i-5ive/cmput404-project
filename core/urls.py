@@ -29,6 +29,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('docs/', include_docs_urls(title='API Documentation')),
     path('friendrequest/', friend_request, name='friendrequest'),
+    path('friendrequest', friend_request, name='friendrequest'),
     path('login/', login, name='login'),
     path('unfollow/', handle_unfollow_request, name='unfollow'),
 ]
