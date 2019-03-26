@@ -3,19 +3,21 @@ import json
 import requests
 
 class ServerUtil:
+    # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod
     def is_server(user):
         try:
-            return user.server.is_server()
+            return user.server.is_server
         except:
             return False
 
+    # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod
     def is_author(user):
         try:
-            return not user.author.is_server()
+            return not user.server.is_server
         except:
-            return False
+            return True
 
     # Kind of a dangerous function
     @staticmethod

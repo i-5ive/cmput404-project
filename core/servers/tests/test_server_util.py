@@ -6,15 +6,16 @@ from core.users.models import User
 
 class PostViewsTest(TestCase):
     def test_server_user_is_server(self):
-        user = User.objects.create()
+        user = User.objects.create(username="server-name")
         server = Server.objects.create(user=user, base_url="https://hotstuff.com")
-        
-        self.assertTrue(ServerUtil.is_server(server), "server should be server")
-        self.assertTrue(not ServerUtil.is_author(server), "server is not author")
+
+        self.assertTrue(ServerUtil.is_server(user), "server should be server")
+        self.assertTrue(not ServerUtil.is_author(user), "server is not author")
 
     def test_author_is_author(self):
-        user = User.objects.create()
-        author = Author.objects.create(user=user)
+        user = User.objects.create(username="author-name")
+        # PITA Point: For SoMe ReAsOn CrEaTiNg A UsEr CrEaTeS An aUthOr
+        #author = Author.objects.create(user=user)
         
-        self.assertTrue(not ServerUtil.is_server(author), "author is not server")
-        self.assertTrue(ServerUtil.is_author(author), "author should be author")
+        self.assertTrue(not ServerUtil.is_server(user), "author is not server")
+        self.assertTrue(ServerUtil.is_author(user), "author should be author")
