@@ -76,6 +76,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("Invalid author ID specified", status=404)
         
         requests = FriendRequest.objects.filter(friend=get_author_url(pk))
+        print("requests found", len(requests))
         urls = []
         for pending_request in requests:
             urls.append(pending_request.requester)
@@ -192,6 +193,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         author = get_object_or_404(Author, pk=pk)
         author_url = author.get_url()
         follows = Follow.objects.filter(followed=author_url)
+        print("follows", len(follows))
         followed_urls = []
         for follow in follows:
             followed_urls.append(follow.follower)
