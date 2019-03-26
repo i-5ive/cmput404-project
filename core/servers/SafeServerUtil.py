@@ -50,3 +50,12 @@ class ServerUtil:
         except Exception as e:
             print(e)
             return False
+
+    # Will try to find a similar name, try not to call this with "https://" as
+    # that will be useless...
+    @staticmethod
+    def get_base_url_from_similar_name(url):
+        server = Server.objects.filter(base_url__contains=url)
+        if (len(server) == 1):
+            return server[0].base_url
+        return "" # if we match more than one, or 0, we return an empty string

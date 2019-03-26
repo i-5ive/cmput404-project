@@ -4,6 +4,8 @@ import json
 from core.authors.models import Author
 from core.hostUtil import is_external_host, get_host_url
 
+from core.servers.SafeServerUtil import ServerUtil
+
 ## Gets the unique ID of a local or external author. If external, returns the URL. If local, returns just the uuid
 ## @param {String} url - the unique URL of the author
 ## @return {String} - the unique ID used to refer to the author
@@ -33,7 +35,11 @@ def get_author_summaries(authorUrls):
     externalHosts = {}
     for authorUrl in authorUrls:
         if (is_external_host(authorUrl)):
-            hostUrl = authorUrl.split("author/")[0]
+            # remove the beginning slash because we don't store ending slashes in Servers.
+            hostUrl = authorUrl.split("/author/")[0]
+            print("searching host url", hostUrl)
+            hostUrl = ServerUtil.get_base_url_from_similar_name(hostUrl)
+            print("updated hostUrl", hostUrl)
             if (hostUrl in externalHosts):
                 externalHosts[hostUrl].append(authorUrl)
             else:
@@ -52,14 +58,18 @@ def get_author_summaries(authorUrls):
             "displayName": author.get_display_name()
         })
 
+    # try each user (we shouldn't stop checking externals just because one failed)
     # requires each external host to set up an endpoint at /authorSummaries
-    try:
-        for host, authorUrls in externalHosts.items():
-            response = requests.post(host + "authorSummaries", data=json.dumps(authorUrls), headers={
+    for host, authorUrls in externalHosts.items():
+        try:
+            # Host is not ended with a slash so we add it here
+            print("trying:", host + "/authorSummaries")
+            response = requests.post(host + "/authorSummaries", data=json.dumps(authorUrls), headers={
                 "Content-Type": "application/json"
             })
+            print("success:", json.loads(response.content))
             summaries += json.loads(response.content)
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print("failed" , e)
 
     return summaries

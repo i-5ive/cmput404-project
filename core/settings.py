@@ -97,13 +97,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {}
 DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'social_dist',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': 'social_dist',
+    'USER': 'postgres',
+    'PASSWORD': 'admin',
+    'HOST': 'localhost',
+    'PORT': '',
+}
 # import sys
 # if 'test' in sys.argv:
 #     if using a local DB and manage.py test runner, makes things 100x faster :)
