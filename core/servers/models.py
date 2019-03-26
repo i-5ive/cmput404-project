@@ -9,7 +9,11 @@ base_url_validator = RegexValidator(r"\/$", "The base URL should not end with a 
 
 # Create your models here.
 class Server(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # PITA Point: If you create an author, it creates a server.
+    # If you create a server it doesn't create an author.
+    # Use this variable to check (hopefully works)
+    is_server = models.BooleanField(default=True, editable=False)
+
     # Our Server to Others, Must attach a user (but can block by turning off bools below)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     share_posts = models.BooleanField(default=False)
@@ -24,6 +28,3 @@ class Server(models.Model):
 
     def __str__(self):
         return self.base_url
-
-    def is_server(self):
-        return True

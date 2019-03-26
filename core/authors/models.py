@@ -31,9 +31,6 @@ class Author(models.Model):
     def __str__(self):
         return self.user.username
 
-    def is_server(self):
-        return False
-
 
 class Follow(models.Model):
     follower = models.URLField()

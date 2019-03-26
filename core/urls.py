@@ -22,7 +22,7 @@ from core.authors.login_view import login
 from core.authors.unfollow_author_view import handle_unfollow_request
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('users', include('core.users.urls')),
     path('author', include('core.authors.urls')),
     path('posts', include('core.posts.urls')),
