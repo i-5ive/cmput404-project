@@ -124,6 +124,7 @@ class ServerUtil:
 
     @staticmethod
     def get_external_posts_aggregate():
+        posts = []
         servers = Server.objects.all()
         for server in servers:
             server = ServerUtil(server=server)
@@ -132,4 +133,10 @@ class ServerUtil:
             success, postsData = server.get_posts()
             if not success:
                 continue
+            for post in postsData["posts"]:
+                posts.append(post)
+        def key(post):
+            return post["published"]
+        posts.sort(key=key)
+        return posts
             
