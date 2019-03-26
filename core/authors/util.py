@@ -69,16 +69,15 @@ def get_author_summaries(authorUrls):
     for host, authorUrls in externalHosts.items():
         try:
             # Host is not ended with a slash so we add it here
-            print("trying:", host + "/authorSummaries")
-            response = requests.post(
-                host + "/authorSummaries", 
-                data=json.dumps(authorUrls),
-                headers={"Content-Type": "application/json"}
-            )
-            print("result:", response.content)
-            print("result:", response.json())
-            print("success:", json.loads(response.content))
-            summaries += json.loads(response.content)
+            for authorUrl in authorUrls:
+                print("trying:", authorUrl)
+                response = requests.get(
+                    authorUrl,
+                    headers={"Content-Type": "application/json"}
+                )
+                print("result:", response.content)
+                print("result:", response.json())
+                print("success:", json.loads(response.content))
         except Exception as e:
             print("failed" , e)
 
