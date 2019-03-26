@@ -61,13 +61,19 @@ def get_author_summaries(authorUrls):
             try:
                 response = requests.get(
                     url,
-                    auth=sUtil.get_server_auth(),
-                    headers={"Content-Type": "application/json"}
+                    auth=sUtil.get_server_auth()
                 )
-                print("result", response)
-                print("result content:", response.content)
-                print("result .json():", response.json())
-                print("success loads content:", json.loads(response.content))
+                authorInfo = response.json()
+                # PITA Point: Some servers don't store their IDs as the actual
+                # location where you can GET the author summary, just use the ID
+                # if you don't want to hate yourself, even though HOST will be
+                # the correct location to get the service.
+                summaries.append({
+                    "id": authorUrl,
+                    "host": base_url,
+                    "url": authorUrl,
+                    "displayName": authorInfo["displayName"]
+                })
             except Exception as e:
                 print("failed" , e)
 
