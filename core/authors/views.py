@@ -85,7 +85,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         success, profile = server.get_author_info(authorUrl.split("author/")[1])
         if not success:
             return Response("Failed to connect with external server: "+server.get_base_url(), status=500)
-        # for some reason friends is thrown in here
+        # for some reason we throw friends in here
         profile["friends"] = []
         return Response(profile)
 

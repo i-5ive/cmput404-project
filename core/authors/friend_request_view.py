@@ -109,12 +109,14 @@ def handle_follow_request(request):
     # We need to notify other servers if Author is internal to external
     # Another server is notifying us if Author is external to internal
     # We couldn't notify the other server, and should not proceed
-    if externalFriend and not ServerUtil.notify_server_of_friendship(request.data):
-        return Response({
-            "query": "friendrequest",
-            "success": False,
-            "message": "Failed to notify external server."
-        }, status=500)
+    if externalFriend:
+        server = ServerUtil(authorUrl=friendUrl)
+        if not server.is_valid() or not server.notify_server_of_friendship(request.data):
+            return Response({
+                "query": "friendrequest",
+                "success": False,
+                "message": "Failed to notify external server."
+            }, status=500)
 
     
     reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)

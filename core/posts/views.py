@@ -15,6 +15,8 @@ from core.posts.models import Posts, Comments
 from core.posts.serializers import PostsSerializer, CommentsSerializer
 from core.posts.util import can_user_view, add_page_details_to_response
 
+from core.servers.SafeServerUtil import ServerUtil
+
 logger = logging.getLogger(__name__)
 
 COMMENT_NOT_ALLOWED = 'Comment not allowed'
@@ -286,3 +288,8 @@ class PostsViewSet(viewsets.ModelViewSet):
         if len(posts_to_return) > 0:
             add_page_details_to_response(request, data, page, queryPage)
         return Response(data)
+
+    # get the latest posts from external servers
+    @action(methods=['get'], detail=False, url_path='external/feed')
+    def get_external_posts(self, request):
+        ServerUtil.get_external_posts_aggregate()
