@@ -49,34 +49,23 @@ def get_author_summaries(authorUrls):
             #     externalHosts[hostUrl].append(authorUrl)
             # else:
             #     externalHosts[hostUrl] = [authorUrl]
-            base_url = authorUrl.split("/author/")[0]
-            sUtil = ServerUtil(url=base_url)
+            sUtil = ServerUtil(authorUrl=authorUrl)
             if not sUtil.valid_server():
-                print("base_url found, but not in DB", base_url)
+                print("authorUrl found, but not in DB", authorUrl)
                 continue # We couldn't find a server that matches the friend URL base
-            base_url = sUtil.get_base_url()
-            print("base_url found ", base_url)
-            url = base_url + "/author/" + authorUrl.split("/author/")[1] 
-            print("trying:", url)
-            try:
-                response = requests.get(
-                    url,
-                    auth=sUtil.get_server_auth()
-                )
-                authorInfo = response.json()
-                # PITA Point: Some servers don't store their IDs as the actual
-                # location where you can GET the author summary, just use the ID
-                # if you don't want to hate yourself, even though HOST will be
-                # the correct location to get the service.
-                summaries.append({
-                    "id": authorUrl,
-                    "host": base_url,
-                    "url": authorUrl,
-                    "displayName": authorInfo["displayName"]
-                })
-            except Exception as e:
-                print("failed" , e)
-
+            success, authorInfo = sUtil.get_author_info(authorUrl.split("/author/")[1])
+            if not success:
+                continue # We couldn't successfully fetch from an external server
+            # PITA Point: Some servers don't store their IDs as the actual
+            # location where you can GET the author summary, just use the ID
+            # if you don't want to hate yourself, even though HOST will be
+            # the correct location to get the service.
+            summaries.append({
+                "id": authorUrl,
+                "host": sUtil.get_base_url(),
+                "url": authorUrl,
+                "displayName": authorInfo["displayName"]
+            })
         else:
             localAuthors.append(get_author_id(authorUrl))
     

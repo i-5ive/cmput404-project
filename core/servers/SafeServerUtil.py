@@ -5,7 +5,7 @@ import requests
 class ServerUtil:
     # Init function allows you pass in variables related to the server to
     # try and find its related server object
-    def __init__(self, server=None, url=None):
+    def __init__(self, server=None, url=None, authorUrl=None):
         self.__server = None
         self.__checked_validity = False
         if server and ServerUtil.is_server(server):
@@ -14,8 +14,13 @@ class ServerUtil:
             server = Server.objects.filter(base_url__contains=url)
             if (len(server) == 1):
                 self.__server = server[0]
+        elif authorUrl:
+            url = authorUrl.split("/author/")[0]
+            server = Server.objects.filter(base_url__contains=url)
+            if (len(server) == 1):
+                self.__server = server[0]
         else:
-            raise ValueError("ServerUtil expects a server, or url variable to initialize.")
+            raise ValueError("ServerUtil expects a server, authorUrl, or url variable to initialize.")
 
     def __throw_if_server_is_bad_or_unchecked(self):
         if not self.__checked_validity:
@@ -34,6 +39,22 @@ class ServerUtil:
         self.__throw_if_server_is_bad_or_unchecked()
         server = self.__server
         return (server.fetching_username, server.fetching_password)
+
+    # returns True, {dict of author info}
+    def get_author_info(self, id):
+        self.__throw_if_server_is_bad_or_unchecked()
+        url = self.get_base_url() + "/author/" + id
+        print("fetching from external server:", url)
+        try:
+            response = requests.get(
+                url,
+                auth=self.get_server_auth()
+            )
+            authorInfo = response.json()
+            return True, authorInfo
+        except Exception as e:
+            print("fetching", url, "failed. Error:", e)
+            return False, None
     
     # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod
