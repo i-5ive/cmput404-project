@@ -10,7 +10,6 @@ from django.dispatch import receiver
 from core.hostUtil import get_host_url
 from core.users.models import User
 
-
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

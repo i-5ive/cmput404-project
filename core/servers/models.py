@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.core.validators import RegexValidator
 
@@ -8,6 +9,7 @@ base_url_validator = RegexValidator(r"\/$", "The base URL should not end with a 
 
 # Create your models here.
 class Server(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # Our Server to Others, Must attach a user (but can block by turning off bools below)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     share_posts = models.BooleanField(default=False)
