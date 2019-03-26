@@ -34,28 +34,16 @@ def get_author_summaries(authorUrls):
     localAuthors = []
     for authorUrl in authorUrls:
         if (is_external_host(authorUrl)):
-            # # remove the beginning slash because we don't store ending slashes in Servers.
-            # hostUrl = authorUrl.split("/author/")[0]
-            # print("searching host url", hostUrl)
-            # hostUrl = ServerUtil.get_base_url_from_similar_name(hostUrl)
-            # print("updated hostUrl", hostUrl)
-
-            # # Prevent wasting time by calling endpoints we couldn't find
-            # if len(hostUrl) == 0:
-            #     print("Couldn't find a realted server for:", authorUrl, "is this author's server set up?")
-            #     continue
-
-            # if (hostUrl in externalHosts):
-            #     externalHosts[hostUrl].append(authorUrl)
-            # else:
-            #     externalHosts[hostUrl] = [authorUrl]
+            # open a server util with the author url
             sUtil = ServerUtil(authorUrl=authorUrl)
             if not sUtil.valid_server():
                 print("authorUrl found, but not in DB", authorUrl)
                 continue # We couldn't find a server that matches the friend URL base
+            # split the id from the URL and ask the external server about them
             success, authorInfo = sUtil.get_author_info(authorUrl.split("/author/")[1])
             if not success:
                 continue # We couldn't successfully fetch from an external server
+
             # PITA Point: Some servers don't store their IDs as the actual
             # location where you can GET the author summary, just use the ID
             # if you don't want to hate yourself, even though HOST will be
@@ -79,22 +67,4 @@ def get_author_summaries(authorUrls):
             "url": url,
             "displayName": author.get_display_name()
         })
-
-    # try each user (we shouldn't stop checking externals just because one failed)
-    # requires each external host to set up an endpoint at /authorSummaries
-    # for host, authorUrls in externalHosts.items():
-    #     try:
-    #         # Host is not ended with a slash so we add it here
-    #         for authorUrl in authorUrls:
-    #             print("trying:", authorUrl)
-    #             response = requests.get(
-    #                 authorUrl,
-    #                 headers={"Content-Type": "application/json"}
-    #             )
-    #             print("result:", response.content)
-    #             print("result:", response.json())
-    #             print("success:", json.loads(response.content))
-    #     except Exception as e:
-    #         print("failed" , e)
-
     return summaries

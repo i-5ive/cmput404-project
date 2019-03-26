@@ -46,6 +46,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
         except:
+            print("DID WE GET HERE?", pk)
             return Response("Invalid author ID specified", status=404)
 
         url = get_author_url(pk)

@@ -47,9 +47,10 @@ export default class ProfileStore extends Reflux.Store {
             githubDetails: null
         });
 
-        // TODO: should external authors be loaded client side or server side?
+        // Profiles from external servers need to be loaded on our back-end,
+        // because some external servers require auth
         const external = isExternalAuthor(id),
-            path = external ? `${id}/` : `author/${getAuthorId(id)}/`;
+            path = external ? `/author/?external=True&authorUrl=${encodeURI(id)}` : `author/${getAuthorId(id)}/`;
         RestUtil.sendGET(path, {}, external).then((res) => {
             this.setState({
                 isLoadingProfile: false,
