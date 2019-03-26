@@ -19,28 +19,31 @@ class ServerUtil:
         except:
             return True
 
+    @staticmethod
+    def get_base_url_from_user(user):
+        try:
+            return user.server.base_url
+        except:
+            print("Server URL not found, check user:", user)
+            return ""
+
     # Kind of a dangerous function
     @staticmethod
-    def get_auth_tuple_for_host(host):
+    def get_server_auth_from_user(user):
         try:
-            if host.endswith("/"): host = host[:-1] # we store it without the ending slash
-            server = Server.objects.get(base_url=host)
-            auth = (server.fetching_username, server.fetching_password)
-            return auth
+            return (user.server.fetching_username, user.server.fetching_password)
         except:
-            print("Auth not found for", host, "has a server user been created?")
+            print("Server auth not found, check user:", user)
             return ("", "")
 
     # Only necessary if a local user is friending an external one
+    # User is required to get the host from the server object
     @staticmethod
-    def notify_server_of_friendship(body):
+    def notify_server_of_friendship(user, body):
         try:
-            url = body["friend"]["host"]
-            if not url.endswith("/"):
-                url += "/"
-            auth = ServerUtil.get_auth_tuple_for_host(url)
-            url += "friendrequest"
-            print("body:", body)
+            url = ServerUtil.get_base_url_from_user(user) + "/friendrequest"
+            auth = ServerUtil.get_server_auth_from_user(user)
+            print(url, auth, body)
             headers={"Content-type": "application/json"}
             resp = requests.post(url, data=json.dumps(body), auth=auth, headers=headers)
             return resp.status_code == 200
