@@ -67,6 +67,8 @@ def handle_follow_request(request):
             "message": "You must be authenticated to perform that action."
         }, status=status.HTTP_403_FORBIDDEN)
 
+    print("handle_follow_request received", request.body)
+
     # validate_request_body(...) will helplessly throw if there are errors in the request
     # wrangle those errors and deny the request in that case
     try:
@@ -105,10 +107,7 @@ def handle_follow_request(request):
             "message": message
         }, status=400)
 
-    # Author begins following Friend
-    # We need to notify other servers if Author is internal to external
-    # Another server is notifying us if Author is external to internal
-    # We couldn't notify the other server, and should not proceed
+    # Local Author follows foreign author, need to tell foreign server what's up
     if externalFriend:
         server = ServerUtil(authorUrl=friendUrl)
         if not server.is_valid() or not server.notify_server_of_friendship(request.data):
@@ -117,11 +116,13 @@ def handle_follow_request(request):
                 "success": False,
                 "message": "Failed to notify external server."
             }, status=500)
-
-    
-    reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
-    if not reverseFollow.exists():
-        FriendRequest.objects.create(requester=authorUrl, friend=friendUrl)
+    # We only want to track friend requests locally because creating a friend request
+    # for an external server will block it from using the official APIs because "a friend
+    # request already exists".
+    else:
+        reverseFollow = Follow.objects.filter(follower=friendUrl, followed=authorUrl)
+        if not reverseFollow.exists():
+            FriendRequest.objects.create(requester=authorUrl, friend=friendUrl)
 
     Follow.objects.create(follower=authorUrl, followed=friendUrl)
 

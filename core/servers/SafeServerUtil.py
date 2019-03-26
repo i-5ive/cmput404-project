@@ -61,6 +61,7 @@ class ServerUtil:
             return False, None
 
     def get_posts(self):
+        self.__throw_if_server_is_bad_or_unchecked()
         try:
             url = self.get_base_url() + "/posts" # we don't store ending slash, attach it
             print("Fetching posts from", url)
@@ -75,12 +76,14 @@ class ServerUtil:
     # Only necessary if a local user is friending an external one
     # body is the same body given to us by the post method
     def notify_server_of_friendship(self, body):
+        self.__throw_if_server_is_bad_or_unchecked()
         try:
             url = self.get_base_url() + "/friendrequest"
             auth = self.get_server_auth()
             print("Sending friend request to:", url, auth, body)
             headers={"Content-type": "application/json"}
             resp = requests.post(url, data=json.dumps(body), auth=auth, headers=headers)
+            print("Response received", resp.status_code, resp.content)
             return resp.status_code == 200
         except Exception as e:
             print("Failed sending friendship", e)

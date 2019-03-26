@@ -104,6 +104,10 @@ class AuthorViewSet(viewsets.ModelViewSet):
         formatted_requests = get_author_summaries(urls)
         return Response(formatted_requests, status=200)
 
+    # For inexplicable reasons, we have another endpoint for doing what serv/friendrequests
+    # already does :) and we have to do extra work to get the data serv/friendrequests would
+    # already have as well
+    # A external server will never call this so we don't have to worry
     @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')
     def handle_friend_request_response(self, request, pk):
         try:
@@ -145,9 +149,32 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "Could not find a friend request from the specified author"
             }, status=404)
 
+        # check if this is an external friendship
+        localAuthorUrl = get_author_url(pk)
+        if localAuthorUrl.split("/author/")[0] != friend_data["url"].split("/author/")[0]:
+            xServerAuthorUrl = friend_data["url"] 
+            xServerBody = {
+                "query": "friendrequest",
+                "friend": friend_data,
+                "author": {
+                    "displayName": author.displayName,
+                    "host": localAuthorUrl.split("/author/")[0],
+                    "id": localAuthorUrl,
+                    "url": localAuthorUrl
+                }
+            }
+            print(xServerBody)
+            server = ServerUtil(authorUrl=xServerAuthorUrl)
+            # if we fail to notify the external server we can't proceed with the friendship
+            if not server.is_valid() or not server.notify_server_of_friendship(xServerBody):
+                return Response({
+                    "query": "friendrequest",
+                    "success": False,
+                    "message": "Failed to notify external server."
+                }, status=500)
+
         if (body["approve"]):
             Follow.objects.create(follower=get_author_url(pk), followed=friend_data["url"])
-
         friend_request.delete()
         response = {
             "message": "Your response has been recorded",
