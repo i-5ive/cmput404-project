@@ -50,8 +50,9 @@ export default class ProfileStore extends Reflux.Store {
         // Profiles from external servers need to be loaded on our back-end,
         // because some external servers require auth
         const external = isExternalAuthor(id),
-            path = external ? `/author/?external=True&authorUrl=${encodeURI(id)}` : `author/${getAuthorId(id)}/`;
-        RestUtil.sendGET(path, {}, external).then((res) => {
+            path = external ? `author/external/?authorUrl=${encodeURI(id)}` : `author/${getAuthorId(id)}/`;
+        RestUtil.sendGET(path, {}).then((res) => {
+            console.log(res)
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,

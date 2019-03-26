@@ -30,6 +30,10 @@ class ServerUtil:
         if self.__server != None:
             self.__checked_validity = True
         return self.__checked_validity
+    
+    # same as valid_server but with a special kind of laziness
+    def is_valid(self):
+        return self.valid_server()
 
     def get_base_url(self):
         self.__throw_if_server_is_bad_or_unchecked()

@@ -69,6 +69,26 @@ class AuthorViewSet(viewsets.ModelViewSet):
             data["bio"] = author.bio
         return Response(data)
 
+    # author/external?authorUrl={value}
+    # attempts to get an external author's profile
+    @action(methods=['get'], detail=False, url_path="external")
+    def get_external_profile(self, request):
+        authorUrl = request.query_params.get("authorUrl", None)
+        if not request.user.is_authenticated:
+            return Response("You must be authenticated to use this endpoint.", status=403)
+        if not authorUrl:
+            return Response("You must specify an authorUrl query to use this endpoint", status=400)
+        
+        server = ServerUtil(authorUrl=authorUrl)
+        if not server.is_valid():
+            return Response("Could not find an external server in our database for the author url: "+authorUrl, status=404)
+        success, profile = server.get_author_info(authorUrl.split("author/")[1])
+        if not success:
+            return Response("Failed to connect with external server: "+server.get_base_url(), status=500)
+        # for some reason friends is thrown in here
+        profile["friends"] = []
+        return Response(profile)
+
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
     def get_friend_requests(self, request, pk):
         try:
