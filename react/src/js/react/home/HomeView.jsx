@@ -31,7 +31,7 @@ export default class HomeView extends Reflux.Component {
                 {
                     this.state.errorLoadingPosts && (
                         <Alert bsStyle="danger">
-                            An error ocurred while loading posts
+                            An error occurred while loading posts
                         </Alert>
                     )
                 }
