@@ -3,6 +3,29 @@ import json
 import requests
 
 class ServerUtil:
+    # Init function allows you pass in variables related to the server to
+    # try and find its related server object
+    def __init__(server=None, url=None):
+        self.__server = None
+        self.__checked_validity = False
+        if server and ServerUtil.is_server(server):
+            self.__server = server
+        elif url:
+            server = Server.objects.filter(base_url__contains=url)
+            if (len(server) == 1):
+                self.__server = server
+        else:
+            raise ValueError("ServerUtil expects a server, or url variable to initialize.")
+
+    def __throw_if_server_is_bad_or_unchecked():
+        if not self.__checked_validity:
+            raise RuntimeError("You are trying to run ServerUtil with a bad server, or did not check validity using valid_server().")
+
+    def valid_server():
+        if self.__server != None:
+            self.__checked_validity = True
+        return self.__checked_validity
+    
     # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod
     def is_server(user):

@@ -40,6 +40,12 @@ def get_author_summaries(authorUrls):
             print("searching host url", hostUrl)
             hostUrl = ServerUtil.get_base_url_from_similar_name(hostUrl)
             print("updated hostUrl", hostUrl)
+
+            # Prevent wasting time by calling endpoints we couldn't find
+            if len(hostUrl) == 0:
+                print("Couldn't find a realted server for:", authorUrl, "is this author's server set up?")
+                continue
+
             if (hostUrl in externalHosts):
                 externalHosts[hostUrl].append(authorUrl)
             else:
@@ -64,9 +70,13 @@ def get_author_summaries(authorUrls):
         try:
             # Host is not ended with a slash so we add it here
             print("trying:", host + "/authorSummaries")
-            response = requests.post(host + "/authorSummaries", data=json.dumps(authorUrls), headers={
-                "Content-Type": "application/json"
-            })
+            response = requests.post(
+                host + "/authorSummaries", 
+                data=json.dumps(authorUrls),
+                headers={"Content-Type": "application/json"}
+            )
+            print("result:", response.content)
+            print("result:", response.json())
             print("success:", json.loads(response.content))
             summaries += json.loads(response.content)
         except Exception as e:
