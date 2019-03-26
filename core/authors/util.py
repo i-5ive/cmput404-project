@@ -32,24 +32,45 @@ def get_author_url(id):
 def get_author_summaries(authorUrls):
     summaries = []
     localAuthors = []
-    externalHosts = {}
     for authorUrl in authorUrls:
         if (is_external_host(authorUrl)):
-            # remove the beginning slash because we don't store ending slashes in Servers.
-            hostUrl = authorUrl.split("/author/")[0]
-            print("searching host url", hostUrl)
-            hostUrl = ServerUtil.get_base_url_from_similar_name(hostUrl)
-            print("updated hostUrl", hostUrl)
+            # # remove the beginning slash because we don't store ending slashes in Servers.
+            # hostUrl = authorUrl.split("/author/")[0]
+            # print("searching host url", hostUrl)
+            # hostUrl = ServerUtil.get_base_url_from_similar_name(hostUrl)
+            # print("updated hostUrl", hostUrl)
 
-            # Prevent wasting time by calling endpoints we couldn't find
-            if len(hostUrl) == 0:
-                print("Couldn't find a realted server for:", authorUrl, "is this author's server set up?")
-                continue
+            # # Prevent wasting time by calling endpoints we couldn't find
+            # if len(hostUrl) == 0:
+            #     print("Couldn't find a realted server for:", authorUrl, "is this author's server set up?")
+            #     continue
 
-            if (hostUrl in externalHosts):
-                externalHosts[hostUrl].append(authorUrl)
-            else:
-                externalHosts[hostUrl] = [authorUrl]
+            # if (hostUrl in externalHosts):
+            #     externalHosts[hostUrl].append(authorUrl)
+            # else:
+            #     externalHosts[hostUrl] = [authorUrl]
+            base_url = authorUrl.split("/author/")[0]
+            sUtil = ServerUtil(url=base_url)
+            if not sUtil.valid_server():
+                print("base_url found, but not in DB", base_url)
+                continue # We couldn't find a server that matches the friend URL base
+            base_url = sUtil.get_base_url()
+            print("base_url found ", base_url)
+            url = base_url + "/author/" + authorUrl.split("/author/")[1] 
+            print("trying:", url)
+            try:
+                response = requests.get(
+                    url,
+                    auth=sUtil.get_server_auth(),
+                    headers={"Content-Type": "application/json"}
+                )
+                print("result", response)
+                print("result content:", response.content)
+                print("result .json():", response.json())
+                print("success loads content:", json.loads(response.content))
+            except Exception as e:
+                print("failed" , e)
+
         else:
             localAuthors.append(get_author_id(authorUrl))
     
@@ -66,19 +87,19 @@ def get_author_summaries(authorUrls):
 
     # try each user (we shouldn't stop checking externals just because one failed)
     # requires each external host to set up an endpoint at /authorSummaries
-    for host, authorUrls in externalHosts.items():
-        try:
-            # Host is not ended with a slash so we add it here
-            for authorUrl in authorUrls:
-                print("trying:", authorUrl)
-                response = requests.get(
-                    authorUrl,
-                    headers={"Content-Type": "application/json"}
-                )
-                print("result:", response.content)
-                print("result:", response.json())
-                print("success:", json.loads(response.content))
-        except Exception as e:
-            print("failed" , e)
+    # for host, authorUrls in externalHosts.items():
+    #     try:
+    #         # Host is not ended with a slash so we add it here
+    #         for authorUrl in authorUrls:
+    #             print("trying:", authorUrl)
+    #             response = requests.get(
+    #                 authorUrl,
+    #                 headers={"Content-Type": "application/json"}
+    #             )
+    #             print("result:", response.content)
+    #             print("result:", response.json())
+    #             print("success:", json.loads(response.content))
+    #     except Exception as e:
+    #         print("failed" , e)
 
     return summaries
