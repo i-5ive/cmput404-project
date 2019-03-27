@@ -1,18 +1,29 @@
 @import "variables.scss";
 
 .post-feed {
-    background-color: $very-light-grey;
     border-radius: 5px;
-    max-width: 40em;
-    padding-top: 10px;
-    padding-bottom: 10px;
-	height: 85vh;
+	height: 90vh;
+    max-width: 45em;
+    padding: 0 15px;
 	overflow: auto;
 	
 	& > .coreSpinner:nth-child(1) {
 		position: absolute;
 		left: 50%;
 		top: 50%;
+	}
+
+	.thumbnail + .coreSpinner {
+		margin-left: 50%;
+	}
+
+	.thumbnail {
+		border-radius: 10px;
+	}
+
+	.posts-not-found {
+		text-align: center;
+		margin: 0;
 	}
 }
 

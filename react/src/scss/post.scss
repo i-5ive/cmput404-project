@@ -3,7 +3,15 @@
 		margin-left: 0.7em;
         .post-header {
             display: flex;
-            justify-content: space-between;
+			justify-content: space-between;
+			.github-title {
+				display: flex;
+				i {
+					font-size: 40px;
+					padding-top: 11px;
+					padding-right: 10px;
+				}
+			}
             .post-time {
                 align-self: center;
                 margin-top: 10px;
@@ -27,9 +35,11 @@
 		.categories-wrapper {
 			display: flex;
 			flex-wrap: wrap;
+			padding-bottom: 5px;
 			
-			.glyphicon {
+			.tag-icon {
 				margin-right: 0.5em;
+				padding-top: 3px;
 			}
 			
 			.category-badge {
@@ -38,12 +48,8 @@
 			}
 		}
 
-		.empty {
+		.empty-title {
 			font-style: italic;
-		}
-		
-		.comments-count {
-			margin-left: 0.5em;
 		}
 		
 		.deleting-message {
@@ -52,6 +58,11 @@
 
 		.bottom-row {
 			display: flex;
+
+			.comment-icon {
+				margin-right: 0.7em;
+				padding-top: 3px;
+			}
 			
 			.visibility-details {
 				margin-left: auto;

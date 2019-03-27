@@ -130,7 +130,7 @@ class Post extends Reflux.Component {
         return (
             <div>
                 <div className="categories-wrapper">
-                    <span className="glyphicon glyphicon-tags" />
+                    <span className="fas fa-tags tag-icon" />
                     {
                         hasCategories && (
                             <span>
@@ -143,7 +143,7 @@ class Post extends Reflux.Component {
                     }
                 </div>
                 <div className="bottom-row">
-                    <span className="glyphicon glyphicon-comment" />
+                    <i className="far fa-comment-alt comment-icon" />
                     {
                         this.renderTotalComments(commentsLength)
                     }
@@ -170,12 +170,19 @@ class Post extends Reflux.Component {
     }
 
     renderTitle() {
-        if (this.props.post.title) {
+        if (this.props.post.categories.includes("github")) {
+            return (
+                <span className="github-title">
+                    <i className="fab fa-github-square" />
+                    <h3>{this.props.post.title}</h3>
+                </span>
+            );
+        } else if (this.props.post.title) {
             return <h3 className="post-title">{this.props.post.title}</h3>;
         }
         return (
-            <h3 className="empty">
-				No title
+            <h3 className="empty-title">
+				Untitled
             </h3>
         );
     }
