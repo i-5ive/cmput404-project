@@ -106,7 +106,7 @@ if 'test' in sys.argv:
     }
 else:
     DATABASES = {
-        'default': env.db('DATABASE_URL',default='postgres://cmput404:abramiscool123!@cmput404-dev.c1dsguk3kuvt.us-west-2.rds.amazonaws.com:5432/testing'),
+        'default': env.db('DATABASE_URL',default='postgres://cmput404:abramiscool123!@cmput404-dev.c1dsguk3kuvt.us-west-2.rds.amazonaws.com:5432/riptesting'),
     }
 
 # Password validation

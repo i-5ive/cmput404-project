@@ -11,7 +11,7 @@ import ProfileFollowerUsers from "./ProfileFollowerUsers";
 
 const ProfileStreamView = (props) => {
     return (
-        <Thumbnail>
+        <Thumbnail className="profile-stream">
             <Tabs defaultActiveKey="posts" id="profile-stream-tabs">
                 <Tab eventKey="posts" title="Posts">
                     <ProfilePostsStream id={props.id} />

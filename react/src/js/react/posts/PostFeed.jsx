@@ -55,7 +55,7 @@ export default class PostFeed extends React.Component {
                 }
                 {
                     !this.props.isLoading && this.props.posts.length === 0 && (
-                        <Thumbnail>
+                        <Thumbnail className="posts-not-found">
                             No posts were found.
                         </Thumbnail>
                     )
