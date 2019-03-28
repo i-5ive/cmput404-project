@@ -290,7 +290,17 @@ class PostsViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     # get the latest posts from external servers
+    # or, if post url specified, fetch that post specifically 
     @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
+        postUrl = request.query_params.get("postUrl", False)
+        if postUrl:
+            sUtil = ServerUtil(postUrl=postUrl)
+            if not sUtil.is_valid():
+                return Response("No foreign node with the base url: "+postUrl, status=404)
+            success, post = sUtil.get_post(postUrl.split("/posts/")[1])
+            if not success:
+                return Response("Failed to grab foreign post: "+postUrl, status=500)
+            return Response(post)
         posts = ServerUtil.get_external_posts_aggregate()
         return Response({"posts":posts})

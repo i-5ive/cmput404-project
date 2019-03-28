@@ -1,7 +1,7 @@
 import React from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
-
+import { SERVER_URL } from "../constants/ServerConstants";
 import ReactMarkdown from "react-markdown";
 import { withRouter, Link } from "react-router-dom";
 import { Thumbnail, Button, Badge, Alert } from "react-bootstrap";
@@ -150,7 +150,11 @@ class Post extends Reflux.Component {
     }
 
 	handlePermalink = () => {
-	    this.props.history.push(`/post/${this.props.post.id}/`);
+        const origin = this.props.post.origin,
+            localPost = origin.split("/posts/") === SERVER_URL,
+            url = `/post/${localPost ? this.props.post.id : encodeURI(origin)}`;
+
+	    this.props.history.push(url);
 	};
 
     handleDeletePost = () => {

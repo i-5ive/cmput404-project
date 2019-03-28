@@ -6,7 +6,7 @@ import requests
 class ServerUtil:
     # Init function allows you pass in variables related to the server to
     # try and find its related server object
-    def __init__(self, user=None, server=None, url=None, authorUrl=None):
+    def __init__(self, user=None, server=None, url=None, authorUrl=None, postUrl=None):
         self.__server = None
         self.__checked_validity = False
         if server and ServerUtil.is_server(server.user):
@@ -17,6 +17,11 @@ class ServerUtil:
                 self.__server = server[0]
         elif authorUrl:
             url = authorUrl.split("/author/")[0]
+            server = Server.objects.filter(base_url__contains=url)
+            if (len(server) == 1):
+                self.__server = server[0]
+        elif postUrl:
+            url = postUrl.split("/posts/")[0]
             server = Server.objects.filter(base_url__contains=url)
             if (len(server) == 1):
                 self.__server = server[0]
@@ -61,6 +66,25 @@ class ServerUtil:
             print("fetching", url, "failed. Error:", e)
             return False, None
 
+    def get_post(self, id):
+        self.__throw_if_server_is_bad_or_unchecked()
+        url = self.get_base_url() + "/posts/" + id
+        print("fetching from external server:", url)
+        try:
+            # not sure if this is necessary here..
+            if not self.should_fetch_posts():
+                 # return nothing, as we shouldn't be fetching from this server
+                raise ValueError("The admin has disabled fetching posts from this server.")
+            response = requests.get(
+                url,
+                auth=self.get_server_auth()
+            )
+            postData = response.json()
+            return True, postData
+        except Exception as e:
+            print("fetching", url, "failed. Error:", e)
+            return False, None
+
     def should_fetch_posts(self):
         self.__throw_if_server_is_bad_or_unchecked()
         return self.__server.fetch_posts
@@ -70,10 +94,10 @@ class ServerUtil:
         try:
             # Print debugging logs first
             url = self.get_base_url() + "/posts" # we don't store ending slash, attach it
-            print("Fetching posts from", url)
+            print("Fetching posts from:", url)
             if not self.should_fetch_posts():
                  # return nothing, as we shouldn't be fetching from this server
-                raise ValueError("The admin has disabled fetching posts from this server")
+                raise ValueError("The admin has disabled fetching posts from this server.")
             response = requests.get(url, auth=self.get_server_auth())
             postsData = response.json()
             print("Fetched posts!")

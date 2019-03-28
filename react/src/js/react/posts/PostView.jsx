@@ -17,7 +17,9 @@ export default class PostView extends Reflux.Component {
     }
 
     componentDidMount() {
-        PostsActions.getPost(this.props.match.params.id);
+        const postId = window.location.href.split("/post/")[1],
+            isExternal = postId.includes("http");
+        PostsActions.getPost(postId, isExternal);
     }
 
     render() {

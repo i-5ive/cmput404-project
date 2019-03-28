@@ -150,14 +150,18 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    onGetPost(postId) {
+    onGetPost(postId, isExternal) {
+        console.log(postId);
         this.setState({
             fetchingPost: true,
             failedToFetchPost: false,
             currentPost: null,
             currentPostImages: []
         });
-        RestUtil.sendGET(`posts/${postId}/`).then((response) => {
+        // Depending on if the post is external or internal, do a different fetch
+        const promise = isExternal ? RestUtil.sendGET(`posts/external/?postUrl=${postId}`)
+            : RestUtil.sendGET(`posts/${postId}/`);
+        promise.then((response) => {
             const post = response.data.find((post) => post.contentType.includes("text")),
 			 images = response.data.filter((post) => post.contentType.includes("image"));
             this.setState({
