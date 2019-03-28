@@ -22,7 +22,7 @@
 body {
     background-color: $background;
     height: 100vh;
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: $font;
 }
 
 .tab-pane {

@@ -188,3 +188,13 @@ How to do CamelCase split in python
 [Answer by Jossef Harush](https://stackoverflow.com/a/37697078)  
 [Jossef Harush](https://www.stackoverflow.com/users/3191896/jossef-harush), [nfs](https://www.stackoverflow.com/users/1654255/nfs)  
 License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  
+
+Montserrat Font from Google Fonts  
+https://fonts.google.com/specimen/Montserrat  
+License: [SIL Open Font License](https://github.com/JulietaUla/Montserrat/blob/master/OFL.txt)  
+
+Detecting when user scrolls to bottom of div with React js  
+[Question](https://www.stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js)  
+[Answer by Brendan McGill](https://stackoverflow.com/a/49573628)  
+[Brendan McGill](https://www.stackoverflow.com/users/4458849/brendan-mcgill), user5797064, [Pardeep Dhingra](https://www.stackoverflow.com/users/1031061/pardeep-dhingra)  
+License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  
