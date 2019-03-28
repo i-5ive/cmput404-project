@@ -8,7 +8,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from core.authors.models import Follow
-from core.authors.util import get_author_id
+from core.authors.util import get_author_id, get_author_url
 from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.create_posts_view import handle_posts
 from core.posts.models import Posts, Comments
@@ -293,12 +293,16 @@ class PostsViewSet(viewsets.ModelViewSet):
     # or, if post url specified, fetch that post specifically 
     @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
+        user = request.user
+        if not user.is_authenticated or ServerUtil.is_server(user):
+            return Response("You must be an authenticated author to use this endpoint", status=401)
         postUrl = request.query_params.get("postUrl", False)
         if postUrl:
+            authorUrl = get_author_url(str(request.user.author.pk))
             sUtil = ServerUtil(postUrl=postUrl)
             if not sUtil.is_valid():
                 return Response("No foreign node with the base url: "+postUrl, status=404)
-            success, post = sUtil.get_post(postUrl.split("/posts/")[1])
+            success, post = sUtil.get_post(postUrl.split("/posts/")[1], authorUrl)
             if not success:
                 return Response("Failed to grab foreign post: "+postUrl, status=500)
             return Response(post)

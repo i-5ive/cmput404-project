@@ -66,7 +66,7 @@ class ServerUtil:
             print("fetching", url, "failed. Error:", e)
             return False, None
 
-    def get_post(self, id):
+    def get_post(self, id, requestingAuthorUrl):
         self.__throw_if_server_is_bad_or_unchecked()
         url = self.get_base_url() + "/posts/" + id
         print("fetching from external server:", url)
@@ -75,8 +75,12 @@ class ServerUtil:
             if not self.should_fetch_posts():
                  # return nothing, as we shouldn't be fetching from this server
                 raise ValueError("The admin has disabled fetching posts from this server.")
+            headers = {
+                "X-Request-User-ID": requestingAuthorUrl
+            }
             response = requests.get(
                 url,
+                headers=headers,
                 auth=self.get_server_auth()
             )
             postData = response.json()
