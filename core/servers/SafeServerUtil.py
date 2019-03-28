@@ -76,7 +76,7 @@ class ServerUtil:
                 raise ValueError("The admin has disabled fetching posts from this server")
             response = requests.get(url, auth=self.get_server_auth())
             postsData = response.json()
-            print("Fetched posts:", postsData)
+            print("Fetched posts!")
             return True, postsData
         except Exception as e:
             print("Failed fetching posts, error:", e)
@@ -141,6 +141,9 @@ class ServerUtil:
                 continue
             success, postsData = server.get_posts()
             if not success:
+                continue
+            if "posts" not in postsData:
+                print("Couldn't find posts in response data:", postsData)
                 continue
             for post in postsData.get("posts", []): # prevent KeyError
                 posts.append(post)

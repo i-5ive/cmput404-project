@@ -114,20 +114,24 @@ class Post extends Reflux.Component {
     }
 
     renderFooter() {
-        const commentsLength = this.props.post.comments.length;
+        // Prevent errors from unsafely using properties of objects
+        const commentsLength = this.props.post.comments.length,
+            hasCategories = this.props.post.categories && this.props.post.categories.length !== 0,
+            categories = (hasCategories && this.props.post.categories) || [];
+
         return (
             <div>
                 <div className="categories-wrapper">
                     <span className="glyphicon glyphicon-tags" />
                     {
-                        this.props.post.categories.length === 0 && (
+                        hasCategories && (
                             <span>
 								No categories
                             </span>
                         )
                     }
                     {
-                        this.props.post.categories.map(this.renderCategory)
+                        categories.map(this.renderCategory)
                     }
                 </div>
                 <div className="bottom-row">
