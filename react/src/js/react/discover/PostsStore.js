@@ -10,6 +10,7 @@ export const PostsActions = Reflux.createActions([
     "getPosts",
     "deletePost",
     "getPost",
+    "getExternalPosts",
     "clearModalMessage"
 ]);
 
@@ -73,6 +74,37 @@ export class PostsStore extends Reflux.Store {
         }
         this.setState(state);
         RestUtil.sendGET("posts/", {
+            page: page,
+            size: POSTS_PAGE_SIZE
+        }).then((response) => {
+            const posts = update(this.state.posts, {
+                $push: response.data.posts
+            });
+            this.setState({
+                fetchingPosts: false,
+                posts: posts,
+                nextPage: response.data.next ? page + 1 : null
+            });
+        }).catch((err) => {
+            this.setState({
+                fetchingPosts: false,
+                failedToFetchPosts: true,
+                nextPage: null
+            });
+            console.error(err);
+        });
+    }
+
+    onGetExternalPosts(page = 0) {
+        const state = {
+            fetchingPosts: true,
+            failedToFetchPosts: false
+        };
+        if (page === 0) {
+            state.posts = [];
+        }
+        this.setState(state);
+        RestUtil.sendGET("posts/external/", {
             page: page,
             size: POSTS_PAGE_SIZE
         }).then((response) => {

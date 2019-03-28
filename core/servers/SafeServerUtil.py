@@ -1,3 +1,4 @@
+# Please do not remove debugging logs all of our sanity :)
 from core.servers.models import Server
 import json
 import requests
@@ -60,11 +61,19 @@ class ServerUtil:
             print("fetching", url, "failed. Error:", e)
             return False, None
 
+    def should_fetch_posts(self):
+        self.__throw_if_server_is_bad_or_unchecked()
+        return self.__server.fetch_posts
+
     def get_posts(self):
         self.__throw_if_server_is_bad_or_unchecked()
         try:
+            # Print debugging logs first
             url = self.get_base_url() + "/posts" # we don't store ending slash, attach it
             print("Fetching posts from", url)
+            if not self.should_fetch_posts():
+                 # return nothing, as we shouldn't be fetching from this server
+                raise ValueError("The admin has disabled fetching posts from this server")
             response = requests.get(url, auth=self.get_server_auth())
             postsData = response.json()
             print("Fetched posts:", postsData)
@@ -133,7 +142,7 @@ class ServerUtil:
             success, postsData = server.get_posts()
             if not success:
                 continue
-            for post in postsData["posts"]:
+            for post in postsData.get("posts", []): # prevent KeyError
                 posts.append(post)
         def key(post):
             return post["published"]
