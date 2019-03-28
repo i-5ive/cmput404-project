@@ -290,7 +290,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     # get the latest posts from external servers
-    @action(methods=['get'], detail=False, url_path='external/feed')
+    @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
         posts = ServerUtil.get_external_posts_aggregate()
         return Response({"posts":posts})

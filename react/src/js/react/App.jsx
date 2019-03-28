@@ -35,6 +35,7 @@ export default class App extends React.Component {
                         <Route path="/profile/:id" component={ProfileView} />
                         <Route path="/post/:id" component={PostView} />
                         <Route path="/discover" component={DiscoverView} />
+                        <Route path="/travel" component={DiscoverView} />
                         <Route exact path="/" component={HomeView} />
                         <Route path="*" component={PageNotFound} />
                     </Switch>
