@@ -70,7 +70,12 @@ class Post extends Reflux.Component {
         posts.forEach((post, index) => {
             const { contentType, content } = post;
             if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
-                const name = `data:${contentType},${content}`;
+                // some servers store their image data with the proper contentType,
+                // so to integrate this we need to be able to detect and place it when necessary
+                let name = `data:${contentType},${content}`;
+                if (content.startsWith("data")) {
+                    name = content;
+                }
                 contentList.push(<br key={`break-${index}`} />);
                 contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
             } else if (contentType === "text/markdown") {
@@ -191,6 +196,9 @@ class Post extends Reflux.Component {
         if (this.props.images) {
             posts = posts.concat(this.props.images);
         }
+        if (post) console.log(post);
+        if (post && post.author) console.log(post.author);
+        if (post && post.author && post.author.url) console.log(post.author.url);
         return (
             <Thumbnail>
                 {

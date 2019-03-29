@@ -28,7 +28,7 @@ def create_comment(request, pk=None):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data
-        print(data)
+        console.log(data)
         comment = data.get('comment', None)
         author = comment.get('author', None)
         author_id = author['id'].rstrip('/').split('/')[-1]
@@ -110,9 +110,15 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "message": "You are not authorized to view this post.",
                 "query": "post"
             }, status=status.HTTP_403_FORBIDDEN)
-        posts = Posts.objects.filter(post_id=post.post_id)
-        serializer = PostsSerializer(posts, many=True, context={'request': request})
-        return Response(serializer.data)
+        #posts = Posts.objects.filter(post_id=post.post_id)
+        serializer = PostsSerializer(post, context={'request': request})
+        return Response({
+            "query": "posts",
+            "count": 1,
+            "size": 1,
+            "posts": [serializer.data],
+            
+        })
 
     def update(self, request, pk):
         try:
