@@ -20,3 +20,12 @@ def get_friends(authorUrl):
 def get_friends_from_pk(pk):
     pk = str(pk)
     return get_friends(get_author_url(pk))
+
+def are_friends(authorUrlA, authorUrlB):
+    f = Follow.objects.filter(follower=authorUrlA, followed=authorUrlB)
+    if len(f) < 1:
+        return False
+    f = Follow.objects.filter(follower=authorUrlB, followed=authorUrlA)
+    if len(f) < 1:
+        return False
+    return True, f

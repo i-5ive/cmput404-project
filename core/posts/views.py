@@ -3,12 +3,13 @@ import logging
 from django.core.paginator import Paginator
 # Create your views here.
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from core.authors.models import Follow
 from core.authors.util import get_author_id, get_author_url
+from core.authors.friends_util import are_friends, get_friends
 from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.create_posts_view import handle_posts
 from core.posts.models import Posts, Comments
@@ -96,6 +97,8 @@ class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostsSerializer
 
     def retrieve(self, request, pk):
+        if ServerUtil.is_server(request.user):
+            return Response("As a foreign node, you must use the POST endpoint to fetch posts from this server.", status=403)
         try:
             post = Posts.objects.get(pk=pk)
         except:
@@ -117,7 +120,6 @@ class PostsViewSet(viewsets.ModelViewSet):
             "count": 1,
             "size": 1,
             "posts": [serializer.data],
-            
         })
 
     def update(self, request, pk):
@@ -166,6 +168,98 @@ class PostsViewSet(viewsets.ModelViewSet):
         if len(pages_to_return) > 0:
             add_page_details_to_response(request, data, page, queryPage)
         return Response(data, status=200)
+
+    # For FOAF, test you can actually hand out a post
+    def post(self, request, pk):
+        user = request.user
+        data = request.data
+
+        if not user.is_authenticated or not ServerUtil.is_server(user):
+            return Response("You must be authenticated as a foreign node to access this endpoint.", status=401)
+
+        query = request.data.get("query", False)
+        if not query and not query == "getPost":
+            return Response("This endpoint only accepts the 'getPost' query type.", status=400)
+
+        if not data.get("postid", "") == pk or not data.get("url", "").endswith(pk):
+            return Response("You must ensure that the post IDs and urls match.", status=400)
+
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "getPost"
+            }, status=404)
+
+        visibility = post.visibility
+        requestingAuthorUrl = data.get("author", {}).get("url", None)
+        if not requestingAuthorUrl:
+            return Response("You must specify the URL of the author who is requesting the post.", status=400)
+        postAuthorUrl = get_author_url(str(post.author.pk))
+
+        sUtil = ServerUtil(authorUrl=requestingAuthorUrl)
+        if not sUtil.is_valid():
+            return Response("Could not find a foreign node matching the reqesting author's url.", status=400)
+
+        # TODO block pictures or posts based on content type
+        if not sUtil.should_share_posts():
+            return Response("This node is currently not sharing posts with the requesting foreign node.", status=400)
+
+        if visibility == "PUBLIC":
+            serializer = PostsSerializer(post)
+            return Response({
+                "query": "posts",
+                "count": 1,
+                "size": 1,
+                "posts": [serializer.data]
+            })
+        
+        # If they are direct friends they can still see a FOAF post
+        if visibility == "FRIENDS" or visibility == "FOAF":
+            local, remote_follow = are_friends(postAuthorUrl, requestingAuthorUrl)
+            success, remote = sUtil.check_direct_friendship(requestingAuthorUrl, postAuthorUrl)
+
+            if not success:
+                return Response("Failed to communicate with external server to check friendship.", status=500)
+            if not remote:
+                remote_follow.delete()
+            elif local: # remote = true, local = true, can respond with post
+                return Response({
+                    "query": "posts",
+                    "count": 1,
+                    "size": 1,
+                    "posts": [serializer.data]
+                })
+
+        # If we reach here, we know that they are not direct friends
+        # We need to find all the friends of the post writer
+        # and then ask the remote server if any of those friends are friends with the requesting author
+        if visibility == "FOAF":
+            postAuthorFriends = get_friends(postAuthorUrl)
+            success, foafs = sUtil.check_at_least_one_friend(requestingAuthorUrl, postAuthorFriends)
+
+            if not success:
+                return Response("Failed to communicate with external server to check foaf-ship.", status=500)
+
+            if foafs:
+                return Response({
+                    "query": "posts",
+                    "count": 1,
+                    "size": 1,
+                    "posts": [serializer.data]
+                })
+
+        if visibility == "PRIVATE":
+            print("UGHHH")
+
+        return Response({
+            "query": "posts",
+            "count": 0,
+            "size": 1,
+            "posts": []
+        })
 
     @action(detail=True)
     def comments(self, request, pk):

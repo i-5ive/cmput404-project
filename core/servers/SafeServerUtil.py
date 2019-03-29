@@ -93,6 +93,14 @@ class ServerUtil:
         self.__throw_if_server_is_bad_or_unchecked()
         return self.__server.fetch_posts
 
+    def should_share_posts(self):
+        self.__throw_if_server_is_bad_or_unchecked()
+        return self.__server.share_posts
+        
+    def should_share_pictures(self):
+        self.__throw_if_server_is_bad_or_unchecked()
+        return self.__server.share_pictures
+
     def get_posts(self):
         self.__throw_if_server_is_bad_or_unchecked()
         try:
@@ -125,6 +133,34 @@ class ServerUtil:
         except Exception as e:
             print("Failed sending friendship", e)
             return False
+
+    # Success, friendship status
+    def check_direct_friendship(self, remote_author, local_author):
+        self.__throw_if_server_is_bad_or_unchecked()
+        return self.check_at_least_one_friend(remote_author, [local_author])
+
+    # Success, friendship status
+    def check_at_least_one_friend(self, remote_author, authorUrls):
+        self.__throw_if_server_is_bad_or_unchecked()
+        try:
+            url = self.get_base_url() + "/author/" + remote_author.split("author/")[1] + "/friends"
+            auth = self.get_server_auth()
+            print("Checking friend status of: "+ url)
+            data = {
+                "query":"friends",
+                "author": remote_author,
+                "authors": authorUrls
+            }
+            resp = requests.post(url, data=json.dumps(data), auth=auth)
+            resp = resp.json()
+            print("friendship response:", resp)
+            # TODO: It would be cool to clean up our local friends based on this...
+            return True, len(resp["authors"]) >= 1
+        except Exception as e:
+            print("Failed to check friendship", e)
+            return False, False
+
+
 
     # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod
