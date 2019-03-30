@@ -31,7 +31,6 @@ def create_comment(request, pk=None):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data
-        console.log(data)
         comment = data.get('comment', None)
         author = comment.get('author', None)
         author_id = author['id'].rstrip('/').split('/')[-1]
