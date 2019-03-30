@@ -52,7 +52,7 @@ export default class ProfileStore extends Reflux.Store {
         const external = isExternalAuthor(id),
             path = external ? `author/external/?authorUrl=${encodeURI(id)}` : `author/${getAuthorId(id)}/`;
         RestUtil.sendGET(path, {}).then((res) => {
-            console.log(res)
+            console.log(res);
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,
