@@ -18,7 +18,12 @@ export default class Header extends React.Component {
                 </Navbar.Header>
                 <Nav>
                     <NavItem componentClass={Link} href="/discover" to="/discover">
-						Discover
+						Discover Local
+                    </NavItem>
+                </Nav>
+                <Nav>
+                    <NavItem componentClass={Link} href="/travel" to="/travel">
+						Remote Travel
                     </NavItem>
                 </Nav>
                 <HeaderProfileDetails />

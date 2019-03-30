@@ -10,6 +10,7 @@ export const PostsActions = Reflux.createActions([
     "getPosts",
     "deletePost",
     "getPost",
+    "getExternalPosts",
     "clearModalMessage"
 ]);
 
@@ -94,6 +95,37 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
+    onGetExternalPosts(page = 0) {
+        const state = {
+            fetchingPosts: true,
+            failedToFetchPosts: false
+        };
+        if (page === 0) {
+            state.posts = [];
+        }
+        this.setState(state);
+        RestUtil.sendGET("posts/external/", {
+            page: page,
+            size: POSTS_PAGE_SIZE
+        }).then((response) => {
+            const posts = update(this.state.posts, {
+                $push: response.data.posts
+            });
+            this.setState({
+                fetchingPosts: false,
+                posts: posts,
+                nextPage: response.data.next ? page + 1 : null
+            });
+        }).catch((err) => {
+            this.setState({
+                fetchingPosts: false,
+                failedToFetchPosts: true,
+                nextPage: null
+            });
+            console.error(err);
+        });
+    }
+
     onDeletePost(id, postId) {
         this.setState({
             deletingPost: id,
@@ -118,20 +150,22 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    onGetPost(postId) {
+    onGetPost(postId, isExternal) {
+        console.log(postId);
         this.setState({
             fetchingPost: true,
             failedToFetchPost: false,
             currentPost: null,
             currentPostImages: []
         });
-        RestUtil.sendGET(`posts/${postId}/`).then((response) => {
-            const post = response.data.find((post) => post.contentType.includes("text")),
-			 images = response.data.filter((post) => post.contentType.includes("image"));
+        // Depending on if the post is external or internal, do a different fetch
+        const promise = isExternal ? RestUtil.sendGET(`posts/external/?postUrl=${postId}`)
+            : RestUtil.sendGET(`posts/${postId}/`);
+        promise.then((response) => {
+            const post = (response.data && response.data.post) || (response.data && response.data.posts[0]) || response.data;
             this.setState({
                 fetchingPost: false,
-                currentPost: post,
-                currentPostImages: images
+                currentPost: post
             });
         }).catch((err) => {
             this.setState({

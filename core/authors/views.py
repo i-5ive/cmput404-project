@@ -21,6 +21,8 @@ from core.posts.util import add_page_details_to_response, merge_posts_with_githu
 
 from core.github_util import get_github_activity
 
+from core.servers.SafeServerUtil import ServerUtil
+
 def validate_friend_request_response(body, pk):
     success = True
     message = "Your response has been recorded"
@@ -47,6 +49,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
         except:
+            print("DID WE GET HERE?", pk)
             return Response("Invalid author ID specified", status=404)
 
         url = get_author_url(pk)
@@ -69,6 +72,26 @@ class AuthorViewSet(viewsets.ModelViewSet):
             data["bio"] = author.bio
         return Response(data)
 
+    # author/external?authorUrl={value}
+    # attempts to get an external author's profile
+    @action(methods=['get'], detail=False, url_path="external")
+    def get_external_profile(self, request):
+        authorUrl = request.query_params.get("authorUrl", None)
+        if not request.user.is_authenticated:
+            return Response("You must be authenticated to use this endpoint.", status=403)
+        if not authorUrl:
+            return Response("You must specify an authorUrl query to use this endpoint", status=400)
+        
+        server = ServerUtil(authorUrl=authorUrl)
+        if not server.is_valid():
+            return Response("Could not find an external server in our database for the author url: "+authorUrl, status=404)
+        success, profile = server.get_author_info(authorUrl.split("author/")[1])
+        if not success:
+            return Response("Failed to connect with external server: "+server.get_base_url(), status=500)
+        # for some reason we throw friends in here
+        profile["friends"] = []
+        return Response(profile)
+
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
     def get_friend_requests(self, request, pk):
         try:
@@ -77,12 +100,17 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("Invalid author ID specified", status=404)
         
         requests = FriendRequest.objects.filter(friend=get_author_url(pk))
+        print("requests found", len(requests))
         urls = []
         for pending_request in requests:
             urls.append(pending_request.requester)
         formatted_requests = get_author_summaries(urls)
         return Response(formatted_requests, status=200)
 
+    # For inexplicable reasons, we have another endpoint for doing what serv/friendrequests
+    # already does :) and we have to do extra work to get the data serv/friendrequests would
+    # already have as well
+    # A external server will never call this so we don't have to worry
     @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')
     def handle_friend_request_response(self, request, pk):
         try:
@@ -124,9 +152,32 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "Could not find a friend request from the specified author"
             }, status=404)
 
+        # check if this is an external friendship
+        localAuthorUrl = get_author_url(pk)
+        if localAuthorUrl.split("/author/")[0] != friend_data["url"].split("/author/")[0]:
+            xServerAuthorUrl = friend_data["url"] 
+            xServerBody = {
+                "query": "friendrequest",
+                "friend": friend_data,
+                "author": {
+                    "displayName": author.displayName,
+                    "host": localAuthorUrl.split("/author/")[0],
+                    "id": localAuthorUrl,
+                    "url": localAuthorUrl
+                }
+            }
+            print(xServerBody)
+            server = ServerUtil(authorUrl=xServerAuthorUrl)
+            # if we fail to notify the external server we can't proceed with the friendship
+            if not server.is_valid() or not server.notify_server_of_friendship(xServerBody):
+                return Response({
+                    "query": "friendrequest",
+                    "success": False,
+                    "message": "Failed to notify external server."
+                }, status=500)
+
         if (body["approve"]):
             Follow.objects.create(follower=get_author_url(pk), followed=friend_data["url"])
-
         friend_request.delete()
         response = {
             "message": "Your response has been recorded",
@@ -193,6 +244,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         author = get_object_or_404(Author, pk=pk)
         author_url = author.get_url()
         follows = Follow.objects.filter(followed=author_url)
+        print("follows", len(follows))
         followed_urls = []
         for follow in follows:
             followed_urls.append(follow.follower)
@@ -366,8 +418,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
             posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
-        # else if is other_server:
-        #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
+        elif ServerUtil.is_server(request.user):
+            posts = Posts.objects.all().filter(visibility__in=["PUBLIC"])
+            # do extra based on header?
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because not anon
             # Get direct friends and FOAFs into a dictionary

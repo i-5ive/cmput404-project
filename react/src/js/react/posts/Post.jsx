@@ -1,7 +1,7 @@
 import React from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
-
+import { SERVER_URL } from "../constants/ServerConstants";
 import ReactMarkdown from "react-markdown";
 import { withRouter, Link } from "react-router-dom";
 import { Thumbnail, Button, Badge, Alert } from "react-bootstrap";
@@ -73,7 +73,12 @@ class Post extends Reflux.Component {
         posts.forEach((post, index) => {
             const { contentType, content } = post;
             if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
-                const name = `data:${contentType},${content}`;
+                // some servers store their image data with the proper contentType,
+                // so to integrate this we need to be able to detect and place it when necessary
+                let name = `data:${contentType},${content}`;
+                if (content.startsWith("data")) {
+                    name = content;
+                }
                 contentList.push(<br key={`break-${index}`} />);
                 contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
             } else if (contentType === "text/markdown") {
@@ -117,20 +122,24 @@ class Post extends Reflux.Component {
     }
 
     renderFooter() {
-        const commentsLength = this.props.post.comments.length;
+        // Prevent errors from unsafely using properties of objects
+        const commentsLength = this.props.post.comments.length,
+            hasCategories = this.props.post.categories && this.props.post.categories.length !== 0,
+            categories = (hasCategories && this.props.post.categories) || [];
+
         return (
             <div>
                 <div className="categories-wrapper">
                     <span className="fas fa-tags tag-icon" />
                     {
-                        this.props.post.categories.length === 0 && (
+                        hasCategories && (
                             <span>
 								No categories
                             </span>
                         )
                     }
                     {
-                        this.props.post.categories.map(this.renderCategory)
+                        categories.map(this.renderCategory)
                     }
                 </div>
                 <div className="bottom-row">
@@ -149,7 +158,11 @@ class Post extends Reflux.Component {
     }
 
 	handlePermalink = () => {
-	    this.props.history.push(`/post/${this.props.post.id}/`);
+	    const origin = this.props.post.origin,
+	        localPost = origin.split("/posts/") === SERVER_URL,
+	        url = `/post/${localPost ? this.props.post.id : encodeURI(origin)}`;
+
+	    this.props.history.push(url);
 	};
 
     handleDeletePost = () => {
@@ -193,6 +206,9 @@ class Post extends Reflux.Component {
         if (this.props.images) {
             posts = posts.concat(this.props.images);
         }
+        if (post) console.log(post);
+        if (post && post.author) console.log(post.author);
+        if (post && post.author && post.author.url) console.log(post.author.url);
         return (
             <Thumbnail>
                 {
