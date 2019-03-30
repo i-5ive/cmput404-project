@@ -7,6 +7,8 @@ from core.servers.SafeServerUtil import ServerUtil
 
 from posixpath import join as urljoin
 
+from posixpath import join as urljoin
+
 ## Gets the unique ID of a local or external author. If external, returns the URL. If local, returns just the uuid
 ## @param {String} url - the unique URL of the author
 ## @return {String} - the unique ID used to refer to the author
