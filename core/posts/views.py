@@ -114,13 +114,15 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "message": "You are not authorized to view this post.",
                 "query": "post"
             }, status=status.HTTP_403_FORBIDDEN)
-        #posts = Posts.objects.filter(post_id=post.post_id)
+        images = Posts.objects.filter(post_id=post.post_id).exclude(contentType__contains="text")
         serializer = PostsSerializer(post, context={'request': request})
+        img_serializer = PostsSerializer(images, many=True, context={'request': request})
         return Response({
             "query": "posts",
             "count": 1,
             "size": 1,
             "posts": [serializer.data],
+            "images": img_serializer.data
         })
 
     def update(self, request, pk):

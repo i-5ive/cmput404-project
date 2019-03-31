@@ -33,7 +33,7 @@ class Post extends Reflux.Component {
     }
 
     renderHeaderButtons = () => {
-        if (this.props.post.categories.includes("github")) {
+        if (this.props.post.categories && this.props.post.categories.includes("github")) {
             return null;
         }
         // TODO Add edit button
@@ -132,7 +132,7 @@ class Post extends Reflux.Component {
                 <div className="categories-wrapper">
                     <span className="fas fa-tags tag-icon" />
                     {
-                        hasCategories && (
+                        !hasCategories && (
                             <span>
 								No categories
                             </span>
@@ -170,7 +170,7 @@ class Post extends Reflux.Component {
     }
 
     renderTitle() {
-        if (this.props.post.categories.includes("github")) {
+        if (this.props.post.categories && this.props.post.categories.includes("github")) {
             return (
                 <span className="github-title">
                     <i className="fab fa-github-square" />
