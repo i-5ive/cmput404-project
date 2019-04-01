@@ -78,9 +78,9 @@ export default class ProfileStore extends Reflux.Store {
                 isLoadingStream: true,
                 errorLoadingStream: false
             },
-            // TODO: should external authors be loaded client side or server side?
             external = isExternalAuthor(id),
-            path = external ? `${id}/posts/` : `author/${getAuthorId(id)}/posts/`;
+            path = external ? `author/${encodeURIComponent(id)}/posts/` : `author/${getAuthorId(id)}/posts/`;
+		// TODO: WHY DO EXTERNAL AUTHORS HIT OUR /POSTS/ ENDPOINT????
         if (page === 0) {
             state.posts = [];
         }
@@ -89,7 +89,7 @@ export default class ProfileStore extends Reflux.Store {
         RestUtil.sendGET(path, {
             page: page,
             size: POSTS_PAGE_SIZE
-        }, external).then((res) => {
+        }).then((res) => {
             const posts = update(this.state.posts, {
                 $push: res.data.posts
             });

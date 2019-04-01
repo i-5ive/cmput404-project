@@ -123,7 +123,7 @@ class Post extends Reflux.Component {
 
     renderFooter() {
         // Prevent errors from unsafely using properties of objects
-        const commentsLength = this.props.post.comments.length,
+        const commentsLength = (this.props.post.comments || []).length,
             hasCategories = this.props.post.categories && this.props.post.categories.length !== 0,
             categories = (hasCategories && this.props.post.categories) || [];
 

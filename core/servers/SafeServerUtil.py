@@ -118,6 +118,27 @@ class ServerUtil:
             print("Failed fetching posts, error:", e)
             return False, {}
     
+    def get_posts_by_author(self, authorId, requesterUrl):
+        self.__throw_if_server_is_bad_or_unchecked()
+        try:
+            # Print debugging logs first
+            url = self.get_base_url() + "/author/" + authorId + "/posts" # we don't store ending slash, attach it
+            print("Fetching posts by author from:", url)
+            if not self.should_fetch_posts():
+                 # return nothing, as we shouldn't be fetching from this server
+                raise ValueError("The admin has disabled fetching posts from this server.")
+            
+            headers = {
+                "X-Request-User-ID": requesterUrl
+            }
+            response = requests.get(url, auth=self.get_server_auth(), headers=headers)
+            postsData = response.json()
+            print("Fetched posts!")
+            return True, postsData
+        except Exception as e:
+            print("Failed fetching posts, error:", e)
+            return False, {}
+    
     # Only necessary if a local user is friending an external one
     # body is the same body given to us by the post method
     def notify_server_of_friendship(self, body):
@@ -213,6 +234,6 @@ class ServerUtil:
                 posts.append(post)
         def key(post):
             return post["published"]
-        posts.sort(key=key)
+        posts.sort(key=key, reverse=True)
         return posts
             

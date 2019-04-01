@@ -13,6 +13,7 @@ from core.authors.util import get_author_url, get_author_summaries, get_author_i
 from core.authors.friends_view import handle_friends_get, handle_friends_post
 from core.hostUtil import get_host_url
 from core.authors.friends_util import get_friends, get_friends_from_pk
+from core.authors.external_author_posts_view import get_external_author_posts
 
 from core.posts.models import Posts
 from core.posts.serializers import PostsSerializer
@@ -117,13 +118,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
             author = Author.objects.get(pk=pk)
             if ((not request.user.is_authenticated) or request.user.author != author):
                 return Response({
-                    "query": "friendResponse",
+                    "query": "friendrequest",
                     "success": False,
                     "message": "You must be authenticated as the requested user to perform this action."
                 }, status=status.HTTP_403_FORBIDDEN)
         except:
             return Response({
-                "query": "friendResponse",
+                "query": "friendrequest",
                 "success": False,
                 "message": "Invalid author ID specified"
             }, status=404)
@@ -134,20 +135,20 @@ class AuthorViewSet(viewsets.ModelViewSet):
             success, message, friend_request, friend_data = validate_friend_request_response(body, pk)
         except:
             return Response({
-                "query": "friendResponse",
+                "query": "friendrequest",
                 "success": False,
                 "message": message
             }, status=400)
         
         if not success:
             return Response({
-                "query": "friendResponse",
+                "query": "friendrequest",
                 "success": False,
                 "message": message
             }, status=400)
         if not friend_request:
             return Response({
-                "query": "friendResponse",
+                "query": "friendrequest",
                 "success": False,
                 "message": "Could not find a friend request from the specified author"
             }, status=404)
@@ -180,9 +181,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
             Follow.objects.create(follower=get_author_url(pk), followed=friend_data["url"])
         friend_request.delete()
         response = {
-            "message": "Your response has been recorded",
+            "message": message,
             "success": success,
-            "query": message
+            "query": "friendrequest"
         }
         return Response(response, status=200)
 
@@ -337,6 +338,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
             }, status=400)
 
         try:
+            if ("http" in pk):
+                return get_external_author_posts(request, pk)
             author = Author.objects.get(pk=pk)
         except:
             return Response({
