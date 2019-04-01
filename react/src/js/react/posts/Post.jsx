@@ -90,11 +90,6 @@ class Post extends Reflux.Component {
         return contentList;
     }
 
-    // TODO
-    renderComments() {
-        return null;
-    }
-
     renderCategory(category) {
         return (
             <Badge key={category} className="category-badge">
@@ -235,9 +230,6 @@ class Post extends Reflux.Component {
                 </div>
                 <hr />
                 {this.renderFooter()}
-                {
-                    this.renderComments()
-                }
             </Thumbnail>
         );
     }
