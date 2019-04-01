@@ -5,7 +5,7 @@ import update from "immutability-helper";
 import Actions from "./ProfileActions";
 import RestUtil from "../util/RestUtil";
 import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
-import { isExternalAuthor, getAuthorId } from "../util/AuthorUtil";
+import { isExternalAuthor, getAuthorId, escapeUrl } from "../util/AuthorUtil";
 import FriendsActions from "../friends/FriendsActions";
 
 /**
@@ -79,8 +79,7 @@ export default class ProfileStore extends Reflux.Store {
                 errorLoadingStream: false
             },
             external = isExternalAuthor(id),
-            path = external ? `author/${encodeURIComponent(id)}/posts/` : `author/${getAuthorId(id)}/posts/`;
-        // TODO: WHY DO EXTERNAL AUTHORS HIT OUR /POSTS/ ENDPOINT????
+            path = external ? `author/${escapeUrl(id)}/posts/` : `author/${getAuthorId(id)}/posts/`;
         if (page === 0) {
             state.posts = [];
         }

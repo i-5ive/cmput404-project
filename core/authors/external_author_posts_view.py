@@ -1,15 +1,21 @@
+import base64
+
+from django.core.paginator import Paginator
 from rest_framework.response import Response
 
 from core.authors.models import Author
 
+from core.posts.constants import DEFAULT_POST_PAGE_SIZE
+
 from core.posts.util import add_page_details_to_response
 from core.servers.SafeServerUtil import ServerUtil
 
-# TODO: test this entire thing because django is trash
-def get_external_author_posts(request, author_url):
+def get_external_author_posts(request, encoded_url):
+    author_url = base64.urlsafe_b64decode(encoded_url).decode("utf8")
+    
     size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
-    queryPage = int(request.query_params.get('page', 0))
-    if size < 1 or queryPage < 0 or size > 100:
+    page = int(request.query_params.get('page', 0)) + 1
+    if size < 1 or page < 0 or size > 100:
         return Response({
             "success": False,
             "message": "The query parameters were invalid",

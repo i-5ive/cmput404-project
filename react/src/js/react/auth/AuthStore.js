@@ -5,7 +5,7 @@ import _ from "lodash";
 
 import Actions from "./AuthActions";
 import RestUtil from "../util/RestUtil";
-import { FRIENDS_URL } from "../constants/ServerConstants";
+import { HOST_URL } from "../constants/ServerConstants";
 import CookieUtil from "../util/CookieUtil";
 
 import HomeActions from "../home/HomeActions";
@@ -15,7 +15,7 @@ const getLoginStateFromCookies = () => {
         username = cookies["core-username"],
         id = cookies["core-userid"],
         password = cookies["core-password"],
-        url = `${FRIENDS_URL}/author/${id}`;
+        url = `${HOST_URL}/author/${id}`;
     if (!username || !id || !password) {
         return null;
     }
@@ -23,7 +23,7 @@ const getLoginStateFromCookies = () => {
         username: username,
         userInfo: {
             id: url,
-            host: FRIENDS_URL,
+            host: HOST_URL,
             displayName: username,
             url: url
         },
