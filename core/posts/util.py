@@ -33,16 +33,21 @@ def add_page_details_to_response(request, response_data, page, queryPage):
     
     if (page.has_next()):
         response_data["next"] = request.build_absolute_uri(request.path) + "?page={0}".format(queryPage + 1)
-        
-def merge_posts_with_github_activity(posts_qs, github_activity):
-    if (len(github_activity) == 0):
-        return posts_qs
 
+def merge_posts(posts_qs, posts_to_add, sort=False):
+    if (len(posts_to_add) == 0):
+        return posts_qs
+        
     results = []
     for post in posts_qs:
         results.append(post)
-    for post in github_activity:
+    for post in posts_to_add:
         results.append(post)
 
-    results.sort(key=lambda x : str(x.published), reverse=True)
+    if sort:
+        results.sort(key=lambda x : x["published"] if isinstance(x, dict) else str(x.published), reverse=True)
+        
     return results
+
+def merge_posts_with_github_activity(posts_qs, github_activity):
+    return merge_posts(posts_qs, github_activity, sort=True)

@@ -14,11 +14,12 @@ from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.create_posts_view import handle_posts
 from core.posts.models import Posts, Comments
 from core.posts.serializers import PostsSerializer, CommentsSerializer
-from core.posts.util import can_user_view, add_page_details_to_response, merge_posts_with_github_activity
+from core.posts.util import can_user_view, add_page_details_to_response, merge_posts_with_github_activity, merge_posts
 
 from core.github_util import get_github_activity
 
 from core.servers.SafeServerUtil import ServerUtil
+from core.hostUtil import is_external_host
 
 logger = logging.getLogger(__name__)
 
@@ -358,29 +359,54 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "query": "homeFeed"
             }, 400)
 
-        posts = Posts.objects.filter()
         if request.user.is_authenticated:
             requester_url = request.user.author.get_url()
 
             posts = Posts.objects.filter(author=request.user.author, unlisted=False)
             followed = Follow.objects.filter(follower=requester_url)
-            followedIds = []
+            localFollowedIds = []
+            externalPosts = []
             for follow in followed:
-                followedIds.append(get_author_id(follow.followed))
-            posts |= Posts.objects.filter(author__id__in=followedIds, unlisted=False).exclude(visibility="PRIVATE")
-            posts |= Posts.objects.filter(author__id__in=followedIds, unlisted=False, visibility="PRIVATE",
+                if (is_external_host(follow.followed)):
+                    external_host_url = follow.followed.split("/author/")[0]
+                    sUtil = ServerUtil(authorUrl=external_host_url)
+                    if not sUtil.valid_server():
+                        print("authorUrl found, but not in DB", external_host_url)
+                        continue # We couldn't find a server that matches the friend URL base
+                    # split the id from the URL and ask the external server about them
+                    success, fetched_posts = sUtil.get_posts_by_author(follow.followed.split("/author/")[1], requester_url)
+                    if not success:
+                        continue # We couldn't successfully fetch from an external server
+
+                    externalPosts += fetched_posts["posts"]
+                else:
+                    localFollowedIds.append(get_author_id(follow.followed))
+            posts |= Posts.objects.filter(author__id__in=localFollowedIds, unlisted=False).exclude(visibility="PRIVATE")
+            posts |= Posts.objects.filter(author__id__in=localFollowedIds, unlisted=False, visibility="PRIVATE",
                                           visibleTo__contains=[requester_url])
 
             github_stream = get_github_activity(request.user.author)
             posts = merge_posts_with_github_activity(posts, github_stream)
         else:
             posts = Posts.objects.filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            externalPosts = []
         
-        paginator = Paginator(posts, size)
         try:
-            page = paginator.page(queryPage + 1)
-            serializer = PostsSerializer(page, many=True, context={'request': request})
-            posts_to_return = serializer.data
+            # don't look at this
+            if (len(externalPosts) > 0):
+                serializer = PostsSerializer(posts, many=True, context={'request': request})
+                posts_to_return = serializer.data
+                
+                sorted_posts = sorted(externalPosts + posts_to_return, key=lambda x : x["published"], reverse=True)
+                paginator = Paginator(sorted_posts, size)
+                page = paginator.page(queryPage + 1)
+                posts_to_return = page.object_list
+            else:
+                paginator = Paginator(posts, size)
+                page = paginator.page(queryPage + 1)
+                serializer = PostsSerializer(page, many=True, context={'request': request})
+                posts_to_return = serializer.data
+                
         except:
             posts_to_return = []
 
