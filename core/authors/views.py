@@ -406,6 +406,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
     # /author/posts
     @action(detail=False, url_path="posts")
     def visible_posts(self, request):
+        print("visible_posts endpoint hit")
+        xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
             return Response({
@@ -426,8 +428,41 @@ class AuthorViewSet(viewsets.ModelViewSet):
         if request.user.is_anonymous:
             posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
         elif ServerUtil.is_server(request.user):
-            posts = Posts.objects.all().filter(visibility__in=["PUBLIC"])
-            # do extra based on header?
+            sUtil = ServerUtil(user=request.user)
+            if not sUtil.is_valid():
+                return Response("This shouldn't happen, server=server!", status=500)
+            elif not xUser:
+                print("No xUser specified, sending all public posts")
+                posts = Posts.objects.all().filter(visibility__in=["PUBLIC"])
+            elif not sUtil.author_from_this_server(xUser):
+                return Response("You're trying to access posts for a user that doesn't belong to you. user: " + xUser + " server: " + sUtil.get_base_url(), status=400)
+            else:
+                followedByXUser = Follow.objects.values_list("followed", flat=True).filter(follower=xUser)
+                friendsOfXUser = Follow.objects.values_list("follower", flat=True).filter(followed=xUser, follower__in=followedByXUser)
+                friends = []
+                friends += sUtil.get_friends_of(xUser.split("/author/")[1])
+                friends += friendsOfXUser
+                friends = list(set(friends))
+                foafs = []
+                foafs += friends
+                for friend in friends:
+                    print("friend of", xUser, ":", friend)
+                    # First check if it's an external user
+                    sUtil = ServerUtil(authorUrl=friend)
+                    if sUtil.is_valid():
+                        foafs += sUtil.get_friends_of(friend.split("/author/")[1])
+                    else: # it's not external (local), or we don't have that node anymore
+                        peopleFollowedByFriend = Follow.objects.values_list("followed", flat=True).filter(follower=friend)
+                        friendFriends = Follow.objects.values_list("follower", flat=True).filter(followed=friend, follower__in=peopleFollowedByFriend)
+                        foafs += friendFriends
+                baseUrl = get_host_url()
+                foafs = list(set(foafs))
+                friends = [get_author_id(x) for x in friends if x.startswith(baseUrl)]
+                foafs = [get_author_id(x) for x in foafs if x.startswith(baseUrl)]
+                posts = Posts.objects.all().filter(visibility="PUBLIC", unlisted=False)
+                posts |= Posts.objects.all().filter(visibility="FRIENDS", author_id__in=friends, unlisted=False)
+                posts |= Posts.objects.all().filter(visibility="FOAF", author_id__in=foafs, unlisted=False)
+                posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=xUser, unlisted=False)
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because not anon
             # Get direct friends and FOAFs into a dictionary

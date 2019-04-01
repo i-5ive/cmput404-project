@@ -148,8 +148,6 @@ export default class CreatePost extends Reflux.Component {
             return "The username can not be blank.";
         } else if (this.state.visibleTo.indexOf(username) > -1) {
             return "This user is already included.";
-        } else if (username.length > 80) {
-            return "The maximum length of a username is 80 characters.";
         }
         return null;
     };

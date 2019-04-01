@@ -11,7 +11,7 @@ class ServerUtil:
         self.__checked_validity = False
         if user and ServerUtil.is_server(user):
             self.__server = user.server
-        if server and ServerUtil.is_server(server.user):
+        elif server and ServerUtil.is_server(server.user):
             self.__server = server
         elif url:
             server = Server.objects.filter(base_url__contains=url)
@@ -183,7 +183,21 @@ class ServerUtil:
             print("Failed to check friendship", e)
             return False, False
 
+    def author_from_this_server(self, authorUrl):
+        sUtil = ServerUtil(authorUrl=authorUrl)
+        return sUtil.is_valid() and sUtil.get_base_url() == self.get_base_url()
 
+    def get_friends_of(self, authorId):
+        url = self.get_base_url() + "/author/" + authorId + "/friends"
+        try:
+            print("Fetching friends from:", url)
+            resp = requests.get(url, auth=self.get_server_auth())
+            print("Fetched friends:", resp.content)
+            print("Fetched friends:", resp.json())
+            return resp.json()["authors"]
+        except Exception as e:
+            print("Failed to fetch friends for:", url, "error:", e)
+            return []
 
     # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod
