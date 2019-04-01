@@ -73,15 +73,8 @@ def handle_follow_request(request):
     # wrangle those errors and deny the request in that case
     try:
         author, friend, authorId, friendId, externalAuthor, externalFriend = validate_request_body(request)
-        if ((not request.user.is_authenticated) or get_author_url(str(request.user.author.pk)) != author["url"]):
-            return Response({
-                "query": "friendrequest",
-                "success": False,
-                "message": "You must be authenticated as the requester to perform this action."
-            }, status=status.HTTP_403_FORBIDDEN)
-        authorUrl = author["url"]
-        friendUrl = friend["url"]
-    except:
+    except Exception as e:
+        print(e)
         return Response({
             "query": "friendrequest",
             "success": False,
@@ -90,7 +83,7 @@ def handle_follow_request(request):
 
     # If it's an author making the request, ensure it's the correct user sending the request
     # In most cases this wouldn't happen, unless there's malformed data or hackerz editing the json
-    if ServerUtil.is_author(user) and get_author_url(str(request.user.author.pk)) != author["url"]:
+    if not ServerUtil.is_server(user) and get_author_url(str(request.user.author.pk)) != author["url"]:
         # TODO: remove the debug message later
         return Response({
             "query": "friendrequest",

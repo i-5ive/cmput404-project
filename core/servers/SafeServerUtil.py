@@ -9,6 +9,8 @@ class ServerUtil:
     def __init__(self, user=None, server=None, url=None, authorUrl=None, postUrl=None):
         self.__server = None
         self.__checked_validity = False
+        if user and ServerUtil.is_server(user):
+            self.__server = user.server
         if server and ServerUtil.is_server(server.user):
             self.__server = server
         elif url:
@@ -26,7 +28,7 @@ class ServerUtil:
             if (len(server) == 1):
                 self.__server = server[0]
         else:
-            raise ValueError("ServerUtil expects a valid server, authorUrl, or url variable to initialize.")
+            print("ServerUtil expects a valid server, authorUrl, or url, etc variable to initialize. (But couldn't find one)")
 
     def __throw_if_server_is_bad_or_unchecked(self):
         if not self.__checked_validity:
