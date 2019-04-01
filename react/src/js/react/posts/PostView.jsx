@@ -67,10 +67,10 @@ export default class PostView extends Reflux.Component {
 
     renderMakeComments() {
         return (
-            <Thumbnail>
+            <Thumbnail className="comment-thumbnail">
                 <Form onSubmit={this.handleCommentSubmit}>
                     <FormGroup controlId="comment">
-                        <FormControl name="comment" componentClass="textarea" rows="5" placeholder="Enter comment here..." />
+                        <FormControl name="comment" componentClass="textarea" rows="5" maxLength="130" placeholder="Enter comment here..." />
                     </FormGroup>
                     <FormGroup controlId="contentType">
                         <div className="comment-type-buttons-row">
