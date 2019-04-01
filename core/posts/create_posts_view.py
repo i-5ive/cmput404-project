@@ -62,9 +62,9 @@ def handle_visible_to(request, data):
     visible_to = request.data.get("visibleTo")
     if (visible_to):
         visible_to = json.loads(visible_to)
-        # TODO: external authors
+        externalUsers = [x for x in visible_to if x.startswith("https://")]
         users = User.objects.filter(username__in=visible_to)
-        if (len(users) == len(visible_to)):
+        if (len(users)+len(externalUsers) == len(visible_to)):
             data["visibleTo"] = []
             found_self = False
             for user in users:

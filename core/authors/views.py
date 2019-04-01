@@ -462,7 +462,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 posts = Posts.objects.all().filter(visibility="PUBLIC", unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="FRIENDS", author_id__in=friends, unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="FOAF", author_id__in=foafs, unlisted=False)
-                posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=xUser, unlisted=False)
+                posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[xUser], unlisted=False)
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because not anon
             # Get direct friends and FOAFs into a dictionary
