@@ -100,7 +100,15 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk):
         if ServerUtil.is_server(request.user):
-            return Response("As a foreign node, you must use the POST endpoint to fetch posts from this server.", status=403)
+            xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
+            if not xUser:
+                return Response("Foreign node failed to provide required X-Header.", status=400)
+            data = {
+                "author": {
+                    "url": xUser
+                }
+            }
+            return self.__do_a_get_post(request.user, data, pk)
         try:
             post = Posts.objects.get(pk=pk)
         except:
@@ -173,21 +181,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             add_page_details_to_response(request, data, page, queryPage)
         return Response(data, status=200)
 
-    # For FOAF, test you can actually hand out a post
-    def post(self, request, pk):
-        user = request.user
-        data = request.data
-
-        if not user.is_authenticated or not ServerUtil.is_server(user):
-            return Response("You must be authenticated as a foreign node to access this endpoint.", status=401)
-
-        query = request.data.get("query", False)
-        if not query and not query == "getPost":
-            return Response("This endpoint only accepts the 'getPost' query type.", status=400)
-
-        if not data.get("postid", "") == pk or not data.get("url", "").endswith(pk):
-            return Response("You must ensure that the post IDs and urls match.", status=400)
-
+    def __do_a_get_post(self, user, data, pk):
         try:
             post = Posts.objects.get(pk=pk)
         except:
@@ -264,6 +258,24 @@ class PostsViewSet(viewsets.ModelViewSet):
             "size": 1,
             "posts": []
         })
+
+
+    # For FOAF, test you can actually hand out a post
+    def post(self, request, pk):
+        user = request.user
+        data = request.data
+
+        if not user.is_authenticated or not ServerUtil.is_server(user):
+            return Response("You must be authenticated as a foreign node to access this endpoint.", status=401)
+
+        query = request.data.get("query", False)
+        if not query and not query == "getPost":
+            return Response("This endpoint only accepts the 'getPost' query type.", status=400)
+
+        if not data.get("postid", "") == pk or not data.get("url", "").endswith(pk):
+            return Response("You must ensure that the post IDs and urls match.", status=400)
+
+        return self.__do_a_get_post(user, data, pk)
 
     @action(detail=True)
     def comments(self, request, pk):
