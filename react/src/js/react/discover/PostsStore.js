@@ -165,7 +165,8 @@ export class PostsStore extends Reflux.Store {
             const post = (response.data && response.data.post) || (response.data && response.data.posts[0]) || response.data;
             this.setState({
                 fetchingPost: false,
-                currentPost: post
+                currentPost: post,
+                currentPostImages: response.data.images
             });
         }).catch((err) => {
             this.setState({
