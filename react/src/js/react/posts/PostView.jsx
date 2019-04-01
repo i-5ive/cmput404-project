@@ -31,6 +31,7 @@ export default class PostView extends Reflux.Component {
         if (e.currentTarget.elements.comment.value !== "") {
             // eslint-disable-next-line no-undef
             const formData = new FormData(),
+                id = this.state.currentPost.id,
                 form = e.currentTarget,
                 data = {
                     comment: form.elements.comment.value,
@@ -40,7 +41,7 @@ export default class PostView extends Reflux.Component {
                 };
             formData.append("commentData", JSON.stringify(data));
             formData.append("query", "addComment");
-            PostsActions.addComment(formData);
+            PostsActions.addComment(id, formData);
         }
     }
 
