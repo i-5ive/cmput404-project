@@ -26,6 +26,7 @@ def handle_unfollow_request(request):
         validate_request_body(request)
         authorUrl = request.data["author"]["url"]
         requesterUrl = request.data["requester"]["url"]
+        print("handle_unfollow_request:", authorUrl, requesterUrl)
         
         if ((not request.user.is_authenticated) or request.user.author.get_url() != requesterUrl):
             return Response({
