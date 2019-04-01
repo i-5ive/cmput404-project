@@ -159,7 +159,7 @@ class Post extends Reflux.Component {
 
 	handlePermalink = () => {
 	    const origin = this.props.post.origin,
-	        localPost = origin.split("/posts/") === SERVER_URL,
+	        localPost = origin.split("/posts/")[0] === SERVER_URL,
 	        url = `/post/${localPost ? this.props.post.id : encodeURI(origin)}`;
 
 	    this.props.history.push(url);

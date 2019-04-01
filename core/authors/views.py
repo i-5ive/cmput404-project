@@ -350,11 +350,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
             posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
         # else if is other_server:
         #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
+        elif (request.user.author == author):
+            posts = Posts.objects.all().filter(author=pk, unlisted=False)
         else:
             requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
 
             # post_types will track what level of posts a user can see
             post_types = ["PUBLIC", "SERVERONLY"]
+            
             # convert to dict for dat O(1)
             # Note: this is terrible, we should be using the database more directly
             requesterFriends = {}
