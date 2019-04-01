@@ -18,10 +18,6 @@
     margin-bottom: 1em
 }
 
-.comment-hr {
-    border-color: black;
-}
-
 .comment-type-buttons-row {
     display: flex;
 
@@ -33,4 +29,9 @@
 
 .comment-thumbnail {
     height: 13.5em;
+}
+
+.comments-wrapper {
+	overflow-y: auto;
+	height: 300px;
 }

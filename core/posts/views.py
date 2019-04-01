@@ -112,7 +112,6 @@ def list_comments(request, pk=None):
 
     return Response(data)
 
-
 class PostsViewSet(viewsets.ModelViewSet):
     queryset = Posts.objects.filter(visibility="PUBLIC").order_by('-published')
     serializer_class = PostsSerializer
@@ -342,6 +341,32 @@ class PostsViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @action(detail=False, url_path='createExternalComment', methods=["POST"])
+    def create_external_comment(self, request):
+        if (not request.user.is_authenticated):
+            return Response({
+                "query": "createExternalComment",
+                "message": "You must be authenticated",
+                "success": False
+            }, status=403)
+        try:
+            postUrl = request.data["postUrl"]
+            authorUrl = get_author_url(str(request.user.author.pk))
+            sUtil = ServerUtil(postUrl=postUrl)
+            if not sUtil.is_valid():
+                return Response("No foreign node with the base url: "+postUrl, status=404)
+            success, res = sUtil.create_comment(postUrl.split("/posts/")[1], authorUrl, request.data["comment"], postUrl)
+            if not success:
+                return Response("Failed to grab foreign post: "+postUrl, status=500)
+            return Response(res)
+        except Exception as e:
+            print(e)
+            return Response({
+                "query": "createExternalComment",
+                "message": e,
+                "success": False
+            }, status=400)
+    
     def create(self, request, **kwargs):
         return handle_posts(request)
 

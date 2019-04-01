@@ -4,6 +4,7 @@ import _ from "lodash";
 
 import RestUtil from "../util/RestUtil";
 import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
+import { HOST_URL } from "../constants/ServerConstants";
 
 export const PostsActions = Reflux.createActions([
     "createPost",
@@ -12,7 +13,8 @@ export const PostsActions = Reflux.createActions([
     "getPost",
     "addComment",
     "getExternalPosts",
-    "clearModalMessage"
+    "clearModalMessage",
+    "loadComments"
 ]);
 
 /**
@@ -37,7 +39,8 @@ export class PostsStore extends Reflux.Store {
             failedToDeletePost: false,
             fetchingPost: false,
             nextPage: null,
-            currentPostImages: []
+            currentPostImages: [],
+            comments: []
         };
         this.listenables = PostsActions;
 
@@ -181,18 +184,27 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    onAddComment(id, comment) {
+    onAddComment(id, comment, origin) {
         this.setState({
             creatingComment: true,
             successfullyCreatedComment: false,
             failedToCreateComment: false
         });
-        RestUtil.sendPOST(`posts/${id}/comments/`, comment).then(() => {
+        const promise = origin.split("/posts/")[0] !== HOST_URL ? (
+            RestUtil.sendPOST("posts/createExternalComment/", {
+                postUrl: origin,
+                comment: comment
+            })
+        ) : RestUtil.sendPOST(`posts/${id}/comments/`, comment);
+        promise.then(() => {
             this.setState({
                 creatingComment: false,
                 successfullyCreatedComment: true,
                 failedToCreateComment: false
             });
+            if (this.state.currentPost) {
+                this.onLoadComments(this.state.currentPost);
+            }
         }).catch((err) => {
             this.setState({
                 creatingComment: false,
@@ -206,6 +218,45 @@ export class PostsStore extends Reflux.Store {
     onClearModalMessage() {
         this.setState({
             failedToCreatePost: false
+        });
+    }
+
+    onLoadComments(post, page = 0) {
+        const state = {
+                fetchingComments: true,
+                failedToFetchComments: false
+            },
+		 isExternal = post.origin.split("/posts/")[0] !== HOST_URL;
+        if (isExternal) {
+            state.comments = post.comments || [];
+            state.fetchingComments = false;
+        } else if (page === 0) {
+            state.comments = [];
+        }
+
+        this.setState(state);
+        if (isExternal) {
+            return;
+        }
+        RestUtil.sendGET(`posts/${post.id}/comments/`, {
+            page: page,
+            size: POSTS_PAGE_SIZE
+        }).then((response) => {
+            const comments = update(this.state.comments, {
+                $push: response.data.comments
+            });
+            this.setState({
+                fetchingComments: false,
+                comments: comments,
+                nextCommentsPage: response.data.next ? page + 1 : null
+            });
+        }).catch((err) => {
+            this.setState({
+                fetchingComments: false,
+                failedToFetchComments: true,
+                nextCommentsPage: null
+            });
+            console.error(err);
         });
     }
 }
