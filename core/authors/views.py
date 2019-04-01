@@ -320,6 +320,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     # /author/{AUTHOR_ID}/posts
     @action(detail=True, url_path="posts")
     def author_posts(self, request, pk=None):
+        print("test, hit: author_posts with:", request, pk)
         page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
         if page < 1:
             return Response({

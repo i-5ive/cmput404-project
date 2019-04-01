@@ -30,5 +30,5 @@ urlpatterns = [
     re_path(r'docs/', include_docs_urls(title='API Documentation')),
     re_path(r'friendrequest\/?', friend_request, name='friendrequest'),
     re_path(r'login/', login, name='login'),
-    re_path(r'unfollow/', handle_unfollow_request, name='unfollow'),
+    re_path(r'unfollow\/?', handle_unfollow_request, name='unfollow'),
 ]

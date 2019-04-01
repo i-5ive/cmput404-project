@@ -99,6 +99,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostsSerializer
 
     def retrieve(self, request, pk):
+        print("PostsViewSet retrieve:", request, pk)
         if ServerUtil.is_server(request.user):
             xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
             if not xUser:
@@ -153,6 +154,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         return super().update(request, pk)
     
     def list(self, request, *args, **kwargs):
+        print("hit posts list endpoint:", request, args, kwargs)
         size = int(request.query_params.get("size", 5))
         queryPage = int(request.query_params.get('page', 0))
         if size < 1 or queryPage < 0 or size > 100:
@@ -437,9 +439,10 @@ class PostsViewSet(viewsets.ModelViewSet):
     # or, if post url specified, fetch that post specifically 
     @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
+        print("get_external_posts endpoint:", request)
         user = request.user
-        if not user.is_authenticated or ServerUtil.is_server(user):
-            return Response("You must be an authenticated author to use this endpoint", status=401)
+        if ServerUtil.is_server(user):
+            return Response("Foreign Nodes may not grab posts from this endpoint.", status=401)
         postUrl = request.query_params.get("postUrl", False)
         if postUrl:
             authorUrl = get_author_url(str(request.user.author.pk))
