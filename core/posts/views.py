@@ -426,11 +426,11 @@ class PostsViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
         user = request.user
-        if not user.is_authenticated or ServerUtil.is_server(user):
-            return Response("You must be an authenticated author to use this endpoint", status=401)
+        #if not user.is_authenticated or ServerUtil.is_server(user):
+        #    return Response("You must be an authenticated author to use this endpoint", status=401)
         postUrl = request.query_params.get("postUrl", False)
         if postUrl:
-            authorUrl = get_author_url(str(request.user.author.pk))
+            authorUrl = get_author_url(str(request.user.author.pk)) if request.user.is_authenticated else ""
             sUtil = ServerUtil(postUrl=postUrl)
             if not sUtil.is_valid():
                 return Response("No foreign node with the base url: "+postUrl, status=404)

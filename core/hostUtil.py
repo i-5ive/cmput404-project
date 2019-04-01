@@ -6,3 +6,7 @@ def is_external_host(url):
 
 def get_host_url():
     return host
+
+def is_encoded_external_host(value):
+    # base64 encoding of https://
+    return value.startswith("aHR0cHM6Ly")
