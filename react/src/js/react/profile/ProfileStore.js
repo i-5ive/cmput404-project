@@ -80,7 +80,7 @@ export default class ProfileStore extends Reflux.Store {
             },
             external = isExternalAuthor(id),
             path = external ? `author/${encodeURIComponent(id)}/posts/` : `author/${getAuthorId(id)}/posts/`;
-		// TODO: WHY DO EXTERNAL AUTHORS HIT OUR /POSTS/ ENDPOINT????
+        // TODO: WHY DO EXTERNAL AUTHORS HIT OUR /POSTS/ ENDPOINT????
         if (page === 0) {
             state.posts = [];
         }
