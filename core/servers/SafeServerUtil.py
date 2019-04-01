@@ -103,7 +103,7 @@ class ServerUtil:
         self.__throw_if_server_is_bad_or_unchecked()
         return self.__server.share_pictures
 
-    def get_posts(self, requesterUrl=None):
+    def get_posts(self):
         self.__throw_if_server_is_bad_or_unchecked()
         try:
             # Print debugging logs first
@@ -112,10 +112,7 @@ class ServerUtil:
             if not self.should_fetch_posts():
                  # return nothing, as we shouldn't be fetching from this server
                 raise ValueError("The admin has disabled fetching posts from this server.")
-            headers = {
-                "X-Request-User-ID": requesterUrl
-            }
-            response = requests.get(url, headers=headers, auth=self.get_server_auth())
+            response = requests.get(url, auth=self.get_server_auth())
             postsData = response.json()
             print("Fetched posts!")
             return True, postsData
@@ -236,7 +233,7 @@ class ServerUtil:
             return ("", "")
 
     @staticmethod
-    def get_external_posts_aggregate(requester_url=None):
+    def get_external_posts_aggregate():
         posts = []
         servers = Server.objects.all()
         for server in servers:

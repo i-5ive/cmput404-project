@@ -440,12 +440,9 @@ class PostsViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
         print("get_external_posts endpoint:", request)
-        requester_url = None
         user = request.user
         if ServerUtil.is_server(user):
             return Response("Foreign Nodes may not grab posts from this endpoint.", status=401)
-        if user.is_authenticated:
-            requester_url = get_author_url(str(user.author.pk))
         postUrl = request.query_params.get("postUrl", False)
         if postUrl:
             authorUrl = get_author_url(str(request.user.author.pk))
@@ -456,5 +453,5 @@ class PostsViewSet(viewsets.ModelViewSet):
             if not success:
                 return Response("Failed to grab foreign post: "+postUrl, status=500)
             return Response(post)
-        posts = ServerUtil.get_external_posts_aggregate(requester_url)
+        posts = ServerUtil.get_external_posts_aggregate()
         return Response({"posts":posts})
