@@ -51,5 +51,5 @@ export const
      * @return {String} - an escaped version of the URL
      */
     escapeUrl = (url) => {
-        return btoa(url);
+        return window.btoa(url);
     };
