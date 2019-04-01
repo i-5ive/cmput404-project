@@ -35,11 +35,13 @@ export default class PostView extends Reflux.Component {
                 form = e.currentTarget,
                 data = {
                     comment: form.elements.comment.value,
-                    author: this.state.userId,
+                    author: this.state.userInfo,
                     contentType: form.elements.contentType.value,
-                    post: this.state.currentPost.id
+                    post: this.state.currentPost.origin,
+					published: (new Date()).toISOString(),
+					id: "1"
                 };
-            formData.append("commentData", JSON.stringify(data));
+            formData.append("comment", JSON.stringify(data));
             formData.append("query", "addComment");
             PostsActions.addComment(id, formData);
         }

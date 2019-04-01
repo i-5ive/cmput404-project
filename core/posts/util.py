@@ -26,6 +26,27 @@ def can_user_view(user, post):
         mutual_friends = requester_friends & author_friends
         return len(mutual_friends) > 0
 
+## Gets whether the specified external user can view a specific post
+## @param {String} author_url - the url of the author to check
+## @param {Posts} post - the post to check
+## @return {boolean} - whether the user can view the post or not
+def can_external_user_view(author_url, post):
+    if (author_url == None or post.visibility == "SERVERONLY"):
+        return False
+    elif (post.visibility == "PUBLIC"):
+        return True
+    elif (post.visibility == "PRIVATE"):
+        return author_url in post.visibleTo
+    elif (post.visibility == "FRIENDS"):
+        friends = get_friends(post.author.get_url())
+        return author_url in friends
+    elif (post.visibility == "FOAF"):
+        post_author_url = post.author.get_url()
+        requester_friends = get_friends_set(author_url)
+        author_friends = get_friends_set(post_author_url)
+        mutual_friends = requester_friends & author_friends
+        return len(mutual_friends) > 0
+
 def add_page_details_to_response(request, response_data, page, queryPage):
     # build_absolute_uri is from https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.build_absolute_uri
     if (page.has_previous()):

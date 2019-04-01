@@ -1,4 +1,5 @@
 import logging
+import json
 
 from django.core.paginator import Paginator
 # Create your views here.
@@ -14,7 +15,7 @@ from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.create_posts_view import handle_posts
 from core.posts.models import Posts, Comments
 from core.posts.serializers import PostsSerializer, CommentsSerializer
-from core.posts.util import can_user_view, add_page_details_to_response, merge_posts_with_github_activity, merge_posts
+from core.posts.util import can_user_view, can_external_user_view, add_page_details_to_response, merge_posts_with_github_activity, merge_posts
 
 from core.github_util import get_github_activity
 
@@ -25,16 +26,34 @@ logger = logging.getLogger(__name__)
 
 COMMENT_NOT_ALLOWED = 'Comment not allowed'
 COMMENT_ADDED = 'Comment Added'
+POST_NOT_VISIBLE = "This post is not visible to the current user"
 
 def create_comment(request, pk=None):
     post = get_object_or_404(Posts, pk=pk)
-    if not can_user_view(request.user, post):
+    
+    is_server = ServerUtil.is_server(request.user)
+    
+    if (not is_server and not can_user_view(request.user, post)):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data
-        comment = data.get('comment', None)
+        comment = json.loads(data.get('comment', None))
         author = comment.get('author', None)
-        author_id = author['id'].rstrip('/').split('/')[-1]
+        author_id = author['id']
+        try:
+            if (is_server and not (ServerUtil(authorUrl=author_id).should_share_posts() and can_external_user_view(author_id, post))):
+                return Response({
+                    "query": "addComment",
+                    "success": False,
+                    "message": POST_NOT_VISIBLE,
+                }, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            print(e)
+            return Response({
+                "query": "addComment",
+                "success": False,
+                "message": POST_NOT_VISIBLE,
+            }, status=status.HTTP_403_FORBIDDEN)
         comment['author'] = author_id
         serializer = CommentsSerializer(data=comment)
         if serializer.is_valid():
@@ -160,7 +179,8 @@ class PostsViewSet(viewsets.ModelViewSet):
             page = paginator.page(queryPage + 1)
             serializer = self.get_serializer(page, many=True)
             pages_to_return = serializer.data
-        except:
+        except Exception as e:
+            print(e)
             pages_to_return = []
 
         data = {
@@ -407,7 +427,8 @@ class PostsViewSet(viewsets.ModelViewSet):
                 serializer = PostsSerializer(page, many=True, context={'request': request})
                 posts_to_return = serializer.data
                 
-        except:
+        except Exception as e:
+            print(e)
             posts_to_return = []
 
         data = {
