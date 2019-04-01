@@ -187,7 +187,6 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedComment: false,
             failedToCreateComment: false
         });
-        // console.log("1", comment.get(data)); //this is undefined?!?!!
         RestUtil.sendPOST(`posts/${id}/comments/`, comment).then(() => {
             this.setState({
                 creatingComment: false,
