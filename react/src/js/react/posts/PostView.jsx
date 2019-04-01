@@ -40,7 +40,7 @@ export default class PostView extends Reflux.Component {
                 };
             formData.append("commentData", JSON.stringify(data));
             formData.append("query", "addComment");
-            PostsActions.addComment(data);
+            PostsActions.addComment(formData);
         }
     }
 
