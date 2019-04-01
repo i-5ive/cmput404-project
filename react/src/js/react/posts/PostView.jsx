@@ -31,6 +31,7 @@ export default class PostView extends Reflux.Component {
         if (e.currentTarget.elements.comment.value !== "") {
             // eslint-disable-next-line no-undef
             const formData = new FormData(),
+                id = this.state.currentPost.id,
                 form = e.currentTarget,
                 data = {
                     comment: form.elements.comment.value,
@@ -40,7 +41,7 @@ export default class PostView extends Reflux.Component {
                 };
             formData.append("commentData", JSON.stringify(data));
             formData.append("query", "addComment");
-            PostsActions.addComment(data);
+            PostsActions.addComment(id, formData);
         }
     }
 
@@ -67,10 +68,10 @@ export default class PostView extends Reflux.Component {
 
     renderMakeComments() {
         return (
-            <Thumbnail>
+            <Thumbnail className="comment-thumbnail">
                 <Form onSubmit={this.handleCommentSubmit}>
                     <FormGroup controlId="comment">
-                        <FormControl name="comment" componentClass="textarea" rows="5" placeholder="Enter comment here..." />
+                        <FormControl name="comment" componentClass="textarea" rows="5" maxLength="130" placeholder="Enter comment here..." />
                     </FormGroup>
                     <FormGroup controlId="contentType">
                         <div className="comment-type-buttons-row">

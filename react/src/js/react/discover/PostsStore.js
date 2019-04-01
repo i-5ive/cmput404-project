@@ -181,13 +181,13 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
-    onAddComment(comment) {
+    onAddComment(id, comment) {
         this.setState({
             creatingComment: true,
             successfullyCreatedComment: false,
             failedToCreateComment: false
         });
-        RestUtil.sendPOST(`posts/${comment.post}/comments/`, comment).then(() => {
+        RestUtil.sendPOST(`posts/${id}/comments/`, comment).then(() => {
             this.setState({
                 creatingComment: false,
                 successfullyCreatedComment: true,
