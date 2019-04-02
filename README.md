@@ -69,6 +69,35 @@ Now you can install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/
  
 Now when you run `python manage.py test` it should run significiantly faster by using the local database you created.
 
+# AJAX Usages
+We use AJAX whenever we need to fetch (or send) data from/to our Django server. Here is a list of all the places in our front-end React code where we use AJAX:  
+
+[Registering for a new account](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/auth/AuthStore.js#L98)  
+[Logging into an existing account](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/auth/AuthStore.js#L125)  
+[Creating a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L61)  
+[Loading all public posts on the server](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L85)  
+[Loading posts from only external servers](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L116)  
+[Deleting a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L143)  
+[Editing a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L174)  
+[Viewing details about a specific post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L197)  
+[Adding a comment to a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L222)  
+[Loading comments on a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L273)  
+[Loading posts on the home feed](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/home/HomeStore.js#L37)  
+[Deleting a post on the home feed](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/home/HomeStore.js#L64)  
+[Loading pending friend requests](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/friends/FriendsStore.js#L35)  
+[Sending a friend request](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/friends/FriendsStore.js#L56)  
+[Responding to a friend request](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/friends/FriendsStore.js#L89)  
+[Loading details about an author](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L54)  
+[Loading an author's posts](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L88)  
+[Updating an author profile](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L122)  
+[Loading follow details about a specific author](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L233)  
+[Unfollowing an author](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L256)  
+[Sending a friend request](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L295)  
+[Loading github repositories](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L330)  
+[Deleting a post from the profile page](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L352)  
+[Loading all users an author is following](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L381)  
+[Loading all users an author is followed by](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L401)  
+
 # Resources Used
 
 ## Bootstrapping Resources and References
