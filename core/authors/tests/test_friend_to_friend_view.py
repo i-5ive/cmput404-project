@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from django.test import TestCase
 
 from core.authors.models import Follow
@@ -61,6 +62,16 @@ class TestFriendToFriendView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["query"], "friends")
         self.assertEqual(response.data["authors"], [self.author1.get_url(), self.author2.get_url()])
+        self.assertTrue(response.data["friends"])
+
+    def test_friends_external_author(self):
+        external_url = "https://timduncan.com/author/89222"
+        Follow.objects.create(follower=external_url, followed=self.author2.get_url())
+        Follow.objects.create(follower=self.author2.get_url(), followed=external_url)
+        response = self.client.get(get_friends_path(self.author2.id, urlparse.quote(external_url), safe='~()*!.\''))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["query"], "friends")
+        self.assertEqual(response.data["authors"], [self.author2.get_url(), external_url])
         self.assertTrue(response.data["friends"])
 
     def test_friends_reverse_order(self):

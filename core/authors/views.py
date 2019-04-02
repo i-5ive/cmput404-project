@@ -191,12 +191,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True, url_path='friends/(?P<other_user>[^/.]+)', url_name='friend_to_friend')
     def friend_to_friend_query(self, request, pk, other_user):
         try:
+            print(pk, other_user)
             author_url = Author.objects.get(pk=pk).get_url()
             other_url = get_author_url(other_user)
             
             follow = Follow.objects.filter(follower=author_url, followed=other_url)
             reverse = Follow.objects.filter(follower=other_url, followed=author_url)
-        except:
+        except KeyError as e:
+            print(e)
             return Response({
                 "success": False,
                 "message": "Invalid author ID url parameter specified",
