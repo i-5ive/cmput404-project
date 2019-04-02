@@ -478,7 +478,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             github_stream = get_github_activity(request.user.author)
             posts = merge_posts_with_github_activity(posts, github_stream)
         else:
-            posts = Posts.objects.filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            posts = Posts.objects.filter(visibility__in=["PUBLIC"], unlisted=False)
             externalPosts = []
         
         try:
