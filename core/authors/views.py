@@ -490,10 +490,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
                 # Grab posts from direct friends
                 for friend in requesterFriends:
+                    if not friend.startswith(get_host_url()): continue
                     posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF"], unlisted=False)
 
                 # Posts from FOAFs
                 for friend in requesterFOAFs:
+                    if not friend.startswith(get_host_url()): continue
                     posts |= Posts.objects.all().filter(author=friend, visibility__in=["FOAF"], unlisted=False)
 
                 # PRIVATE posts that the author can see
