@@ -37,7 +37,9 @@ def create_comment(request, pk=None):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data
-        comment = json.loads(data.get('comment', None))
+        comment = data.get("comment", None)
+        if (isinstance(comment, str)):
+            comment = json.loads(comment)
         author = comment.get('author', None)
         author_id = author['id']
         try:
