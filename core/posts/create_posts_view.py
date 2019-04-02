@@ -45,7 +45,7 @@ def create_post(request, data):
 
             # Credits to Ykh, https://stackoverflow.com/a/44492948
             # Credits to Willem Van Onsem, https://stackoverflow.com/a/52444999
-            encoded_image = base64.b64encode(img_file.read()).decode()
+            encoded_image = content_type + base64.b64encode(img_file.read()).decode()
 
             data["post_id"] = new_id
             data["content"] = str(encoded_image)

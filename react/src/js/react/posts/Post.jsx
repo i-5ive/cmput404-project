@@ -19,6 +19,7 @@ class Post extends Reflux.Component {
         isPostView: PropTypes.bool,
         images: PropTypes.array,
         onDelete: PropTypes.func,
+        onEdit: PropTypes.func,
         failedToDeletePost: PropTypes.bool,
         isDeleting: PropTypes.bool
     }
@@ -54,6 +55,15 @@ class Post extends Reflux.Component {
                         disabled={this.props.isDeleting}
                         onClick={this.handleDeletePost}>
                         <i className="far fa-trash-alt" />
+                    </Button>
+                    : null }
+                {isCurrentUser
+                    ? <Button
+                        bsStyle="primary"
+                        className="delete-button"
+                        disabled={this.props.isDeleting}
+                        onClick={this.handleEditPost}>
+                        <i className="fas fa-pencil-alt" />
                     </Button>
                     : null }
             </div>
@@ -167,6 +177,10 @@ class Post extends Reflux.Component {
 
     handleDeletePost = () => {
         this.props.onDelete(this.props.post.id, this.props.post.post_id);
+    }
+
+    handleEditPost = () => {
+        this.props.onEdit(this.props.post.id, this.props.post.post_id);
     }
 
     renderTitle() {

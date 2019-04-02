@@ -369,6 +369,10 @@ export default class ProfileStore extends Reflux.Store {
         });
     }
 
+    onEditPost(id, postId) {
+        window.location.href = `post/${id}/edit`;
+    }
+
     onLoadFollowedUsers(id) {
         this.setState({
             isLoadingFollowedUsers: true,

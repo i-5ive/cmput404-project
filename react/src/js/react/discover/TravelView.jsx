@@ -37,6 +37,7 @@ export default class TravelView extends Reflux.Component {
                     isLoading={this.state.fetchingPosts}
                     loadMorePosts={this._loadMorePosts}
                     onDeletePost={PostsActions.deletePost}
+                    onEditPost={PostsActions.editPost}
                     hasNextPage={Boolean(this.state.nextPage)}
                     errorDeletingPost={this.state.failedToDeletePost}
                     deletingPost={this.state.deletingPost}

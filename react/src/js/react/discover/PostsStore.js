@@ -9,7 +9,9 @@ export const PostsActions = Reflux.createActions([
     "createPost",
     "getPosts",
     "deletePost",
+    "editPost",
     "getPost",
+    "putPost",
     "getExternalPosts",
     "clearModalMessage"
 ]);
@@ -150,6 +152,18 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
+    onEditPost(id, postId) {
+        window.location.href = `post/${id}/edit`;
+    }
+
+    onPutPost(data) {
+        data.author = this.state.currentPost.author;
+        const id = window.location.href.endsWith("edit") && window.location.href.split("/post/")[1].split("/edit")[0];
+        RestUtil.sendPUT(`posts/${id}/`, data).then(() => {
+            console.log("hello?")
+        });
+    }
+
     onGetPost(postId, isExternal) {
         console.log(postId);
         this.setState({
@@ -166,7 +180,8 @@ export class PostsStore extends Reflux.Store {
             this.setState({
                 fetchingPost: false,
                 currentPost: post,
-                currentPostImages: response.data.images
+                currentPostImages: response.data.images,
+
             });
         }).catch((err) => {
             this.setState({
