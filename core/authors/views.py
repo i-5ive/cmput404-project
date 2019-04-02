@@ -356,7 +356,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
-            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"], unlisted=False)
         # else if is other_server:
         #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
         elif (request.user.author == author):
@@ -365,7 +365,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
 
             # post_types will track what level of posts a user can see
-            post_types = ["PUBLIC", "SERVERONLY"]
+            post_types = ["PUBLIC"]
             
             # convert to dict for dat O(1)
             # Note: this is terrible, we should be using the database more directly
@@ -376,7 +376,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
             # Check if they are direct friends
             if requesterFriends.get(str(pk), False):
-                post_types += ["FRIENDS", "FOAF"]
+                post_types += ["FRIENDS", "FOAF", "SERVERONLY"]
             else: # They are not direct friends, so we should check if they share any friends
                 for friend in get_friends_from_pk(pk):
                     friend = friend.split("/")[-1]
@@ -431,7 +431,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
-            posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            posts = Posts.objects.all().filter(visibility__in=["PUBLIC"], unlisted=False)
         elif ServerUtil.is_server(request.user):
             sUtil = ServerUtil(user=request.user)
             if not sUtil.is_valid():
@@ -465,7 +465,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 friends = [get_author_id(x) for x in friends if x.startswith(baseUrl)]
                 foafs = [get_author_id(x) for x in foafs if x.startswith(baseUrl)]
                 posts = Posts.objects.all().filter(visibility="PUBLIC", unlisted=False)
-                posts |= Posts.objects.all().filter(visibility="FRIENDS", author_id__in=friends, unlisted=False)
+                posts |= Posts.objects.all().filter(visibility__in=["FRIENDS", "SERVERONLY"], author_id__in=friends, unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="FOAF", author_id__in=foafs, unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[xUser], unlisted=False)
         else:
@@ -486,11 +486,11 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 # Grab the requesting user's posts
                 posts = Posts.objects.all().filter(author=requestingAuthor, unlisted=False)
                 # Grab all public posts
-                posts |= Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+                posts |= Posts.objects.all().filter(visibility__in=["PUBLIC"], unlisted=False)
 
                 # Grab posts from direct friends
                 for friend in requesterFriends:
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF"], unlisted=False)
+                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF", "SERVERONLY"], unlisted=False)
 
                 # Posts from FOAFs
                 for friend in requesterFOAFs:
