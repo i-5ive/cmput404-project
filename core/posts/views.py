@@ -336,6 +336,18 @@ class PostsViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @action(detail=True, url_path='update', methods=["POST"])
+    def update_post(self, request, pk=None):
+        try:
+            post = Posts.objects.get(pk=pk)
+            post.update(**request.data)
+        except Exception as e:
+            return Response({
+                "query": "updatePost",
+                "success": False,
+                "message": str(e)
+            })
+            
     def create(self, request, **kwargs):
         return handle_posts(request)
 

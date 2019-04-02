@@ -159,7 +159,7 @@ export class PostsStore extends Reflux.Store {
     onPutPost(data) {
         data.author = this.state.currentPost.author;
         const id = window.location.href.endsWith("edit") && window.location.href.split("/post/")[1].split("/edit")[0];
-        RestUtil.sendPUT(`posts/${id}/`, data).then(() => {
+        RestUtil.sendPOST(`posts/${id}/update`, data).then(() => {
             console.log("hello?")
         });
     }
