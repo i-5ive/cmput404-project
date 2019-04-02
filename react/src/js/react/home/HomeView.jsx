@@ -39,6 +39,7 @@ export default class HomeView extends Reflux.Component {
                     isLoading={this.state.isLoadingPosts}
                     loadMorePosts={this._loadMorePosts}
                     onDeletePost={HomeActions.deletePost}
+                    onEditPost={HomeActions.editPost}
                     hasNextPage={Boolean(this.state.nextPage)}
                     errorDeletingPost={this.state.failedToDeletePost}
                     deletingPost={this.state.deletingPost}

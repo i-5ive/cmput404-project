@@ -22,13 +22,13 @@ from core.authors.login_view import login
 from core.authors.unfollow_author_view import handle_unfollow_request
 
 urlpatterns = [
-    re_path(r'admin/', admin.site.urls),
-    re_path(r'users/', include('core.users.urls')),
-    re_path(r'author/', include('core.authors.urls')),
-    re_path(r'posts/', include('core.posts.urls')),
-    re_path(r'api-auth/', include('rest_framework.urls')),
-    re_path(r'docs/', include_docs_urls(title='API Documentation')),
-    re_path(r'friendrequest\/?', friend_request, name='friendrequest'),
-    re_path(r'login/', login, name='login'),
-    re_path(r'unfollow/', handle_unfollow_request, name='unfollow'),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^users/', include('core.users.urls')),
+    re_path(r'^author/', include('core.authors.urls')),
+    re_path(r'^posts/', include('core.posts.urls')),
+    re_path(r'^api-auth/', include('rest_framework.urls')),
+    re_path(r'^docs/', include_docs_urls(title='API Documentation')),
+    re_path(r'^friendrequest\/?', friend_request, name='friendrequest'),
+    re_path(r'^login/', login, name='login'),
+    re_path(r'^unfollow\/?', handle_unfollow_request, name='unfollow'),
 ]

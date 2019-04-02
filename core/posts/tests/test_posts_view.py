@@ -222,8 +222,8 @@ class PostViewsTest(TestCase):
         self.assertEqual(len(image_posts), 2)
 
         # Checks the content of each image (base64 encoded)
-        self.assertEqual(Posts.objects.get(contentType="image/jpeg;base64").content, "ZmlsZV9jb250ZW50")
-        self.assertEqual(Posts.objects.get(contentType="image/png;base64").content, "ZmlsZV9jb250ZW50")
+        self.assertEqual(Posts.objects.get(contentType="image/jpeg;base64").content, "image/jpeg;base64,ZmlsZV9jb250ZW50")
+        self.assertEqual(Posts.objects.get(contentType="image/png;base64").content, "image/png;base64,ZmlsZV9jb250ZW50")
 
     def test_delete_post(self):
         author_id = str(self.author1.id)

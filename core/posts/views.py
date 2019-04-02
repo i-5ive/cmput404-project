@@ -119,8 +119,17 @@ class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostsSerializer
 
     def retrieve(self, request, pk):
+        print("PostsViewSet retrieve:", request, pk)
         if ServerUtil.is_server(request.user):
-            return Response("As a foreign node, you must use the POST endpoint to fetch posts from this server.", status=403)
+            xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
+            if not xUser:
+                return Response("Foreign node failed to provide required X-Header.", status=400)
+            data = {
+                "author": {
+                    "url": xUser
+                }
+            }
+            return self.__do_a_get_post(request.user, data, pk)
         try:
             post = Posts.objects.get(pk=pk)
         except:
@@ -156,15 +165,16 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "query": "updatePost"
             }, status=404)
         
-        if (not can_user_view(request.user, post)):
+        if (request.user.author != post.author):
             return Response({
                 "success": False,
-                "message": "You are not authorized to view this post.",
+                "message": "You are not authorized to edit this post.",
                 "query": "updatePost"
             }, status=401)
         return super().update(request, pk)
     
     def list(self, request, *args, **kwargs):
+        print("hit posts list endpoint:", request, args, kwargs)
         size = int(request.query_params.get("size", 5))
         queryPage = int(request.query_params.get('page', 0))
         if size < 1 or queryPage < 0 or size > 100:
@@ -194,21 +204,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             add_page_details_to_response(request, data, page, queryPage)
         return Response(data, status=200)
 
-    # For FOAF, test you can actually hand out a post
-    def post(self, request, pk):
-        user = request.user
-        data = request.data
-
-        if not user.is_authenticated or not ServerUtil.is_server(user):
-            return Response("You must be authenticated as a foreign node to access this endpoint.", status=401)
-
-        query = request.data.get("query", False)
-        if not query and not query == "getPost":
-            return Response("This endpoint only accepts the 'getPost' query type.", status=400)
-
-        if not data.get("postid", "") == pk or not data.get("url", "").endswith(pk):
-            return Response("You must ensure that the post IDs and urls match.", status=400)
-
+    def __do_a_get_post(self, user, data, pk):
         try:
             post = Posts.objects.get(pk=pk)
         except:
@@ -286,6 +282,24 @@ class PostsViewSet(viewsets.ModelViewSet):
             "posts": []
         })
 
+
+    # For FOAF, test you can actually hand out a post
+    def post(self, request, pk):
+        user = request.user
+        data = request.data
+
+        if not user.is_authenticated or not ServerUtil.is_server(user):
+            return Response("You must be authenticated as a foreign node to access this endpoint.", status=401)
+
+        query = request.data.get("query", False)
+        if not query and not query == "getPost":
+            return Response("This endpoint only accepts the 'getPost' query type.", status=400)
+
+        if not data.get("postid", "") == pk or not data.get("url", "").endswith(pk):
+            return Response("You must ensure that the post IDs and urls match.", status=400)
+
+        return self.__do_a_get_post(user, data, pk)
+
     @action(detail=True)
     def comments(self, request, pk):
         size = int(request.query_params.get("size", 5))
@@ -343,6 +357,29 @@ class PostsViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @action(detail=True, url_path='update', methods=["POST"])
+    def update_post(self, request, pk=None):
+        try:
+            post = Posts.objects.get(pk=pk)
+            if (post.author != request.user.author):
+                return Response({
+                    "query": "updatePost",
+                    "success": False,
+                    "message": "You must be authenticated to update a post"
+                }, status=status.HTTP_403_FORBIDDEN)
+            Posts.objects.filter(pk=pk).update(**json.loads(request.data["postData"]))
+            return Response({
+                "query": "updatePost",
+                "success": True,
+                "message": "Your post has been updated."
+            })
+        except Exception as e:
+            return Response({
+                "query": "updatePost",
+                "success": False,
+                "message": str(e)
+            }, status=400)
+            
     @action(detail=False, url_path='createExternalComment', methods=["POST"])
     def create_external_comment(self, request):
         if (not request.user.is_authenticated):
@@ -357,9 +394,15 @@ class PostsViewSet(viewsets.ModelViewSet):
             sUtil = ServerUtil(postUrl=postUrl)
             if not sUtil.is_valid():
                 return Response("No foreign node with the base url: "+postUrl, status=404)
-            success, res = sUtil.create_comment(postUrl.split("/posts/")[1], authorUrl, request.data["comment"], postUrl)
+                
+            data = request.data
+            comment = data.get("comment", None)
+            if (isinstance(comment, str)):
+                comment = json.loads(comment)
+            
+            success, res = sUtil.create_comment(postUrl.split("/posts/")[1], authorUrl, comment, postUrl)
             if not success:
-                return Response("Failed to grab foreign post: "+postUrl, status=500)
+                return Response("Failed to post foreign comment: "+postUrl, status=500)
             return Response(res)
         except Exception as e:
             print(e)
@@ -453,7 +496,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 page = paginator.page(queryPage + 1)
                 serializer = PostsSerializer(page, many=True, context={'request': request})
                 posts_to_return = serializer.data
-                
+
         except Exception as e:
             print(e)
             posts_to_return = []
@@ -473,9 +516,11 @@ class PostsViewSet(viewsets.ModelViewSet):
     # or, if post url specified, fetch that post specifically 
     @action(methods=['get'], detail=False, url_path='external')
     def get_external_posts(self, request):
+        print("get_external_posts endpoint:", request)
         user = request.user
-        #if not user.is_authenticated or ServerUtil.is_server(user):
-        #    return Response("You must be an authenticated author to use this endpoint", status=401)
+        if ServerUtil.is_server(user):
+            return Response("Foreign Nodes may not grab posts from this endpoint.", status=401)
+
         postUrl = request.query_params.get("postUrl", False)
         if postUrl:
             authorUrl = get_author_url(str(request.user.author.pk)) if request.user.is_authenticated else ""

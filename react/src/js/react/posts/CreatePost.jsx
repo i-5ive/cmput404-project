@@ -30,12 +30,33 @@ export default class CreatePost extends Reflux.Component {
         };
     }
 
+    componentDidMount() {
+        const id = window.location.href.endsWith("edit") && window.location.href.split("/post/")[1].split("/edit")[0];
+        if (window.location.href.endsWith("edit") && id) {
+            PostsActions.getPost(id);
+        }
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if (this.state.successfullyCreatedPost !== prevState.successfullyCreatedPost &&
             this.state.successfullyCreatedPost) {
             this.props.handleClose();
             PostsActions.getPosts();
             HomeActions.loadPosts();
+        }
+        if (!this.state.fetchingPost && prevState.fetchingPost) {
+            const form = document.querySelector("form");
+            form.elements.title.value = this.state.currentPost.title;
+            form.elements.content.value = this.state.currentPost.content;
+            form.elements.contentType.value = this.state.currentPost.contentType;
+            form.elements.description.value = this.state.currentPost.description;
+            // eslint-disable-next-line
+            this.setState({
+                tags: this.state.currentPost.categories,
+                privacyKey: this.state.currentPost.visibility,
+                author: this.state.currentPost.author
+            });
+            form.elements.unlisted.checked = this.state.currentPost.unlisted;
         }
     }
 
@@ -65,7 +86,12 @@ export default class CreatePost extends Reflux.Component {
         }
         formData.append("postData", JSON.stringify(data));
         formData.append("query", "createPost");
-        PostsActions.createPost(formData);
+        if (window.location.href.endsWith("edit")) {
+            console.log(formData);
+            PostsActions.putPost(formData);
+        } else {
+            PostsActions.createPost(formData);
+        }
     }
 
     handlePrivacySelect = (key) => {
@@ -148,8 +174,6 @@ export default class CreatePost extends Reflux.Component {
             return "The username can not be blank.";
         } else if (this.state.visibleTo.indexOf(username) > -1) {
             return "This user is already included.";
-        } else if (username.length > 80) {
-            return "The maximum length of a username is 80 characters.";
         }
         return null;
     };
@@ -405,7 +429,7 @@ export default class CreatePost extends Reflux.Component {
                             Cancel
                         </Button>
                         <Button bsStyle="primary" type="submit" disabled={this.state.creatingPost}>
-                            Create Post
+                            {window.location.href.endsWith("edit") ? "Update Post" : "Create Post"}
                         </Button>
                     </ModalFooter>
                 </Form>

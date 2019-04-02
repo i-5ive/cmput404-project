@@ -50,6 +50,7 @@ export default class ProfilePostsStream extends Reflux.Component {
                     isLoading={this.state.isLoadingStream}
                     loadMorePosts={this._loadMorePosts}
                     onDeletePost={ProfileActions.deletePost}
+                    onEditPost={ProfileActions.editPost}
                     hasNextPage={Boolean(this.state.nextPage)}
                     errorDeletingPost={this.state.failedToDeletePost}
                     deletingPost={this.state.deletingPost}

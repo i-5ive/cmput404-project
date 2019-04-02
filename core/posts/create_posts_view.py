@@ -45,7 +45,7 @@ def create_post(request, data):
 
             # Credits to Ykh, https://stackoverflow.com/a/44492948
             # Credits to Willem Van Onsem, https://stackoverflow.com/a/52444999
-            encoded_image = base64.b64encode(img_file.read()).decode()
+            encoded_image = content_type + "," + base64.b64encode(img_file.read()).decode()
 
             data["post_id"] = new_id
             data["content"] = str(encoded_image)
@@ -62,9 +62,9 @@ def handle_visible_to(request, data):
     visible_to = request.data.get("visibleTo")
     if (visible_to):
         visible_to = json.loads(visible_to)
-        # TODO: external authors
+        externalUsers = [x for x in visible_to if x.startswith("https://")]
         users = User.objects.filter(username__in=visible_to)
-        if (len(users) == len(visible_to)):
+        if (len(users)+len(externalUsers) == len(visible_to)):
             data["visibleTo"] = []
             found_self = False
             for user in users:

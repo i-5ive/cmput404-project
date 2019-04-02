@@ -9,7 +9,9 @@ class ServerUtil:
     def __init__(self, user=None, server=None, url=None, authorUrl=None, postUrl=None):
         self.__server = None
         self.__checked_validity = False
-        if server and ServerUtil.is_server(server.user):
+        if user and ServerUtil.is_server(user):
+            self.__server = user.server
+        elif server and ServerUtil.is_server(server.user):
             self.__server = server
         elif url:
             server = Server.objects.filter(base_url__contains=url)
@@ -26,7 +28,7 @@ class ServerUtil:
             if (len(server) == 1):
                 self.__server = server[0]
         else:
-            raise ValueError("ServerUtil expects a valid server, authorUrl, or url variable to initialize.")
+            print("ServerUtil expects a valid server, authorUrl, or url, etc variable to initialize. (But couldn't find one)")
 
     def __throw_if_server_is_bad_or_unchecked(self):
         if not self.__checked_validity:
@@ -136,7 +138,10 @@ class ServerUtil:
                     "comment": comment
                 }
             )
+            if (response.status_code >= 400):
+                raise Exception(response.json())
             postData = response.json()
+            print(postData)
             return True, postData
         except Exception as e:
             print("posting comment", url, "failed. Error:", e)
@@ -205,7 +210,21 @@ class ServerUtil:
             print("Failed to check friendship", e)
             return False, False
 
+    def author_from_this_server(self, authorUrl):
+        sUtil = ServerUtil(authorUrl=authorUrl)
+        return sUtil.is_valid() and sUtil.get_base_url() == self.get_base_url()
 
+    def get_friends_of(self, authorId):
+        url = self.get_base_url() + "/author/" + authorId + "/friends"
+        try:
+            print("Fetching friends from:", url)
+            resp = requests.get(url, auth=self.get_server_auth())
+            print("Fetched friends:", resp.content)
+            print("Fetched friends:", resp.json())
+            return resp.json()["authors"]
+        except Exception as e:
+            print("Failed to fetch friends for:", url, "error:", e)
+            return []
 
     # Ensure you use a USER object, or it will probably return incorrectly
     @staticmethod

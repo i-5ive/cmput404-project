@@ -19,6 +19,7 @@ class Post extends Reflux.Component {
         isPostView: PropTypes.bool,
         images: PropTypes.array,
         onDelete: PropTypes.func,
+        onEdit: PropTypes.func,
         failedToDeletePost: PropTypes.bool,
         isDeleting: PropTypes.bool
     }
@@ -56,6 +57,15 @@ class Post extends Reflux.Component {
                         <i className="far fa-trash-alt" />
                     </Button>
                     : null }
+                {isCurrentUser
+                    ? <Button
+                        bsStyle="primary"
+                        className="delete-button"
+                        disabled={this.props.isDeleting}
+                        onClick={this.handleEditPost}>
+                        <i className="fas fa-pencil-alt" />
+                    </Button>
+                    : null }
             </div>
         );
     }
@@ -75,7 +85,7 @@ class Post extends Reflux.Component {
             if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
                 // some servers store their image data with the proper contentType,
                 // so to integrate this we need to be able to detect and place it when necessary
-                let name = `data:${contentType},${content}`;
+                let name = `data:${content}`;
                 if (content.startsWith("data")) {
                     name = content;
                 }
@@ -110,7 +120,7 @@ class Post extends Reflux.Component {
             );
         }
         return (
-            <Link className="comments-count" to={`/post/${this.props.post.id}/`}>
+            <Link className="comments-count" to={this.getPostPermalinkUrl()}>
                 {text}
             </Link>
         );
@@ -152,16 +162,24 @@ class Post extends Reflux.Component {
         );
     }
 
-	handlePermalink = () => {
+	getPostPermalinkUrl = () => {
 	    const origin = this.props.post.origin,
 	        localPost = origin.split("/posts/")[0] === HOST_URL,
 	        url = `/post/${localPost ? this.props.post.id : encodeURI(origin)}`;
+	    return url;
+	};
 
+	handlePermalink = () => {
+	    const url = this.getPostPermalinkUrl();
 	    this.props.history.push(url);
 	};
 
     handleDeletePost = () => {
         this.props.onDelete(this.props.post.id, this.props.post.post_id);
+    }
+
+    handleEditPost = () => {
+        this.props.onEdit(this.props.post.id, this.props.post.post_id);
     }
 
     renderTitle() {
