@@ -17,7 +17,7 @@ class TestAuthorPost(TestCase):
     # Test we get only public posts when we do not authenticate
     def test_get_no_auth(self):
         author1 = setupUser("test_get_no_auth_user1")
-        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC","SERVERONLY"]).count()
+        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC"]).count()
 
         # Number of posts should be equal
         resp = self.client.get("/author/posts/").data
@@ -251,13 +251,13 @@ class TestAuthorPost(TestCase):
         self.assertEqual(1, len(resp["posts"]))
         self.assertEqual(1, resp["count"])
 
-        # server-only posts also increase the amount visible
+        # server-only posts do not increase the amount visible
         createPostForAuthor(author, "test_get_anon_for_author public post", "SERVERONLY")
 
         # should return 2 posts now
         resp = self.client.get(url).data
-        self.assertEqual(2, len(resp["posts"]))
-        self.assertEqual(2, resp["count"])
+        self.assertEqual(1, len(resp["posts"]))
+        self.assertEqual(1, resp["count"])
 
     def test_get_author_unlisted(self):
         author = setupUser("test_get_author_unlisted_user")
