@@ -165,10 +165,10 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "query": "updatePost"
             }, status=404)
         
-        if (not can_user_view(request.user, post)):
+        if (request.user.author != post.author):
             return Response({
                 "success": False,
-                "message": "You are not authorized to view this post.",
+                "message": "You are not authorized to edit this post.",
                 "query": "updatePost"
             }, status=401)
         return super().update(request, pk)
@@ -361,13 +361,24 @@ class PostsViewSet(viewsets.ModelViewSet):
     def update_post(self, request, pk=None):
         try:
             post = Posts.objects.get(pk=pk)
-            post.update(**request.data)
+            if (post.author != request.user.author):
+                return Response({
+                    "query": "updatePost",
+                    "success": False,
+                    "message": "You must be authenticated to update a post"
+                }, status=status.HTTP_403_FORBIDDEN)
+            Posts.objects.filter(pk=pk).update(**json.loads(request.data["postData"]))
+            return Response({
+                "query": "updatePost",
+                "success": True,
+                "message": "Your post has been updated."
+            })
         except Exception as e:
             return Response({
                 "query": "updatePost",
                 "success": False,
                 "message": str(e)
-            })
+            }, status=400)
             
     @action(detail=False, url_path='createExternalComment', methods=["POST"])
     def create_external_comment(self, request):
@@ -383,9 +394,15 @@ class PostsViewSet(viewsets.ModelViewSet):
             sUtil = ServerUtil(postUrl=postUrl)
             if not sUtil.is_valid():
                 return Response("No foreign node with the base url: "+postUrl, status=404)
-            success, res = sUtil.create_comment(postUrl.split("/posts/")[1], authorUrl, request.data["comment"], postUrl)
+                
+            data = request.data
+            comment = data.get("comment", None)
+            if (isinstance(comment, str)):
+                comment = json.loads(comment)
+            
+            success, res = sUtil.create_comment(postUrl.split("/posts/")[1], authorUrl, comment, postUrl)
             if not success:
-                return Response("Failed to grab foreign post: "+postUrl, status=500)
+                return Response("Failed to post foreign comment: "+postUrl, status=500)
             return Response(res)
         except Exception as e:
             print(e)

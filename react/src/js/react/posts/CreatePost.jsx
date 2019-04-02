@@ -50,6 +50,7 @@ export default class CreatePost extends Reflux.Component {
             form.elements.content.value = this.state.currentPost.content;
             form.elements.contentType.value = this.state.currentPost.contentType;
             form.elements.description.value = this.state.currentPost.description;
+            // eslint-disable-next-line
             this.setState({
                 tags: this.state.currentPost.categories,
                 privacyKey: this.state.currentPost.visibility,
@@ -86,7 +87,7 @@ export default class CreatePost extends Reflux.Component {
         formData.append("postData", JSON.stringify(data));
         formData.append("query", "createPost");
         if (window.location.href.endsWith("edit")) {
-            console.log(formData)
+            console.log(formData);
             PostsActions.putPost(formData);
         } else {
             PostsActions.createPost(formData);

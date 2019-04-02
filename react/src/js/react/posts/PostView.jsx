@@ -39,8 +39,7 @@ export default class PostView extends Reflux.Component {
         e.preventDefault();
         if (e.currentTarget.elements.comment.value !== "") {
             // eslint-disable-next-line no-undef
-            const formData = new FormData(),
-                id = this.state.currentPost.id,
+            const id = this.state.currentPost.id,
                 form = e.currentTarget,
                 data = {
                     comment: form.elements.comment.value,
@@ -50,9 +49,7 @@ export default class PostView extends Reflux.Component {
                     published: (new Date()).toISOString(),
                     id: "1"
                 };
-            formData.append("comment", JSON.stringify(data));
-            formData.append("query", "addComment");
-            PostsActions.addComment(id, formData, this.state.currentPost.origin);
+            PostsActions.addComment(id, data, this.state.currentPost.origin);
         }
         this.setState({
             newCommentText: ""

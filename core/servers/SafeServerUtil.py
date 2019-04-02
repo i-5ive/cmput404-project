@@ -138,7 +138,10 @@ class ServerUtil:
                     "comment": comment
                 }
             )
+            if (response.status_code >= 400):
+                raise Exception(response.json())
             postData = response.json()
+            print(postData)
             return True, postData
         except Exception as e:
             print("posting comment", url, "failed. Error:", e)
