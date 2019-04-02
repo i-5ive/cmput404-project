@@ -18,12 +18,21 @@ export default class PostView extends Reflux.Component {
     constructor(props) {
         super(props);
         this.stores = [PostsStore, AuthStore];
+        this.state = {
+            newCommentText: ""
+        };
     }
 
     componentDidMount() {
         const postId = window.location.href.split("/post/")[1],
             isExternal = postId.includes("http");
         PostsActions.getPost(postId, isExternal);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.currentPost !== prevState.currentPost && this.state.currentPost) {
+            PostsActions.loadComments(this.state.currentPost);
+        }
     }
 
     handleCommentSubmit = (e) => {
@@ -35,13 +44,32 @@ export default class PostView extends Reflux.Component {
                 form = e.currentTarget,
                 data = {
                     comment: form.elements.comment.value,
-                    author: this.state.userId,
+                    author: this.state.userInfo,
                     contentType: form.elements.contentType.value,
-                    post: this.state.currentPost.id
+                    post: this.state.currentPost.origin,
+                    published: (new Date()).toISOString(),
+                    id: "1"
                 };
-            formData.append("commentData", JSON.stringify(data));
+            formData.append("comment", JSON.stringify(data));
             formData.append("query", "addComment");
-            PostsActions.addComment(id, formData);
+            PostsActions.addComment(id, formData, this.state.currentPost.origin);
+        }
+        this.setState({
+            newCommentText: ""
+        });
+    }
+
+	_onCommentChange = (e) => {
+	    this.setState({
+	        newCommentText: e.target.value
+	    });
+	};
+
+	// Credit to Brendan McGill for this: https://stackoverflow.com/a/49573628
+    handleScroll = (e) => {
+        const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+        if (bottom) {
+            PostsActions.loadComments(this.state.currentPost, this.state.nextCommentsPage);
         }
     }
 
@@ -54,7 +82,7 @@ export default class PostView extends Reflux.Component {
     }
 
     renderComments() {
-        const comments = this.state.currentPost.comments.map((comment) => (
+        const comments = this.state.comments.map((comment) => (
             <Thumbnail key={comment.id}>
                 <div className="comment">
                     {this.renderCommentText(comment)} <br />
@@ -63,15 +91,33 @@ export default class PostView extends Reflux.Component {
             </Thumbnail>
 
         ));
-        return comments;
+        return (
+            <div onScroll={(this.state.nextCommentsPage && !this.state.fetchingComments) ? this.handleScroll : undefined} className="comments-wrapper">
+                {
+                    comments
+                }
+                {
+                    this.state.fetchingComments && <LoadingComponent />
+                }
+            </div>
+        );
     }
 
     renderMakeComments() {
+        if (this.state.creatingComment) {
+            return <LoadingComponent />;
+        }
         return (
             <Thumbnail className="comment-thumbnail">
                 <Form onSubmit={this.handleCommentSubmit}>
                     <FormGroup controlId="comment">
-                        <FormControl name="comment" componentClass="textarea" rows="5" maxLength="130" placeholder="Enter comment here..." />
+                        <FormControl name="comment"
+                            componentClass="textarea"
+                            rows="5"
+                            maxLength="130"
+                            value={this.state.newCommentText}
+                            onChange={this._onCommentChange}
+                            placeholder="Comment on this post..." />
                     </FormGroup>
                     <FormGroup controlId="contentType">
                         <div className="comment-type-buttons-row">
@@ -82,7 +128,7 @@ export default class PostView extends Reflux.Component {
                                 Markdown
                             </Radio>
                         </div>
-                        <Button bsStyle="primary" className="submit-button submit-button-comment" type="submit">
+                        <Button bsStyle="primary" disabled={!this.state.newCommentText} className="submit-button submit-button-comment" type="submit">
                             Comment
                         </Button>
                     </FormGroup>
@@ -101,13 +147,13 @@ export default class PostView extends Reflux.Component {
                 </div>
             );
         }
+
         return (
             <div className="postView">
                 <Post
                     post={this.state.currentPost}
                     images={this.state.currentPostImages}
                     isPostView />
-                <hr className="comment-hr" />
                 {this.renderMakeComments()}
                 {
                     this.renderComments()

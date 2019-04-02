@@ -1,4 +1,5 @@
 import logging
+import json
 
 from django.core.paginator import Paginator
 # Create your views here.
@@ -14,7 +15,7 @@ from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.create_posts_view import handle_posts
 from core.posts.models import Posts, Comments
 from core.posts.serializers import PostsSerializer, CommentsSerializer
-from core.posts.util import can_user_view, add_page_details_to_response, merge_posts_with_github_activity, merge_posts
+from core.posts.util import can_user_view, can_external_user_view, add_page_details_to_response, merge_posts_with_github_activity, merge_posts
 
 from core.github_util import get_github_activity
 
@@ -25,16 +26,36 @@ logger = logging.getLogger(__name__)
 
 COMMENT_NOT_ALLOWED = 'Comment not allowed'
 COMMENT_ADDED = 'Comment Added'
+POST_NOT_VISIBLE = "This post is not visible to the current user"
 
 def create_comment(request, pk=None):
     post = get_object_or_404(Posts, pk=pk)
-    if not can_user_view(request.user, post):
+    
+    is_server = ServerUtil.is_server(request.user)
+    
+    if (not is_server and not can_user_view(request.user, post)):
         return Response(status=status.HTTP_403_FORBIDDEN)
     if post:
         data = request.data
-        comment = data.get('comment', None)
+        comment = data.get("comment", None)
+        if (isinstance(comment, str)):
+            comment = json.loads(comment)
         author = comment.get('author', None)
-        author_id = author['id'].rstrip('/').split('/')[-1]
+        author_id = author['id']
+        try:
+            if (is_server and not (ServerUtil(authorUrl=author_id).should_share_posts() and can_external_user_view(author_id, post))):
+                return Response({
+                    "query": "addComment",
+                    "success": False,
+                    "message": POST_NOT_VISIBLE,
+                }, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            print(e)
+            return Response({
+                "query": "addComment",
+                "success": False,
+                "message": POST_NOT_VISIBLE,
+            }, status=status.HTTP_403_FORBIDDEN)
         comment['author'] = author_id
         serializer = CommentsSerializer(data=comment)
         if serializer.is_valid():
@@ -92,7 +113,6 @@ def list_comments(request, pk=None):
         add_page_details_to_response(request, data, page, queryPage)
 
     return Response(data)
-
 
 class PostsViewSet(viewsets.ModelViewSet):
     queryset = Posts.objects.filter(visibility="PUBLIC").order_by('-published')
@@ -160,7 +180,8 @@ class PostsViewSet(viewsets.ModelViewSet):
             page = paginator.page(queryPage + 1)
             serializer = self.get_serializer(page, many=True)
             pages_to_return = serializer.data
-        except:
+        except Exception as e:
+            print(e)
             pages_to_return = []
 
         data = {
@@ -322,6 +343,32 @@ class PostsViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @action(detail=False, url_path='createExternalComment', methods=["POST"])
+    def create_external_comment(self, request):
+        if (not request.user.is_authenticated):
+            return Response({
+                "query": "createExternalComment",
+                "message": "You must be authenticated",
+                "success": False
+            }, status=403)
+        try:
+            postUrl = request.data["postUrl"]
+            authorUrl = get_author_url(str(request.user.author.pk))
+            sUtil = ServerUtil(postUrl=postUrl)
+            if not sUtil.is_valid():
+                return Response("No foreign node with the base url: "+postUrl, status=404)
+            success, res = sUtil.create_comment(postUrl.split("/posts/")[1], authorUrl, request.data["comment"], postUrl)
+            if not success:
+                return Response("Failed to grab foreign post: "+postUrl, status=500)
+            return Response(res)
+        except Exception as e:
+            print(e)
+            return Response({
+                "query": "createExternalComment",
+                "message": e,
+                "success": False
+            }, status=400)
+    
     def create(self, request, **kwargs):
         return handle_posts(request)
 
@@ -407,7 +454,8 @@ class PostsViewSet(viewsets.ModelViewSet):
                 serializer = PostsSerializer(page, many=True, context={'request': request})
                 posts_to_return = serializer.data
                 
-        except:
+        except Exception as e:
+            print(e)
             posts_to_return = []
 
         data = {

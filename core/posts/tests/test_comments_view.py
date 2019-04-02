@@ -38,7 +38,7 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
         for i in range(0, 100):
-            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
+            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1.get_url()))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 19})
         self.assertEqual(res.status_code, 200)
 
@@ -59,6 +59,7 @@ class CommentsViewTests(TestCase):
                     "id": str(comments[i].id)
                 }
             )
+        
         self.assertEqual(res.json(), {
             "query": "comments",
             "count": 100,
@@ -71,7 +72,7 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
         for i in range(0, 100):
-            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
+            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1.get_url()))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 0})
         self.assertEqual(res.status_code, 200)
 
@@ -104,7 +105,7 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
         for i in range(0, 100):
-            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
+            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1.get_url()))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 10})
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["previous"], "http://testserver/posts/{0}/comments/?page=9".format(post.id))
@@ -120,7 +121,7 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         comments = []
         for i in range(0, 100):
-            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
+            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1.get_url()))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": -1})
         self.assertEqual(res.status_code, 400)
 
@@ -128,7 +129,7 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PRIVATE", author=self.author1)
         comments = []
         for i in range(0, 100):
-            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
+            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1.get_url()))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 1, "size": -1})
         self.assertEqual(res.status_code, 400)
 
@@ -136,10 +137,11 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1)
         comments = []
         for i in range(0, 100):
-            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1))
+            comments.append(Comments.objects.create(post=post, comment="Hello{0}".format(i), author=self.author1.get_url()))
         res = self.client.get("/posts/{0}/comments/".format(post.id), {"page": 0, "size": 25})
         self.assertEqual(res.status_code, 200)
 
+        self.maxDiff = None
         author_details = {
             "id": self.author1.get_url(),
             "url": self.author1.get_url(),
@@ -169,11 +171,11 @@ class CommentsViewTests(TestCase):
         post = Posts.objects.create(visibility="PUBLIC", author=self.author1, visibleTo=[self.author2.get_url()])
         comment_data = {
             "query": "addComment",
-            "post": "http://localhost:8000/posts/{id}".format(id=post.id),
+            "post": "http://127.0.0.1:8000/posts/{id}".format(id=post.id),
             "comment": {
                 "author": {
-                    "id": "http://localhost:8000/author/{id}".format(id=self.author2.id),
-                    "host": "http://localhost:8000/",
+                    "id": "http://127.0.0.1:8000/author/{id}".format(id=self.author2.id),
+                    "host": "http://127.0.0.1:8000/",
                     "displayName": "Cole Mackenzie"
                 },
                 "comment": "This is a comment",
@@ -188,6 +190,6 @@ class CommentsViewTests(TestCase):
         self.assertEqual(post.comments.count(), 1)
 
         comment = post.comments.first()
-        self.assertEqual(comment.author, self.author2)
+        self.assertEqual(comment.author, self.author2.get_url())
         self.assertEqual(comment.comment, comment_data["comment"]["comment"])
         self.assertEqual(comment.contentType, comment_data["comment"]["contentType"])

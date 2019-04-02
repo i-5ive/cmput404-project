@@ -118,6 +118,30 @@ class ServerUtil:
             print("Failed fetching posts, error:", e)
             return False, {}
     
+    def create_comment(self, id, requestingAuthorUrl, comment, origin):
+        self.__throw_if_server_is_bad_or_unchecked()
+        url = self.get_base_url() + "/posts/" + id + "/comments"
+        print("posting comment to external server:", url)
+        try:
+            # not sure if this is necessary here..
+            if not self.should_fetch_posts():
+                 # return nothing, as we shouldn't be fetching from this server
+                raise ValueError("The admin has disabled fetching posts from this server.")
+            response = requests.post(
+                url,
+                auth=self.get_server_auth(),
+                json={
+                    "query": "addComment",
+                    "post": origin,
+                    "comment": comment
+                }
+            )
+            postData = response.json()
+            return True, postData
+        except Exception as e:
+            print("posting comment", url, "failed. Error:", e)
+            return False, None
+    
     def get_posts_by_author(self, authorId, requesterUrl):
         self.__throw_if_server_is_bad_or_unchecked()
         try:

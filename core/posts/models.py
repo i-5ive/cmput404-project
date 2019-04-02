@@ -8,7 +8,6 @@ from core.authors.models import Author
 
 
 class CommonData(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     CONTENT_CHOICES = (
         ('text/markdown', 'Markdown'),
@@ -40,6 +39,7 @@ class Posts(CommonData):
     visibleTo = ArrayField(models.URLField(), default=list)
     source = models.URLField(blank=True, null=True)
     origin = models.URLField(blank=True, null=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # DO NOT CHANGE THIS WITHOUT CHANGING EVERYTHING THAT USES THESE...
     VISIBILITY_CHOICES = (
@@ -64,3 +64,4 @@ class Comments(CommonData):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Posts, related_name='comments', on_delete=models.CASCADE)
     comment = models.TextField()
+    author = models.URLField()
