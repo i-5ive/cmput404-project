@@ -352,6 +352,27 @@ class PostsViewSet(viewsets.ModelViewSet):
     def comments(self, request, pk=None):
         if request.method == "GET":
             return list_comments(request, pk=pk)
+        elif ServerUtil.is_server(request.user):
+            xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
+            postUrl = request.data.get("post", None)
+            if not postUrl:
+                return Response("You failed to specify the 'post' of the query.", 400)
+            pk = postUrl.split("posts/")[1]
+            post = get_object_or_404(Posts, pk=pk)
+            commentData = request.data.get("comment", {})
+            authorData = commentData.get("author", {})
+            authorUrl = authorData.get("id", None)
+            if not authorUrl:
+                return Response("You failed to specify the author's id.", 400)
+            serializer = CommentsSerializer(data=commentData)
+            commentData['author'] = authorUrl
+            if serializer.is_valid():
+                post.comments.create(**serializer.validated_data)
+                return Response("It's created hopefully", 200)
+            else:
+                return Response("Some error who knows", 400)
+
+
         elif request.method == "POST":
             return create_comment(request, pk=pk)
         else:
