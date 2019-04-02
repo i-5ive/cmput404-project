@@ -30,12 +30,12 @@ class TestAuthorPost(TestCase):
         resp = self.client.get("/author/posts/").data
         self.assertEqual(numPublicPosts+1, resp["count"])
 
-        # add a server-only post
+        # add a server-only post which do not show 
         createPostForAuthor(author1, "test_get_no_auth author1's server-only post", "SERVERONLY")
 
-        # The number of public posts should have increased by two now
+        # The number of public posts should have increased by one only
         resp = self.client.get("/author/posts/").data
-        self.assertEqual(numPublicPosts+2, resp["count"])
+        self.assertEqual(numPublicPosts+1, resp["count"])
 
         # add a private post
         createPostForAuthor(author1, "test_get_no_auth author1's private post", "PRIVATE")
@@ -46,7 +46,7 @@ class TestAuthorPost(TestCase):
 
         # The number of posts should have not increased since last time
         resp = self.client.get("/author/posts/").data
-        self.assertEqual(numPublicPosts+2, resp["count"])
+        self.assertEqual(numPublicPosts+1, resp["count"])
 
     # Test that we see friend's posts if we're authenticated
     def test_see_friend_posts(self):

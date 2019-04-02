@@ -465,7 +465,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 friends = [get_author_id(x) for x in friends if x.startswith(baseUrl)]
                 foafs = [get_author_id(x) for x in foafs if x.startswith(baseUrl)]
                 posts = Posts.objects.all().filter(visibility="PUBLIC", unlisted=False)
-                posts |= Posts.objects.all().filter(visibility__in=["FRIENDS", "SERVERONLY"], author_id__in=friends, unlisted=False)
+                posts |= Posts.objects.all().filter(visibility="FRIENDS", author_id__in=friends, unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="FOAF", author_id__in=foafs, unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[xUser], unlisted=False)
         else:
