@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from core.posts.models import Posts, Comments
-from core.authors.serializers import get_summary
-from core.hostUtil import get_host_url
+from core.authors.serializers import get_summary, get_author_summary_from_url
+from core.hostUtil import get_host_url, is_external_host
 
 PAGE_SIZE = 5
 
@@ -54,5 +54,5 @@ class CommentsSerializer(serializers.ModelSerializer):
     # Credits to Ivan Semochkin, https://stackoverflow.com/a/41261614
     def to_representation(self, instance):
         representation = super(CommentsSerializer, self).to_representation(instance)
-        representation['author'] = get_summary(instance.author)
+        representation['author'] = get_author_summary_from_url(instance.author)
         return representation

@@ -11,7 +11,7 @@ from core.authors.friend_request_view import get_author_details
 
 from core.authors.util import get_author_url, get_author_summaries, get_author_id
 from core.authors.friends_view import handle_friends_get, handle_friends_post
-from core.hostUtil import get_host_url
+from core.hostUtil import get_host_url, is_encoded_external_host
 from core.authors.friends_util import get_friends, get_friends_from_pk
 from core.authors.external_author_posts_view import get_external_author_posts
 
@@ -329,7 +329,6 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False
             }, status=400)
 
-        # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
         if size < 0:
             return Response({
@@ -337,9 +336,15 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "Size must be positive",
                 "success": False
             }, status=400)
+        elif size > 100:
+            return Response({
+                "query": "posts",
+                "message": "The page size can not be greater than 100",
+                "success": False
+            }, status=400)
 
         try:
-            if ("http" in pk):
+            if (is_encoded_external_host(pk)):
                 return get_external_author_posts(request, pk)
             author = Author.objects.get(pk=pk)
         except:
