@@ -85,7 +85,7 @@ class Post extends Reflux.Component {
             if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
                 // some servers store their image data with the proper contentType,
                 // so to integrate this we need to be able to detect and place it when necessary
-                let name = `data:${contentType},${content}`;
+                let name = `data:${content}`;
                 if (content.startsWith("data")) {
                     name = content;
                 }
