@@ -9,14 +9,11 @@ def can_user_view(user, post):
         return True
     elif ((not user.is_authenticated) and post.visibility != "PUBLIC" and post.visibility != "SERVERONLY"):
         return False
-    elif (post.visibility == "SERVERONLY"):
-        # TODO: if other server, return False
-        return True
     elif (post.visibility == "PUBLIC"):
         return True
     elif (post.visibility == "PRIVATE"):
         return user.author.get_url() in post.visibleTo
-    elif (post.visibility == "FRIENDS"):
+    elif (post.visibility == "FRIENDS" or post.visibility == "SERVERONLY"):
         friends = get_friends(post.author.get_url())
         return user.author.get_url() in friends
     elif (post.visibility == "FOAF"):
@@ -25,6 +22,7 @@ def can_user_view(user, post):
         author_friends = get_friends_set(author_url)
         mutual_friends = requester_friends & author_friends
         return len(mutual_friends) > 0
+    return False
 
 ## Gets whether the specified external user can view a specific post
 ## @param {String} author_url - the url of the author to check
