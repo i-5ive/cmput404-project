@@ -43,7 +43,8 @@ def create_comment(request, pk=None):
         author = comment.get('author', None)
         author_id = author['id']
         try:
-            if (is_server and not (ServerUtil(authorUrl=author_id).should_share_posts() and can_external_user_view(author_id, post))):
+            su = ServerUtil(authorUrl=author_id)
+            if (is_server and not (su.is_valid() and su.should_share_posts() and can_external_user_view(author_id, post))):
                 return Response({
                     "query": "addComment",
                     "success": False,
