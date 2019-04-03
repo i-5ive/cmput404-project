@@ -351,9 +351,11 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='comments', methods=["GET", "POST"])
     def comments(self, request, pk=None):
+        print(request)
         if request.method == "GET":
             return list_comments(request, pk=pk)
         elif ServerUtil.is_server(request.user):
+            print("This is a server")
             xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
             postUrl = request.data.get("post", None)
             if not postUrl:
