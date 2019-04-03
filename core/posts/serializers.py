@@ -41,8 +41,7 @@ class PostsSerializer(serializers.ModelSerializer):
             representation["source"] = representation["origin"]
         del representation["post_id"]
         return representation 
-        
-    # Credit to Soufiaane and Tomas Walch for this: https://stackoverflow.com/a/35026359
+        # Credit to Soufiaane and Tomas Walch for this: https://stackoverflow.com/a/35026359
     def create_temporary(self, data):
         return Posts(**data)
 
