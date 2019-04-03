@@ -82,7 +82,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("You must be authenticated to use this endpoint.", status=403)
         if not authorUrl:
             return Response("You must specify an authorUrl query to use this endpoint", status=400)
-        
+
         server = ServerUtil(authorUrl=authorUrl)
         if not server.is_valid():
             return Response("Could not find an external server in our database for the author url: "+authorUrl, status=404)
@@ -95,9 +95,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             server2 = ServerUtil(url=authorUrl.split('/author')[0])
             if server2.is_valid():
                 success, friends = server2.get_author_friends(authorUrl.split("author/")[1])
-                if not success:
-                    profile["friends"] = []
-                else:
+                if success:
                     for friend in friends:
                         friend_server = ServerUtil(authorUrl=friend)
                         friend_id = friend.split('author/')[1]
@@ -114,7 +112,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             author = Author.objects.get(pk=pk)
         except:
             return Response("Invalid author ID specified", status=404)
-        
+
         requests = FriendRequest.objects.filter(friend=get_author_url(pk))
         print("requests found", len(requests))
         urls = []
@@ -143,7 +141,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "Invalid author ID specified"
             }, status=404)
-        
+
         try:
             message = "The request body could not be parsed"
             body = request.data
@@ -154,7 +152,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": message
             }, status=400)
-        
+
         if not success:
             return Response({
                 "query": "friendrequest",
@@ -171,7 +169,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         # check if this is an external friendship
         localAuthorUrl = get_author_url(pk)
         if localAuthorUrl.split("/author/")[0] != friend_data["url"].split("/author/")[0]:
-            xServerAuthorUrl = friend_data["url"] 
+            xServerAuthorUrl = friend_data["url"]
             xServerBody = {
                 "query": "friendrequest",
                 "friend": friend_data,
@@ -208,7 +206,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author_url = Author.objects.get(pk=pk).get_url()
             other_url = get_author_url(other_user)
-            
+
             follow = Follow.objects.filter(follower=author_url, followed=other_url)
             reverse = Follow.objects.filter(follower=other_url, followed=author_url)
         except:
@@ -235,12 +233,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "The author ID was invalid",
                 "success": False
             }, status=404)
-        
+
         if (request.method == "POST"):
             return handle_friends_post(request, pk)
 
         return handle_friends_get(request, pk)
-  
+
     @action(methods=['get'], detail=True, url_path='followed', url_name='followed_users')
     def list_followed_users(self, request, pk):
         author = get_object_or_404(Author, pk=pk)
@@ -311,7 +309,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "Invalid author ID url parameter specified"
             }, status=404)
-        
+
         try:
             followed = request.data["author"]
             if ("/author/" not in followed):
@@ -324,13 +322,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "The author field was incorrect"
             }, status=400)
-        
+
         return Response({
             "isFollowingUser": follow.exists(),
             "isOtherFollowing": reverse.exists(),
             "isOtherFriendRequest": FriendRequest.objects.filter(requester=followed, friend=pk_url).exists()
         }, status=200)
-        
+
     # All posts the currently auth'd user can see of pk
     # /author/{AUTHOR_ID}/posts
     @action(detail=True, url_path="posts")
@@ -381,7 +379,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
             # post_types will track what level of posts a user can see
             post_types = ["PUBLIC"]
-            
+
             # convert to dict for dat O(1)
             # Note: this is terrible, we should be using the database more directly
             requesterFriends = {}
@@ -409,7 +407,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         github_stream = get_github_activity(author)
         combined_stream = merge_posts_with_github_activity(posts, github_stream)
-        
+
         pages = Paginator(combined_stream, size)
         current_page = pages.page(page)
         posts = PostsSerializer(current_page, many=True)
@@ -516,7 +514,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             except:
                 print("got except!")
                 return Response(status=500)
-        
+
         pages = Paginator(posts, size)
         current_page = pages.page(page)
         posts = PostsSerializer(current_page, many=True)
