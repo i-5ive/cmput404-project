@@ -36,14 +36,23 @@ def get_summary(instance):
 
 def get_external_author_summary(authorUrl):
     # open a server util with the author url
-    sUtil = ServerUtil(authorUrl=authorUrl)
-    if not sUtil.valid_server():
-        print("authorUrl found, but not in DB", authorUrl)
-        raise Exception("Invalid server")
-    # split the id from the URL and ask the external server about them
-    success, authorInfo = sUtil.get_author_info(authorUrl.split("/author/")[1])
-    if not success:
-        raise Exception("Could not get author details")
+    try:
+        sUtil = ServerUtil(authorUrl=authorUrl)
+        if not sUtil.valid_server():
+            print("authorUrl found, but not in DB", authorUrl)
+            raise Exception("Invalid server")
+        # split the id from the URL and ask the external server about them
+        success, authorInfo = sUtil.get_author_info(authorUrl.split("/author/")[1])
+        if not success:
+            raise Exception("Could not get author details")
+    except Exception as e:
+        print(e)
+        return {
+            "id": "",
+            "host": "",
+            "url": "",
+            "displayName": ""
+        }
 
     return {
         "id": authorUrl,
