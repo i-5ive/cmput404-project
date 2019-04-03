@@ -128,7 +128,7 @@ class Post extends Reflux.Component {
 
     renderFooter() {
         // Prevent errors from unsafely using properties of objects
-        const commentsLength = (this.props.post.comments || []).length,
+        const commentsLength = this.props.post.count || (this.props.post.comments && this.props.post.comments.length) || 0,
             hasCategories = this.props.post.categories && this.props.post.categories.length !== 0,
             categories = (hasCategories && this.props.post.categories) || [];
 
@@ -179,7 +179,8 @@ class Post extends Reflux.Component {
     }
 
     handleEditPost = () => {
-        this.props.onEdit(this.props.post.id, this.props.post.post_id);
+        // I am so disappointed I had to do this
+        this.props.history.push(`/post/${this.props.post.id}/edit`);
     }
 
     renderTitle() {
