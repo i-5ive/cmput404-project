@@ -57,7 +57,7 @@ class TestAuthorPost(TestCase):
         
         self.client.login(username=a1name, password=a1password)
         
-        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC","SERVERONLY"]).count()
+        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC"]).count()
         resp = self.client.get("/author/posts/").data
         self.assertEqual(numPublicPosts, resp["count"]) # no friends yet, so nothing should be different
 
@@ -88,7 +88,7 @@ class TestAuthorPost(TestCase):
         D = setupUser("test_foafing_posts_user4")
 
         self.client.login(username=a1name, password=a1password) # login to user A
-        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC","SERVERONLY"]).count()
+        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC"]).count()
 
         # Add a FOAF post for B
         createPostForAuthor(B, "a FOAF post from user B", "FOAF")
@@ -124,7 +124,7 @@ class TestAuthorPost(TestCase):
         aName = "test_see_own_user"
         aPassword = "guest"
         author = setupUser(aName, aPassword)
-        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC","SERVERONLY"]).count()
+        numPublicPosts = Posts.objects.all().filter(visibility__in=["PUBLIC"]).count()
 
         self.client.login(username=aName, password=aPassword) # login to the user
 

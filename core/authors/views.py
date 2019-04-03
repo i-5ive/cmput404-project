@@ -433,12 +433,11 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "Page number must be positive",
                 "success": False
             }, status=400)
-        # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
-        if size < 0:
+        if size < 0 or size > 100:
             return Response({
                 "query": "posts",
-                "message": "Size must be positive",
+                "message": "Size was invalid",
                 "success": False
             }, status=400)
 
@@ -487,14 +486,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
             requesterFriends = {}
             requesterFOAFs = {}
             for friend in get_friends_from_pk(requestingAuthor):
-                friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                #friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                 requesterFriends[friend] = True
             for friend in requesterFriends:
-                for friend in get_friends_from_pk(friend):
-                    friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                for foaf in get_friends(friend):
+                    #friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                     # Ensure we don't add direct friends as an FOAF
-                    if not requesterFriends.get(friend, False):
-                        requesterFOAFs[friend] = True
+                    if not requesterFriends.get(foaf, False):
+                        requesterFOAFs[foaf] = True
             try:
                 # Grab the requesting user's posts
                 posts = Posts.objects.all().filter(author=requestingAuthor, unlisted=False)
@@ -505,12 +504,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 # Grab posts from direct friends
                 for friend in requesterFriends:
                     if not friend.startswith(host_url): continue
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF", "SERVERONLY"], unlisted=False)
+                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FRIENDS", "FOAF", "SERVERONLY"], unlisted=False)
 
                 # Posts from FOAFs
                 for friend in requesterFOAFs:
                     if not friend.startswith(host_url): continue
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FOAF"], unlisted=False)
+                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FOAF"], unlisted=False)
 
                 # PRIVATE posts that the author can see
                 posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))], unlisted=False)
