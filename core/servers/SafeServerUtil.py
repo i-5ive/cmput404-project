@@ -199,6 +199,28 @@ class ServerUtil:
             print("Failed sending friendship", e)
             return False
 
+    def notify_of_unfriendship(self, requesterUrl, authorUrl):
+        self.__throw_if_server_is_bad_or_unchecked()
+        try:
+            url = self.get_base_url() + "/unfollow"
+            auth = self.get_server_auth()
+            body = {
+                "query": "unfollow",
+                "author": {
+                    "id": requesterUrl
+                },
+                "friend": {
+                    "id": authorUrl
+                }
+            }
+            print("Sending unfollow notification to:", url, auth, body)
+            resp = requests.post(url, data=json.dumps(body), auth=auth, headers=headers)
+            print("Response received", resp.status_code, resp.content)
+            return resp.status_code == 200
+        except Exception as e:
+            print("Failed sending notification", e)
+            return False
+
     # Success, friendship status
     def check_direct_friendship(self, remote_author, local_author):
         self.__throw_if_server_is_bad_or_unchecked()
