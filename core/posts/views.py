@@ -496,9 +496,13 @@ class PostsViewSet(viewsets.ModelViewSet):
             posts |= Posts.objects.filter(author__id__in=localFollowedIds, unlisted=False).exclude(visibility="PRIVATE")
             posts |= Posts.objects.filter(author__id__in=localFollowedIds, unlisted=False, visibility="PRIVATE",
                                           visibleTo__contains=[requester_url])
+            viewable_posts = []
+            for post in posts:
+                if (can_user_view(request.user, post)):
+                    viewable_posts.append(post)
 
             github_stream = get_github_activity(request.user.author)
-            posts = merge_posts_with_github_activity(posts, github_stream)
+            posts = merge_posts_with_github_activity(viewable_posts, github_stream)
         else:
             posts = Posts.objects.filter(visibility__in=["PUBLIC"], unlisted=False)
             externalPosts = []
