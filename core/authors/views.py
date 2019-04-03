@@ -90,7 +90,22 @@ class AuthorViewSet(viewsets.ModelViewSet):
         if not success:
             return Response("Failed to connect with external server: "+server.get_base_url(), status=500)
         # for some reason we throw friends in here
-        profile["friends"] = []
+        if "friends" not in profile:
+            profile['friends'] = []
+            server2 = ServerUtil(url=authorUrl.split('/author')[0])
+            if server2.is_valid():
+                success, friends = server2.get_author_friends(authorUrl.split("author/")[1])
+                if not success:
+                    profile["friends"] = []
+                else:
+                    for friend in friends:
+                        friend_server = ServerUtil(authorUrl=friend)
+                        friend_id = friend.split('author/')[1]
+                        if friend_server.is_valid():
+                            success, info = friend_server.get_author_info(friend_id)
+                            if success and info:
+                                profile['friends'].append(info)
+
         return Response(profile)
 
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')

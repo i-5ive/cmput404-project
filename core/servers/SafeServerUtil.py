@@ -2,6 +2,7 @@
 from core.servers.models import Server
 import json
 import requests
+from posixpath import join as urljoin
 
 class ServerUtil:
     # Init function allows you pass in variables related to the server to
@@ -67,6 +68,20 @@ class ServerUtil:
         except Exception as e:
             print("fetching", url, "failed. Error:", e)
             return False, None
+
+    def get_author_friends(self, id):
+        url = urljoin(self.get_base_url(), 'author', id, 'friends')
+        try:
+            response = requests.get(
+                url,
+                auth=self.get_server_auth()
+            )
+            body = response.json()
+            return True, body.get('authors', None)
+        except Exception as e:
+            print("fetching", url, "failed. Error:", e)
+            return False, None
+
 
     def get_post(self, id, requestingAuthorUrl):
         self.__throw_if_server_is_bad_or_unchecked()
