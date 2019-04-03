@@ -41,7 +41,7 @@ class CanViewPostTests(TestCase):
             'visibility': "SERVERONLY"
         })
         
-        self.assertTrue(can_user_view(self.author2.user, post))
+        self.assertFalse(can_user_view(self.author2.user, post))
         
     def test_private_not_allowed(self):
         post = Posts.objects.create(**{
@@ -72,6 +72,16 @@ class CanViewPostTests(TestCase):
         make_friends(self.author1, self.author2)
         self.assertTrue(can_user_view(self.author2.user, post))
         
+    def test_server_only_allowed(self):
+        post = Posts.objects.create(**{
+            'title': 'Hello World',
+            'author': self.author1,
+            'visibility': "SERVERONLY"
+        })
+        
+        make_friends(self.author1, self.author2)
+        self.assertTrue(can_user_view(self.author2.user, post))
+
     def test_friend_not_allowed(self):
         post = Posts.objects.create(**{
             'title': 'Hello World',
