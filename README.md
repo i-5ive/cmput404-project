@@ -4,7 +4,7 @@
 
 CMPUT404 Wi19 Team Project
 
-We are making a distributed social network!
+We are making a distributed social network! Check out this version 1 video [here](https://youtu.be/oBdpFlbDGqc)!
 
 # Setup
 
@@ -44,12 +44,12 @@ Django 2.1.6
  - Get [Homebrew](https://brew.sh/), if you haven't.
  - Install Python3 `brew install python3`
  - Create a virtual env by typing `virtualenv venv --python=python3`
-   - This will help keep your packages for this project separate from other packages 
+   - This will help keep your packages for this project separate from other packages
  - You can activate the venv by typing `source venv/bin/activate`
  - Now type `pip install -r requirements.txt`
    - This will install Django, psycopyg2, etc, needed to run the project backend.
  - You should now be able to run `python3 src/django/manage.py runserver` to start the backend.
- 
+
 ### Testing
 
 You can run `python3 manage.py test` to run the django unit tests (if you have installed postgres locally (see below)). Otherwise run `pytest` to use a web-based database for the tests (slow).
@@ -66,7 +66,7 @@ CREATE USER postgres SUPERUSER;
 ```
 
 Now you can install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/), add a new server, choose a name, and the host will be `127.0.0.1`.
- 
+
 Now when you run `python manage.py test` it should run significiantly faster by using the local database you created.
 
 # AJAX Usages
@@ -101,7 +101,7 @@ We use AJAX whenever we need to fetch (or send) data from/to our Django server. 
 # Resources Used
 
 ## Bootstrapping Resources and References
-The boilerplate code for setting up React and Django was written by Bennett Hreherchuk for CMPUT401 and is reused here to form the foundation of this project. The code is the Intellectual Property of Bennett Hreherchuk and their team "The Indoors Club" under a non-competing agreement with the University of Alberta Outdoor's Club for six months after December 2018. 
+The boilerplate code for setting up React and Django was written by Bennett Hreherchuk for CMPUT401 and is reused here to form the foundation of this project. The code is the Intellectual Property of Bennett Hreherchuk and their team "The Indoors Club" under a non-competing agreement with the University of Alberta Outdoor's Club for six months after December 2018.
 Files Included:
  - Most if not all of the configuration files (`.babelrc`, `.eslintrc.json`, `package.json`, etc)
  - index.html, index.js, and App.jsx
@@ -126,7 +126,7 @@ http://www.learningaboutelectronics.com/Articles/How-to-restrict-the-size-of-fil
 
 Limiting Django querysets  
 https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets  
-  
+
 How to expect url is redirect in TestCafe?  
   [Question](https://www.stackoverflow.com/questions/44878813/how-to-expect-url-is-redirect-in-testcafe)  
   [Answer by Alexander Moskovkin](https://stackoverflow.com/a/44880118)  
