@@ -498,7 +498,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                                           visibleTo__contains=[requester_url])
             viewable_posts = []
             for post in posts:
-                if (can_user_view(request.user.author, post)):
+                if (can_user_view(request.user, post)):
                     viewable_posts.append(post)
 
             github_stream = get_github_activity(request.user.author)
