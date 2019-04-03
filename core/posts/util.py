@@ -7,7 +7,7 @@ from core.authors.friends_util import get_friends_set, get_friends
 def can_user_view(user, post):
     if (user.is_authenticated and user.author == post.author):
         return True
-    elif ((not user.is_authenticated) and post.visibility != "PUBLIC" and post.visibility != "SERVERONLY"):
+    elif ((not user.is_authenticated) and post.visibility != "PUBLIC"):
         return False
     elif (post.visibility == "PUBLIC"):
         return True
