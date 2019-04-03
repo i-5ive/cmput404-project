@@ -29,7 +29,7 @@ Running `npm run-script build` will generate `dist/index.html` you can open the 
 
 ## Django
 
-Django 2.1.6
+Django 2.1.6  
 
 ### Installation
 
@@ -38,6 +38,7 @@ Django 2.1.6
 - [Add \python and \python\scripts to your system variables](https://www.java.com/en/download/help/path.xml)
 - You can verify they are installed and attached to the path by typing `Python -v` and `pip -V`
 - Run `pip install -r requirements.txt` to install all dependencies.
+- export DJANGO_SITE_URL="https://weeb-tears.herokuapp.com"
 - run `python manage.py runserver` to start the server locally.
 
 #### Mac
@@ -48,6 +49,7 @@ Django 2.1.6
  - You can activate the venv by typing `source venv/bin/activate`
  - Now type `pip install -r requirements.txt`
    - This will install Django, psycopyg2, etc, needed to run the project backend.
+ - export DJANGO_SITE_URL="https://weeb-tears.herokuapp.com"
  - You should now be able to run `python3 src/django/manage.py runserver` to start the backend.
 
 ### Testing

@@ -4,7 +4,7 @@ import Reflux from "reflux";
 import { Alert } from "react-bootstrap";
 
 import CreateView from "./CreatePost";
-import { PostsStore } from "../discover/PostsStore";
+import { PostsStore, PostsActions } from "../discover/PostsStore";
 
 import LoadingComponent from "../misc/LoadingComponent";
 
@@ -12,6 +12,10 @@ export default class EditPostWrapper extends Reflux.Component {
     constructor(props) {
         super(props);
         this.store = PostsStore;
+    }
+
+    componentDidMount() {
+        PostsActions.clearEditNotifications();
     }
 
     render() {

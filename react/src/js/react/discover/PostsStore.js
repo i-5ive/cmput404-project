@@ -16,7 +16,8 @@ export const PostsActions = Reflux.createActions([
     "addComment",
     "getExternalPosts",
     "clearModalMessage",
-    "loadComments"
+    "loadComments",
+    "clearEditNotifications"
 ]);
 
 /**
@@ -185,6 +186,13 @@ export class PostsStore extends Reflux.Store {
         });
     }
 
+    onClearEditNotifications() {
+        this.setState({
+            errorEditingPost: false,
+            successfullyEditedPost: false
+        });
+    }
+
     onGetPost(postId, isExternal) {
         console.log(postId);
         this.setState({
@@ -219,22 +227,32 @@ export class PostsStore extends Reflux.Store {
             successfullyCreatedComment: false,
             failedToCreateComment: false
         });
-        const promise = origin.split("/posts/")[0] !== HOST_URL ? (
-            RestUtil.sendPOST("posts/createExternalComment/", {
-                postUrl: origin,
-                comment: comment
-            })
-        ) : RestUtil.sendPOST(`posts/${id}/comments/`, {
-            comment: comment,
-            query: "addComment"
-        });
+        const external = origin.split("/posts/")[0] !== HOST_URL,
+            promise = external ? (
+                RestUtil.sendPOST("posts/createExternalComment/", {
+                    postUrl: origin,
+                    comment: comment
+                })
+            ) : RestUtil.sendPOST(`posts/${id}/comments/`, {
+                comment: comment,
+                query: "addComment"
+            });
         promise.then(() => {
-            this.setState({
+            const state = {
                 creatingComment: false,
                 successfullyCreatedComment: true,
                 failedToCreateComment: false
-            });
-            if (this.state.currentPost) {
+            };
+            if (external && this.state.currentPost) {
+                const post = update(this.state.currentPost, {
+                    comments: {
+                        $unshift: [comment]
+                    }
+                });
+                state.currentPost = post;
+            }
+            this.setState(state);
+            if (!external && this.state.currentPost) {
                 this.onLoadComments(this.state.currentPost);
             }
         }).catch((err) => {
