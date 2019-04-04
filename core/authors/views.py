@@ -47,6 +47,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
 
     def retrieve(self, request, pk):
+        """
+            Gets a specific author's profile details
+        """
         try:
             author = Author.objects.get(pk=pk)
         except:
@@ -77,6 +80,16 @@ class AuthorViewSet(viewsets.ModelViewSet):
     # attempts to get an external author's profile
     @action(methods=['get'], detail=False, url_path="external")
     def get_external_profile(self, request):
+        """
+            Gets a specific external author's profile details  
+            <h4>Query Parameters</h4>
+            <p>The following parameters should be included as part of a URL query string.</p>
+            <table class="parameters table table-bordered table-striped"><thead><tr><th>Parameter</th><th>Description</th></tr>
+                </thead>
+                <tbody><tr><td class="parameter-name"><code>authorUrl</code></td><td>the external author's URL</td></tr>
+                </tbody>
+            </table>
+        """
         authorUrl = request.query_params.get("authorUrl", None)
         if not request.user.is_authenticated:
             return Response("You must be authenticated to use this endpoint.", status=403)
@@ -108,6 +121,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
     def get_friend_requests(self, request, pk):
+        """
+            Gets all friend requests that a specific author has
+        """
         try:
             author = Author.objects.get(pk=pk)
         except:
@@ -127,6 +143,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
     # A external server will never call this so we don't have to worry
     @action(methods=['post'], detail=True, url_path='friendrequests/respond', url_name='friend_requests_respond')
     def handle_friend_request_response(self, request, pk):
+        """
+            Respond to a pending friend request  
+        """
         try:
             author = Author.objects.get(pk=pk)
             if ((not request.user.is_authenticated) or request.user.author != author):
@@ -203,6 +222,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
     ## Gets whether the author is following the one specified in the body
     @action(methods=['get'], detail=True, url_path='friends/(?P<other_user>.+)', url_name='friend_to_friend')
     def friend_to_friend_query(self, request, pk, other_user):
+        """
+            Gets whether the first author is friends with the second
+        """
         try:
             author_url = Author.objects.get(pk=pk).get_url()
             other_url = other_user if "http" in other_user else get_author_url(other_user)
@@ -224,6 +246,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get', 'post'], detail=True, url_path='friends', url_name='friends')
     def friends(self, request, pk):
+        """
+            get:
+            Gets the author's list of friends
+            
+            post:
+            Checks if this author is firends with anyone specified in the body.  
+            The body should have the format specified [here](https://github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/example-article.json#L225)  
+        """
         try:
             author = Author.objects.get(pk=pk)
         except:

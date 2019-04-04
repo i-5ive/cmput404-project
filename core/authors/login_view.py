@@ -34,6 +34,10 @@ def handle_request(request):
 
 @api_view(['POST'])
 def login(request):
+    """
+        Log into the application with the given credentials.
+        Request body must include username, and password
+    """
     try:
         success, message, userId = handle_request(request)
     except:

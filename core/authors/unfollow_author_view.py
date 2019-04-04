@@ -26,6 +26,14 @@ def validate_request_body(request):
 # remote: author, friend
 @api_view(['POST'])
 def handle_unfollow_request(request):
+    """
+        Handle an author unfollowing another author.  
+        
+        The request body should be in [this format](https://github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/example-article.json#L285), but the
+        query field must be set to "unfollow"  
+        
+        You must be authenticated as the author making the request, or as an external server.  
+    """
     user = request.user
     try:
         if request.data.get("query", None) != "unfollow":

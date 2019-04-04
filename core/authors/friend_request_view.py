@@ -58,6 +58,16 @@ def validate_friend_details(authorId, friendId, externalAuthor, externalFriend, 
 
 @api_view(['POST'])
 def handle_follow_request(request):
+    """
+        Send a friend request from one author to another author.
+        If the request is valid, then the requester will now be following the requested author.
+        If the requested author was already following the requester, the two will now be friends, skipping
+        the friend request altogether.
+
+        The request body should be in [this format](https://github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/example-article.json#L285)
+        
+        You must be authenticated as the author making the request, or as an external server
+    """
     user = request.user
     # Block unauthenticated requests
     if not user.is_authenticated:
@@ -84,12 +94,10 @@ def handle_follow_request(request):
     # If it's an author making the request, ensure it's the correct user sending the request
     # In most cases this wouldn't happen, unless there's malformed data or hackerz editing the json
     if not ServerUtil.is_server(user) and get_author_url(str(request.user.author.pk)) != author["url"]:
-        # TODO: remove the debug message later
         return Response({
             "query": "friendrequest",
             "success": False,
-            "message": "You must be authenticated as the requester to perform this action.",
-            "debug": get_author_url(str(request.user.author.pk if request.user.is_authenticated else "/author/awoejaiweowae")) + " should be " + author["url"]
+            "message": "You must be authenticated as the requester to perform this action."
         }, status=status.HTTP_403_FORBIDDEN)
     elif ServerUtil.is_server(user):
         pass
