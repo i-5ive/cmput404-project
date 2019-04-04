@@ -209,7 +209,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
             follow = Follow.objects.filter(follower=author_url, followed=other_url)
             reverse = Follow.objects.filter(follower=other_url, followed=author_url)
-        except Exception:
+        except:
             return Response({
                 "success": False,
                 "message": "Invalid author ID url parameter specified",
