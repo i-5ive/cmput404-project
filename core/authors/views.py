@@ -82,7 +82,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             return Response("You must be authenticated to use this endpoint.", status=403)
         if not authorUrl:
             return Response("You must specify an authorUrl query to use this endpoint", status=400)
-        
+
         server = ServerUtil(authorUrl=authorUrl)
         if not server.is_valid():
             return Response("Could not find an external server in our database for the author url: "+authorUrl, status=404)
@@ -90,7 +90,20 @@ class AuthorViewSet(viewsets.ModelViewSet):
         if not success:
             return Response("Failed to connect with external server: "+server.get_base_url(), status=500)
         # for some reason we throw friends in here
-        profile["friends"] = []
+        if "friends" not in profile:
+            profile['friends'] = []
+            server2 = ServerUtil(url=authorUrl.split('/author')[0])
+            if server2.is_valid():
+                success, friends = server2.get_author_friends(authorUrl.split("author/")[1])
+                if success:
+                    for friend in friends:
+                        friend_server = ServerUtil(authorUrl=friend)
+                        friend_id = friend.split('author/')[1]
+                        if friend_server.is_valid():
+                            success, info = friend_server.get_author_info(friend_id)
+                            if success and info:
+                                profile['friends'].append(info)
+
         return Response(profile)
 
     @action(methods=['get'], detail=True, url_path='friendrequests', url_name='friend_requests')
@@ -99,7 +112,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             author = Author.objects.get(pk=pk)
         except:
             return Response("Invalid author ID specified", status=404)
-        
+
         requests = FriendRequest.objects.filter(friend=get_author_url(pk))
         print("requests found", len(requests))
         urls = []
@@ -128,7 +141,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "Invalid author ID specified"
             }, status=404)
-        
+
         try:
             message = "The request body could not be parsed"
             body = request.data
@@ -139,7 +152,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": message
             }, status=400)
-        
+
         if not success:
             return Response({
                 "query": "friendrequest",
@@ -156,7 +169,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         # check if this is an external friendship
         localAuthorUrl = get_author_url(pk)
         if localAuthorUrl.split("/author/")[0] != friend_data["url"].split("/author/")[0]:
-            xServerAuthorUrl = friend_data["url"] 
+            xServerAuthorUrl = friend_data["url"]
             xServerBody = {
                 "query": "friendrequest",
                 "friend": friend_data,
@@ -194,7 +207,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
             print(pk, other_user)
             author_url = Author.objects.get(pk=pk).get_url()
             other_url = get_author_url(other_user)
-            
+
             follow = Follow.objects.filter(follower=author_url, followed=other_url)
             reverse = Follow.objects.filter(follower=other_url, followed=author_url)
         except KeyError as e:
@@ -222,12 +235,12 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "The author ID was invalid",
                 "success": False
             }, status=404)
-        
+
         if (request.method == "POST"):
             return handle_friends_post(request, pk)
 
         return handle_friends_get(request, pk)
-  
+
     @action(methods=['get'], detail=True, url_path='followed', url_name='followed_users')
     def list_followed_users(self, request, pk):
         author = get_object_or_404(Author, pk=pk)
@@ -298,7 +311,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "Invalid author ID url parameter specified"
             }, status=404)
-        
+
         try:
             followed = request.data["author"]
             if ("/author/" not in followed):
@@ -311,13 +324,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "message": "The author field was incorrect"
             }, status=400)
-        
+
         return Response({
             "isFollowingUser": follow.exists(),
             "isOtherFollowing": reverse.exists(),
             "isOtherFriendRequest": FriendRequest.objects.filter(requester=followed, friend=pk_url).exists()
         }, status=200)
-        
+
     # All posts the currently auth'd user can see of pk
     # /author/{AUTHOR_ID}/posts
     @action(detail=True, url_path="posts")
@@ -358,7 +371,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
-            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"], unlisted=False)
         # else if is other_server:
         #     posts = Posts.objects.all().filter(author=pk, visibility__in=["PUBLIC"])
         elif (request.user.author == author):
@@ -367,8 +380,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
             requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
 
             # post_types will track what level of posts a user can see
-            post_types = ["PUBLIC", "SERVERONLY"]
-            
+            post_types = ["PUBLIC"]
+
             # convert to dict for dat O(1)
             # Note: this is terrible, we should be using the database more directly
             requesterFriends = {}
@@ -378,7 +391,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
             # Check if they are direct friends
             if requesterFriends.get(str(pk), False):
-                post_types += ["FRIENDS", "FOAF"]
+                post_types += ["FRIENDS", "FOAF", "SERVERONLY"]
             else: # They are not direct friends, so we should check if they share any friends
                 for friend in get_friends_from_pk(pk):
                     friend = friend.split("/")[-1]
@@ -396,7 +409,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         github_stream = get_github_activity(author)
         combined_stream = merge_posts_with_github_activity(posts, github_stream)
-        
+
         pages = Paginator(combined_stream, size)
         current_page = pages.page(page)
         posts = PostsSerializer(current_page, many=True)
@@ -422,18 +435,17 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 "message": "Page number must be positive",
                 "success": False
             }, status=400)
-        # TODO: size should be limited?
         size = int(request.query_params.get("size", DEFAULT_POST_PAGE_SIZE))
-        if size < 0:
+        if size < 0 or size > 100:
             return Response({
                 "query": "posts",
-                "message": "Size must be positive",
+                "message": "Size was invalid",
                 "success": False
             }, status=400)
 
         # Only return public posts if the user isn't authenticated
         if request.user.is_anonymous:
-            posts = Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            posts = Posts.objects.all().filter(visibility__in=["PUBLIC"], unlisted=False)
         elif ServerUtil.is_server(request.user):
             sUtil = ServerUtil(user=request.user)
             if not sUtil.is_valid():
@@ -476,34 +488,37 @@ class AuthorViewSet(viewsets.ModelViewSet):
             requesterFriends = {}
             requesterFOAFs = {}
             for friend in get_friends_from_pk(requestingAuthor):
-                friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                #friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                 requesterFriends[friend] = True
             for friend in requesterFriends:
-                for friend in get_friends_from_pk(friend):
-                    friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                for foaf in get_friends(friend):
+                    #friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                     # Ensure we don't add direct friends as an FOAF
-                    if not requesterFriends.get(friend, False):
-                        requesterFOAFs[friend] = True
+                    if not requesterFriends.get(foaf, False):
+                        requesterFOAFs[foaf] = True
             try:
                 # Grab the requesting user's posts
                 posts = Posts.objects.all().filter(author=requestingAuthor, unlisted=False)
                 # Grab all public posts
-                posts |= Posts.objects.all().filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+                posts |= Posts.objects.all().filter(visibility__in=["PUBLIC"], unlisted=False)
 
+                host_url = get_host_url()
                 # Grab posts from direct friends
                 for friend in requesterFriends:
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FRIENDS", "FOAF"], unlisted=False)
+                    if not friend.startswith(host_url): continue
+                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FRIENDS", "FOAF", "SERVERONLY"], unlisted=False)
 
                 # Posts from FOAFs
                 for friend in requesterFOAFs:
-                    posts |= Posts.objects.all().filter(author=friend, visibility__in=["FOAF"], unlisted=False)
+                    if not friend.startswith(host_url): continue
+                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FOAF"], unlisted=False)
 
                 # PRIVATE posts that the author can see
                 posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))], unlisted=False)
             except:
                 print("got except!")
                 return Response(status=500)
-        
+
         pages = Paginator(posts, size)
         current_page = pages.page(page)
         posts = PostsSerializer(current_page, many=True)

@@ -43,7 +43,8 @@ def create_comment(request, pk=None):
         author = comment.get('author', None)
         author_id = author['id']
         try:
-            if (is_server and not (ServerUtil(authorUrl=author_id).should_share_posts() and can_external_user_view(author_id, post))):
+            su = ServerUtil(authorUrl=author_id)
+            if (is_server and not (su.is_valid() and su.should_share_posts() and can_external_user_view(author_id, post))):
                 return Response({
                     "query": "addComment",
                     "success": False,
@@ -350,8 +351,29 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='comments', methods=["GET", "POST"])
     def comments(self, request, pk=None):
+        print(request)
         if request.method == "GET":
             return list_comments(request, pk=pk)
+        elif ServerUtil.is_server(request.user):
+            print("This is a server")
+            xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
+            postUrl = request.data.get("post", None)
+            if not postUrl:
+                return Response("You failed to specify the 'post' of the query.", 400)
+            pk = postUrl.split("posts/")[1]
+            post = get_object_or_404(Posts, pk=pk)
+            commentData = request.data.get("comment", {})
+            authorData = commentData.get("author", {})
+            authorUrl = authorData.get("id", None)
+            if not authorUrl:
+                return Response("You failed to specify the author's id.", 400)
+            serializer = CommentsSerializer(data=commentData)
+            commentData['author'] = authorUrl
+            if serializer.is_valid():
+                post.comments.create(**serializer.validated_data)
+                return Response("It's created hopefully", 200)
+            else:
+                return Response("Some error who knows", 400)
         elif request.method == "POST":
             return create_comment(request, pk=pk)
         else:
@@ -474,11 +496,15 @@ class PostsViewSet(viewsets.ModelViewSet):
             posts |= Posts.objects.filter(author__id__in=localFollowedIds, unlisted=False).exclude(visibility="PRIVATE")
             posts |= Posts.objects.filter(author__id__in=localFollowedIds, unlisted=False, visibility="PRIVATE",
                                           visibleTo__contains=[requester_url])
+            viewable_posts = []
+            for post in posts:
+                if (can_user_view(request.user, post)):
+                    viewable_posts.append(post)
 
             github_stream = get_github_activity(request.user.author)
-            posts = merge_posts_with_github_activity(posts, github_stream)
+            posts = merge_posts_with_github_activity(viewable_posts, github_stream)
         else:
-            posts = Posts.objects.filter(visibility__in=["PUBLIC", "SERVERONLY"], unlisted=False)
+            posts = Posts.objects.filter(visibility__in=["PUBLIC"], unlisted=False)
             externalPosts = []
         
         try:
