@@ -271,6 +271,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True, url_path='followed', url_name='followed_users')
     def list_followed_users(self, request, pk):
+        """
+            Gets a list of all authors the specified author is following
+        """
         author = get_object_or_404(Author, pk=pk)
         author_url = author.get_url()
         follows = Follow.objects.filter(follower=author_url)
@@ -285,6 +288,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True, url_path='followers', url_name='follower_users')
     def list_follower_users(self, request, pk):
+        """
+            Gets a list of all authors the specified author is followed by
+        """
         author = get_object_or_404(Author, pk=pk)
         author_url = author.get_url()
         follows = Follow.objects.filter(followed=author_url)
@@ -300,6 +306,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True, url_path='update', url_name='update')
     def update_profile(self, request, pk):
+        """
+            Updates the author's profile details
+        """
         try:
             author = Author.objects.get(pk=pk)
             if (request.user != author.user):
