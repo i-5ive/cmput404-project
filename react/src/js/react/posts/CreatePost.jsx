@@ -166,8 +166,8 @@ export default class CreatePost extends Reflux.Component {
         } else if (tag.length > 30) {
             return "Categories can be no more than 30 characters long.";
         } else if (tag === "github") {
-			return "This category is reserved and can not be used.";
-		}
+            return "This category is reserved and can not be used.";
+        }
         return null;
     };
 
