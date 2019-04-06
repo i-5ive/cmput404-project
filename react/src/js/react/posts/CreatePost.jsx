@@ -165,13 +165,15 @@ export default class CreatePost extends Reflux.Component {
             return "This category is already included.";
         } else if (tag.length > 30) {
             return "Categories can be no more than 30 characters long.";
+        } else if (tag === "github") {
+            return "This category is reserved and can not be used.";
         }
         return null;
     };
 
     _getUsernameStatusMessage = (username) => {
         if (username.length === 0) {
-            return "The username can not be blank.";
+            return "The username or URL can not be blank.";
         } else if (this.state.visibleTo.indexOf(username) > -1) {
             return "This user is already included.";
         }
@@ -292,7 +294,7 @@ export default class CreatePost extends Reflux.Component {
                         type="text"
                         value={this.state.newUsernameValue}
                         onChange={this._onUsernameValueChange}
-                        placeholder="Enter the username of someone to share with..." />
+                        placeholder="Enter the username (or URL) of someone to share with..." />
                     <Button bsStyle="primary"
                         disabled={Boolean(this.state.usernameStatusMessage)}
                         onClick={this._addCurrentUsername}>
