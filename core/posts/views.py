@@ -24,8 +24,8 @@ from core.hostUtil import is_external_host
 
 logger = logging.getLogger(__name__)
 
-COMMENT_NOT_ALLOWED = 'Comment not allowed'
-COMMENT_ADDED = 'Comment Added'
+COMMENT_NOT_ALLOWED = 'You are not allowed to comment on this post'
+COMMENT_ADDED = 'Your comment has been added'
 POST_NOT_VISIBLE = "This post is not visible to the current user"
 
 def create_comment(request, pk=None):
@@ -166,12 +166,12 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "query": "updatePost"
             }, status=404)
         
-        if (request.user.author != post.author):
+        if ((not request.user.is_authenticated) or request.user.author != post.author):
             return Response({
                 "success": False,
                 "message": "You are not authorized to edit this post.",
                 "query": "updatePost"
-            }, status=401)
+            }, status=status.HTTP_403_FORBIDDEN)
         return super().update(request, pk)
     
     def list(self, request, *args, **kwargs):
@@ -300,54 +300,6 @@ class PostsViewSet(viewsets.ModelViewSet):
             return Response("You must ensure that the post IDs and urls match.", status=400)
 
         return self.__do_a_get_post(user, data, pk)
-
-    @action(detail=True)
-    def comments(self, request, pk):
-        size = int(request.query_params.get("size", 5))
-        queryPage = int(request.query_params.get('page', 0))
-        if (size < 1 or queryPage < 0 or size > 100):
-            return Response({
-                "success": False,
-                "message": "The query parameters were invalid",
-                "query": "comments"
-            }, 400)
-        
-        try:
-            post = Posts.objects.get(pk=pk)
-        except:
-            return Response({
-                "success": False,
-                "message": "No post was found with that ID",
-                "query": "comments"
-            }, status=404)
-        
-        if (not can_user_view(request.user, post)):
-            return Response({
-                "success": False,
-                "message": "You are not authorized to view this post's comments.",
-                "query": "comments"
-            }, status=status.HTTP_403_FORBIDDEN)
-    
-        comments = Comments.objects.filter(post=post)
-        
-        try:
-            paginator = Paginator(comments, size)
-            page = paginator.page(queryPage + 1)
-            serializer = CommentsSerializer(page, many=True, context={'request': request})
-            comments_to_return = serializer.data
-        except:
-            comments_to_return = []
-        
-        data = {
-            "comments": comments_to_return,
-            "query": "comments",
-            "count": len(comments),
-            "size": size
-        }
-        if (len(comments_to_return) > 0):
-            add_page_details_to_response(request, data, page, queryPage)
-
-        return Response(data)
 
     @action(detail=True, url_path='comments', methods=["GET", "POST"])
     def comments(self, request, pk=None):

@@ -20,8 +20,6 @@ def create_post(request, data):
 
     post_serializer = PostsSerializer(data=data)
     post_serializer.is_valid()
-    # TODO Remove this, leave in for now
-    print(post_serializer.errors)
     new_post = post_serializer.save()
 
     # if image, make another post with generated post_id
@@ -73,6 +71,7 @@ def handle_visible_to(request, data):
                     found_self = True
             if (not found_self):
                 data["visibleTo"].append(request.user.author.get_url())
+            data["visibleTo"] += externalUsers
         else:
             invalid_users = []
             seen_users = {}
