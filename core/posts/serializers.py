@@ -13,7 +13,7 @@ class PostsSerializer(serializers.ModelSerializer):
     count = serializers.SerializerMethodField()
     next = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
-    images = serializers.ListField(default=list)
+    images = serializers.SerializerMethodField(default=list)
 
     class Meta:
         model = Posts
@@ -29,6 +29,9 @@ class PostsSerializer(serializers.ModelSerializer):
 
     def get_next(self, instance):
         return "{}/posts/{}/comments".format(get_host_url(), instance.id)
+    
+    def get_images(self, instance):
+        return get_images(instance.post_id)
 
     # Credits to Ivan Semochkin, https://stackoverflow.com/a/41261614
     def to_representation(self, instance):
@@ -41,7 +44,6 @@ class PostsSerializer(serializers.ModelSerializer):
             representation["origin"] = get_host_url() + "/posts/" + str(instance.id)
         if (not instance.source):
             representation["source"] = representation["origin"]
-        representation['images'] = get_images(instance.post_id)
         del representation["post_id"]
         return representation 
         # Credit to Soufiaane and Tomas Walch for this: https://stackoverflow.com/a/35026359
