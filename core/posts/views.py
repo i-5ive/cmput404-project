@@ -160,7 +160,6 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     @action(detail=True)
     def image(self, request, pk):
-        print(pk)
         try:
             post = Posts.objects.get(pk=pk)
         except:
@@ -169,6 +168,12 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "message": "No post was found with that ID",
                 "query": "getImage"
             }, status=404)
+        if not can_user_view(request.user, post):
+            return Response({
+                "success": False,
+                "message": "You are not authorized to view this post.",
+                "query": "post"
+            }, status=status.HTTP_403_FORBIDDEN)
         data = post.content.split(",")[1]
         data = data.encode()
         data = base64.b64decode(data)
