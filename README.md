@@ -4,7 +4,7 @@
 
 CMPUT404 Wi19 Team Project
 
-We are making a distributed social network!
+We are making a distributed social network! Check out this version 1 video [here](https://youtu.be/oBdpFlbDGqc)!
 
 # Setup
 
@@ -29,7 +29,7 @@ Running `npm run-script build` will generate `dist/index.html` you can open the 
 
 ## Django
 
-Django 2.1.6
+Django 2.1.6  
 
 ### Installation
 
@@ -38,18 +38,20 @@ Django 2.1.6
 - [Add \python and \python\scripts to your system variables](https://www.java.com/en/download/help/path.xml)
 - You can verify they are installed and attached to the path by typing `Python -v` and `pip -V`
 - Run `pip install -r requirements.txt` to install all dependencies.
+- export DJANGO_SITE_URL="https://weeb-tears.herokuapp.com"
 - run `python manage.py runserver` to start the server locally.
 
 #### Mac
  - Get [Homebrew](https://brew.sh/), if you haven't.
  - Install Python3 `brew install python3`
  - Create a virtual env by typing `virtualenv venv --python=python3`
-   - This will help keep your packages for this project separate from other packages 
+   - This will help keep your packages for this project separate from other packages
  - You can activate the venv by typing `source venv/bin/activate`
  - Now type `pip install -r requirements.txt`
    - This will install Django, psycopyg2, etc, needed to run the project backend.
+ - export DJANGO_SITE_URL="https://weeb-tears.herokuapp.com"
  - You should now be able to run `python3 src/django/manage.py runserver` to start the backend.
- 
+
 ### Testing
 
 You can run `python3 manage.py test` to run the django unit tests (if you have installed postgres locally (see below)). Otherwise run `pytest` to use a web-based database for the tests (slow).
@@ -66,13 +68,42 @@ CREATE USER postgres SUPERUSER;
 ```
 
 Now you can install [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-macos/), add a new server, choose a name, and the host will be `127.0.0.1`.
- 
+
 Now when you run `python manage.py test` it should run significiantly faster by using the local database you created.
+
+# AJAX Usages
+We use AJAX whenever we need to fetch (or send) data from/to our Django server. Here is a list of all the places in our front-end React code where we use AJAX:  
+
+[Registering for a new account](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/auth/AuthStore.js#L98)  
+[Logging into an existing account](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/auth/AuthStore.js#L125)  
+[Creating a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L61)  
+[Loading all public posts on the server](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L85)  
+[Loading posts from only external servers](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L116)  
+[Deleting a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L143)  
+[Editing a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L174)  
+[Viewing details about a specific post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L197)  
+[Adding a comment to a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L222)  
+[Loading comments on a post](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/discover/PostsStore.js#L273)  
+[Loading posts on the home feed](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/home/HomeStore.js#L37)  
+[Deleting a post on the home feed](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/home/HomeStore.js#L64)  
+[Loading pending friend requests](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/friends/FriendsStore.js#L35)  
+[Sending a friend request](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/friends/FriendsStore.js#L56)  
+[Responding to a friend request](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/friends/FriendsStore.js#L89)  
+[Loading details about an author](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L54)  
+[Loading an author's posts](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L88)  
+[Updating an author profile](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L122)  
+[Loading follow details about a specific author](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L233)  
+[Unfollowing an author](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L256)  
+[Sending a friend request](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L295)  
+[Loading github repositories](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L330)  
+[Deleting a post from the profile page](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L352)  
+[Loading all users an author is following](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L381)  
+[Loading all users an author is followed by](https://github.com/i-5ive/cmput404-project/blob/master/react/src/js/react/profile/ProfileStore.js#L401)  
 
 # Resources Used
 
 ## Bootstrapping Resources and References
-The boilerplate code for setting up React and Django was written by Bennett Hreherchuk for CMPUT401 and is reused here to form the foundation of this project. The code is the Intellectual Property of Bennett Hreherchuk and their team "The Indoors Club" under a non-competing agreement with the University of Alberta Outdoor's Club for six months after December 2018. 
+The boilerplate code for setting up React and Django was written by Bennett Hreherchuk for CMPUT401 and is reused here to form the foundation of this project. The code is the Intellectual Property of Bennett Hreherchuk and their team "The Indoors Club" under a non-competing agreement with the University of Alberta Outdoor's Club for six months after December 2018.
 Files Included:
  - Most if not all of the configuration files (`.babelrc`, `.eslintrc.json`, `package.json`, etc)
  - index.html, index.js, and App.jsx
@@ -97,7 +128,7 @@ http://www.learningaboutelectronics.com/Articles/How-to-restrict-the-size-of-fil
 
 Limiting Django querysets  
 https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets  
-  
+
 How to expect url is redirect in TestCafe?  
   [Question](https://www.stackoverflow.com/questions/44878813/how-to-expect-url-is-redirect-in-testcafe)  
   [Answer by Alexander Moskovkin](https://stackoverflow.com/a/44880118)  
@@ -169,3 +200,32 @@ Django-rest-framework permissions for create in viewset
   [Answer by argaen](https://stackoverflow.com/a/22767325)  
   [argaen](https://www.stackoverflow.com/users/3481357/argaen), [adi](https://www.stackoverflow.com/users/1223265/adi), [argaen](https://www.stackoverflow.com/users/3481357/argaen)  
   License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)    
+
+[Github Events API](https://developer.github.com/v3/activity/events/types/)  
+
+azu's github event parser for JavaScript (we converted his JavaScript/TypeScript code into Python, so credit for the Github events parser we're using goes to him)  
+https://github.com/azu/parse-github-event/blob/master/src/parse-github-event.ts  
+[MIT License](https://github.com/azu/parse-github-event/blob/master/LICENSE)  
+[Github Profile](https://github.com/azu)  
+
+Create an instance from serializer without persisting it to db  
+[Question](https://www.stackoverflow.com/questions/35004398/create-an-instance-from-serializer-without-persisting-it-to-db)  
+[Answer by Soufiaane](https://stackoverflow.com/a/35026359)  
+[Soufiaane](https://www.stackoverflow.com/users/1882311/soufiaane), [Tomas Walch](https://www.stackoverflow.com/users/5798503/tomas-walch), [wim](https://www.stackoverflow.com/users/674039/wim), [knite](https://www.stackoverflow.com/users/649167/knite)  
+License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  
+
+How to do CamelCase split in python  
+[Question](https://www.stackoverflow.com/questions/29916065/how-to-do-camelcase-split-in-python)  
+[Answer by Jossef Harush](https://stackoverflow.com/a/37697078)  
+[Jossef Harush](https://www.stackoverflow.com/users/3191896/jossef-harush), [nfs](https://www.stackoverflow.com/users/1654255/nfs)  
+License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  
+
+Montserrat Font from Google Fonts  
+https://fonts.google.com/specimen/Montserrat  
+License: [SIL Open Font License](https://github.com/JulietaUla/Montserrat/blob/master/OFL.txt)  
+
+Detecting when user scrolls to bottom of div with React js  
+[Question](https://www.stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js)  
+[Answer by Brendan McGill](https://stackoverflow.com/a/49573628)  
+[Brendan McGill](https://www.stackoverflow.com/users/4458849/brendan-mcgill), user5797064, [Pardeep Dhingra](https://www.stackoverflow.com/users/1031061/pardeep-dhingra)  
+License: [Creative Commons Attribute-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/)  

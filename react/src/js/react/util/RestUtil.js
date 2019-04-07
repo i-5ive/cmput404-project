@@ -39,6 +39,19 @@ export default class RestUtil {
         return axios(options);
     }
 
+    static sendPUT(path, body, auth = true) {
+        const options = {
+            data: body,
+            withCredentials: true,
+            method: "put",
+            url: `${SERVER_URL}/${path}`
+        };
+        if (auth) {
+            options.auth = getAuthObject();
+        }
+        return axios(options);
+    }
+
     /**
      * Sends a GET request to the server
      * @param {String} path - the path to make the request to (ex: authors/)

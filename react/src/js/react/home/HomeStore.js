@@ -80,6 +80,10 @@ export default class HomeStore extends Reflux.Store {
         });
     }
 
+    onEditPost(id, postId) {
+        window.location.href = `post/${id}/edit`;
+    }
+
     onReloadPosts() {
         this.setState({
             posts: []

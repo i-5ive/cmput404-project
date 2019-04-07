@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
 from core.posts.models import Posts, Comments
-from core.authors.serializers import get_summary
-from core.hostUtil import get_host_url
+from core.posts.util import get_images
+from core.authors.serializers import get_summary, get_author_summary_from_url
+from core.hostUtil import get_host_url, is_external_host
 
 PAGE_SIZE = 5
 
@@ -12,12 +13,13 @@ class PostsSerializer(serializers.ModelSerializer):
     count = serializers.SerializerMethodField()
     next = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField(default=list)
 
     class Meta:
         model = Posts
         fields = ('title', 'source', 'origin', 'description', 'contentType', 'content', 'author',
             'categories', 'count', 'size', 'next', 'comments', 'published', 'id', 'visibility',
-            'visibleTo', 'unlisted', 'post_id')
+            'visibleTo', 'unlisted', 'post_id', 'images')
 
     def get_count(self, instance):
         return instance.comments.count()
@@ -27,6 +29,9 @@ class PostsSerializer(serializers.ModelSerializer):
 
     def get_next(self, instance):
         return "{}/posts/{}/comments".format(get_host_url(), instance.id)
+    
+    def get_images(self, instance):
+        return get_images(instance.post_id)
 
     # Credits to Ivan Semochkin, https://stackoverflow.com/a/41261614
     def to_representation(self, instance):
@@ -41,6 +46,9 @@ class PostsSerializer(serializers.ModelSerializer):
             representation["source"] = representation["origin"]
         del representation["post_id"]
         return representation 
+        # Credit to Soufiaane and Tomas Walch for this: https://stackoverflow.com/a/35026359
+    def create_temporary(self, data):
+        return Posts(**data)
 
 class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,5 +58,5 @@ class CommentsSerializer(serializers.ModelSerializer):
     # Credits to Ivan Semochkin, https://stackoverflow.com/a/41261614
     def to_representation(self, instance):
         representation = super(CommentsSerializer, self).to_representation(instance)
-        representation['author'] = get_summary(instance.author)
+        representation['author'] = get_author_summary_from_url(instance.author)
         return representation

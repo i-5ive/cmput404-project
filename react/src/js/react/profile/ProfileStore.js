@@ -5,7 +5,7 @@ import update from "immutability-helper";
 import Actions from "./ProfileActions";
 import RestUtil from "../util/RestUtil";
 import { POSTS_PAGE_SIZE } from "../constants/PostConstants";
-import { isExternalAuthor, getAuthorId } from "../util/AuthorUtil";
+import { isExternalAuthor, getAuthorId, escapeUrl } from "../util/AuthorUtil";
 import FriendsActions from "../friends/FriendsActions";
 
 /**
@@ -47,10 +47,12 @@ export default class ProfileStore extends Reflux.Store {
             githubDetails: null
         });
 
-        // TODO: should external authors be loaded client side or server side?
+        // Profiles from external servers need to be loaded on our back-end,
+        // because some external servers require auth
         const external = isExternalAuthor(id),
-            path = external ? `${id}/` : `author/${getAuthorId(id)}/`;
-        RestUtil.sendGET(path, {}, external).then((res) => {
+            path = external ? `author/external/?authorUrl=${encodeURI(id)}` : `author/${getAuthorId(id)}/`;
+        RestUtil.sendGET(path, {}).then((res) => {
+            console.log(res);
             this.setState({
                 isLoadingProfile: false,
                 successfullyLoadedProfile: true,
@@ -76,9 +78,8 @@ export default class ProfileStore extends Reflux.Store {
                 isLoadingStream: true,
                 errorLoadingStream: false
             },
-            // TODO: should external authors be loaded client side or server side?
             external = isExternalAuthor(id),
-            path = external ? `${id}/posts/` : `author/${getAuthorId(id)}/posts/`;
+            path = external ? `author/${escapeUrl(id)}/posts/` : `author/${getAuthorId(id)}/posts/`;
         if (page === 0) {
             state.posts = [];
         }
@@ -87,7 +88,7 @@ export default class ProfileStore extends Reflux.Store {
         RestUtil.sendGET(path, {
             page: page,
             size: POSTS_PAGE_SIZE
-        }, external).then((res) => {
+        }).then((res) => {
             const posts = update(this.state.posts, {
                 $push: res.data.posts
             });
@@ -365,6 +366,10 @@ export default class ProfileStore extends Reflux.Store {
             });
             console.error(err);
         });
+    }
+
+    onEditPost(id, postId) {
+        window.location.href = `post/${id}/edit`;
     }
 
     onLoadFollowedUsers(id) {

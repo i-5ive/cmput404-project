@@ -40,7 +40,7 @@ class HeaderProfileDetails extends Reflux.Component {
     renderNotifications() {
         return (
             <span className="notificationsBadge">
-                <span className="glyphicon glyphicon-bell headerNotifications" aria-hidden="true" />
+                <span className="far fa-bell headerNotifications" aria-hidden="true" />
                 <NotificationsBadge />
             </span>
         );
@@ -62,7 +62,7 @@ class HeaderProfileDetails extends Reflux.Component {
         return (
             <React.Fragment>
                 <span className="createPostBadge" onClick={this.onCreatePostClicked}>
-                    <span className="glyphicon glyphicon-pencil" aria-hidden="true" />
+                    <span className="fas fa-pencil-alt" aria-hidden="true" />
                 </span>
             </React.Fragment>
         );

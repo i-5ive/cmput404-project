@@ -31,7 +31,7 @@ export default class HomeView extends Reflux.Component {
                 {
                     this.state.errorLoadingPosts && (
                         <Alert bsStyle="danger">
-                            An error ocurred while loading posts
+                            An error occurred while loading posts
                         </Alert>
                     )
                 }
@@ -39,6 +39,7 @@ export default class HomeView extends Reflux.Component {
                     isLoading={this.state.isLoadingPosts}
                     loadMorePosts={this._loadMorePosts}
                     onDeletePost={HomeActions.deletePost}
+                    onEditPost={HomeActions.editPost}
                     hasNextPage={Boolean(this.state.nextPage)}
                     errorDeletingPost={this.state.failedToDeletePost}
                     deletingPost={this.state.deletingPost}

@@ -19,6 +19,7 @@ export default class PostFeed extends React.Component {
         isLoading: PropTypes.bool,
         hasNextPage: PropTypes.bool,
         onDeletePost: PropTypes.func,
+        onEditPost: PropTypes.func,
         deletingPost: PropTypes.bool,
         errorDeletingPost: PropTypes.bool
     }
@@ -46,6 +47,7 @@ export default class PostFeed extends React.Component {
                 {this.props.posts.map((post) => (
                     <Post key={post.id}
                         onDelete={this.props.onDeletePost}
+                        onEdit={this.props.onEditPost}
                         isDeleting={this.props.deletingPost === post.id}
                         failedToDeletePost={this.props.errorDeletingPost === post.id}
                         post={post} />
@@ -55,7 +57,7 @@ export default class PostFeed extends React.Component {
                 }
                 {
                     !this.props.isLoading && this.props.posts.length === 0 && (
-                        <Thumbnail>
+                        <Thumbnail className="posts-not-found">
                             No posts were found.
                         </Thumbnail>
                     )

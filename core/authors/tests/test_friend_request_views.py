@@ -48,7 +48,9 @@ class FriendRequestViewTestCase(TestCase):
 
         body = get_local_authors_body(self.author1, self.author2)
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        # Should check more than a response code..
+        self.assertEqual(response.data["message"], "You must be authenticated as the requester to perform this action.")
+        self.assertEqual(response.status_code, 403) 
         
     @patch("core.hostUtil.is_external_host")
     @patch("core.authors.util.get_author_id")
@@ -121,7 +123,9 @@ class FriendRequestViewTestCase(TestCase):
         self.author3.delete()
 
         response = self.client.post(reverse('friendrequest'), data=body, content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        # Should check more than a response code..
+        self.assertEqual(response.data["message"], "You must be authenticated as the requester to perform this action.")
+        self.assertEqual(response.status_code, 403) # Forbidden, technically you're trying to make friends for 2 other users
         self.assertEqual(len(FriendRequest.objects.all()), 0)
         self.assertEqual(len(Follow.objects.all()), 0)
 

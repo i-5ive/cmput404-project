@@ -24,6 +24,12 @@ export default class ProfilePostsStream extends Reflux.Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.profileDetails.github !== prevState.profileDetails.github) {
+            ProfileActions.loadActivityStream(this.props.id);
+        }
+    }
+
     _loadMorePosts = () => {
         ProfileActions.loadActivityStream(this.props.id, this.state.nextPage);
     };
@@ -44,6 +50,7 @@ export default class ProfilePostsStream extends Reflux.Component {
                     isLoading={this.state.isLoadingStream}
                     loadMorePosts={this._loadMorePosts}
                     onDeletePost={ProfileActions.deletePost}
+                    onEditPost={ProfileActions.editPost}
                     hasNextPage={Boolean(this.state.nextPage)}
                     errorDeletingPost={this.state.failedToDeletePost}
                     deletingPost={this.state.deletingPost}

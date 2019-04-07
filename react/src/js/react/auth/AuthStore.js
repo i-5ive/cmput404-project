@@ -5,7 +5,7 @@ import _ from "lodash";
 
 import Actions from "./AuthActions";
 import RestUtil from "../util/RestUtil";
-import { SERVER_URL } from "../constants/ServerConstants";
+import { HOST_URL } from "../constants/ServerConstants";
 import CookieUtil from "../util/CookieUtil";
 
 import HomeActions from "../home/HomeActions";
@@ -15,16 +15,15 @@ const getLoginStateFromCookies = () => {
         username = cookies["core-username"],
         id = cookies["core-userid"],
         password = cookies["core-password"],
-        url = `${SERVER_URL}/author/${id}`;
+        url = `${HOST_URL}/author/${id}`;
     if (!username || !id || !password) {
         return null;
     }
-    // TODO: is this how displayName should be handled?
     return {
         username: username,
         userInfo: {
             id: url,
-            host: SERVER_URL,
+            host: HOST_URL,
             displayName: username,
             url: url
         },

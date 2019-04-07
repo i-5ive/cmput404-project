@@ -3,6 +3,9 @@ import json
 
 from core.authors.models import Author
 from core.hostUtil import is_external_host, get_host_url
+from core.servers.SafeServerUtil import ServerUtil
+
+from posixpath import join as urljoin
 
 ## Gets the unique ID of a local or external author. If external, returns the URL. If local, returns just the uuid
 ## @param {String} url - the unique URL of the author
@@ -16,7 +19,7 @@ def get_author_id(url):
 ## @param {String} id - the author's unique ID
 ## @return {String} - the unique URL to the author
 def get_author_url(id):
-    return get_host_url() + "/author/" + id
+    return urljoin(get_host_url(), "author", id)
 
 ## Gets a summary of each specified author
 ## @param {List<String>} authorUrls - a list of author URLs to get details from (can be both external and internal)
@@ -30,14 +33,28 @@ def get_author_url(id):
 def get_author_summaries(authorUrls):
     summaries = []
     localAuthors = []
-    externalHosts = {}
     for authorUrl in authorUrls:
         if (is_external_host(authorUrl)):
-            hostUrl = authorUrl.split("author/")[0]
-            if (hostUrl in externalHosts):
-                externalHosts[hostUrl].append(authorUrl)
-            else:
-                externalHosts[hostUrl] = [authorUrl]
+            # open a server util with the author url
+            sUtil = ServerUtil(authorUrl=authorUrl)
+            if not sUtil.valid_server():
+                print("authorUrl found, but not in DB", authorUrl)
+                continue # We couldn't find a server that matches the friend URL base
+            # split the id from the URL and ask the external server about them
+            success, authorInfo = sUtil.get_author_info(authorUrl.split("/author/")[1])
+            if not success:
+                continue # We couldn't successfully fetch from an external server
+
+            # PITA Point: Some servers don't store their IDs as the actual
+            # location where you can GET the author summary, just use the ID
+            # if you don't want to hate yourself, even though HOST will be
+            # the correct location to get the service.
+            summaries.append({
+                "id": authorUrl,
+                "host": sUtil.get_base_url(),
+                "url": authorUrl,
+                "displayName": authorInfo["displayName"]
+            })
         else:
             localAuthors.append(get_author_id(authorUrl))
     
@@ -51,15 +68,4 @@ def get_author_summaries(authorUrls):
             "url": url,
             "displayName": author.get_display_name()
         })
-
-    # requires each external host to set up an endpoint at /authorSummaries
-    try:
-        for host, authorUrls in externalHosts.items():
-            response = requests.post(host + "authorSummaries", data=json.dumps(authorUrls), headers={
-                "Content-Type": "application/json"
-            })
-            summaries += json.loads(response.content)
-    except Exception as e:
-        print(e)
-
     return summaries

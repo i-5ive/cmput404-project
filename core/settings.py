@@ -37,6 +37,8 @@ SECRET_KEY = 'mtl$5lb%^%=!kk7f^shyp0)^^!+n_y_9&yq10m_tvl1mtz18hs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+APPEND_SLASH = True
+
 ALLOWED_HOSTS = ["*"] if DEBUG else ['cmput404-i5.herokuapp.com']
 
 # Application definition
@@ -55,7 +57,8 @@ INSTALLED_APPS = [
 
     'core.users',
     'core.authors',
-    'core.posts'
+    'core.posts',
+    'core.servers'
 ]
 
 MIDDLEWARE = [
@@ -106,7 +109,7 @@ if 'test' in sys.argv:
     }
 else:
     DATABASES = {
-        'default': env.db('DATABASE_URL',default='postgres://cmput404:abramiscool123!@cmput404-dev.c1dsguk3kuvt.us-west-2.rds.amazonaws.com:5432/testing'),
+        'default': env.db('DATABASE_URL',default='postgres://cmput404:abramiscool123!@cmput404-dev.c1dsguk3kuvt.us-west-2.rds.amazonaws.com:5432/riptesting'),
     }
 
 # Password validation

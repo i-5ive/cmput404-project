@@ -23,6 +23,12 @@ export default class EditProfileModal extends Reflux.Component {
             (this.state.canSaveProfile !== nextState.canSaveProfile);
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (!this.state.isSavingProfile && prevState.isSavingProfile && this.state.successfullySavedProfile) {
+            this.props.onClose();
+        }
+    }
+
     _onSaveClicked = () => {
         ProfileActions.saveProfileDetails(this.props.id, this.state.editProfileDetails);
     };

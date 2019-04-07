@@ -30,12 +30,33 @@ export default class CreatePost extends Reflux.Component {
         };
     }
 
+    componentDidMount() {
+        const id = window.location.href.endsWith("edit") && window.location.href.split("/post/")[1].split("/edit")[0];
+        if (window.location.href.endsWith("edit") && id) {
+            PostsActions.getPost(id);
+        }
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if (this.state.successfullyCreatedPost !== prevState.successfullyCreatedPost &&
             this.state.successfullyCreatedPost) {
             this.props.handleClose();
             PostsActions.getPosts();
             HomeActions.loadPosts();
+        }
+        if (!this.state.fetchingPost && prevState.fetchingPost) {
+            const form = document.querySelector("form");
+            form.elements.title.value = this.state.currentPost.title;
+            form.elements.content.value = this.state.currentPost.content;
+            form.elements.contentType.value = this.state.currentPost.contentType;
+            form.elements.description.value = this.state.currentPost.description;
+            // eslint-disable-next-line
+            this.setState({
+                tags: this.state.currentPost.categories,
+                privacyKey: this.state.currentPost.visibility,
+                author: this.state.currentPost.author
+            });
+            form.elements.unlisted.checked = this.state.currentPost.unlisted;
         }
     }
 
@@ -65,7 +86,12 @@ export default class CreatePost extends Reflux.Component {
         }
         formData.append("postData", JSON.stringify(data));
         formData.append("query", "createPost");
-        PostsActions.createPost(formData);
+        if (window.location.href.endsWith("edit")) {
+            console.log(formData);
+            PostsActions.putPost(formData);
+        } else {
+            PostsActions.createPost(formData);
+        }
     }
 
     handlePrivacySelect = (key) => {
@@ -139,17 +165,17 @@ export default class CreatePost extends Reflux.Component {
             return "This category is already included.";
         } else if (tag.length > 30) {
             return "Categories can be no more than 30 characters long.";
+        } else if (tag === "github") {
+            return "This category is reserved and can not be used.";
         }
         return null;
     };
 
     _getUsernameStatusMessage = (username) => {
         if (username.length === 0) {
-            return "The username can not be blank.";
+            return "The username or URL can not be blank.";
         } else if (this.state.visibleTo.indexOf(username) > -1) {
             return "This user is already included.";
-        } else if (username.length > 80) {
-            return "The maximum length of a username is 80 characters.";
         }
         return null;
     };
@@ -268,7 +294,7 @@ export default class CreatePost extends Reflux.Component {
                         type="text"
                         value={this.state.newUsernameValue}
                         onChange={this._onUsernameValueChange}
-                        placeholder="Enter the username of someone to share with..." />
+                        placeholder="Enter the username (or URL) of someone to share with..." />
                     <Button bsStyle="primary"
                         disabled={Boolean(this.state.usernameStatusMessage)}
                         onClick={this._addCurrentUsername}>
@@ -405,7 +431,7 @@ export default class CreatePost extends Reflux.Component {
                             Cancel
                         </Button>
                         <Button bsStyle="primary" type="submit" disabled={this.state.creatingPost}>
-                            Create Post
+                            {window.location.href.endsWith("edit") ? "Update Post" : "Create Post"}
                         </Button>
                     </ModalFooter>
                 </Form>

@@ -1,7 +1,7 @@
 .profile-page {
-
 	display: flex;
 	width: auto;
+	overflow: hidden;
 
 	.authorProfile {
 		display: flex;
@@ -37,6 +37,9 @@
 
 					.footer {
 						margin-top: auto;
+						.btn {
+							float: right;
+						}
 					}
 				}
 			}
@@ -70,15 +73,23 @@
 		}
 	}
 
-	.posts-background {
-		background-color: $background;
-		
-		.post-feed {
-			margin: 0px auto;
-		}
-	}
-	
-	.thumbnail:nth-child(2) {
+	.profile-stream {
 		width: 100%;
+		overflow: hidden;
+		height: 90vh;
+
+		.coreSpinner {
+			margin-top: 5%;
+			margin-left: 45%;
+		}
+		
+		.posts-background {
+			.post-feed {
+				margin: 0 auto;
+				padding-left: 0px;
+				padding-bottom: 20px;
+				height: 80vh;
+			}
+		}
 	}
 }

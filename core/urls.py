@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import re_path, include
 from rest_framework.documentation import include_docs_urls
 
 from core.authors.friend_request_view import handle_follow_request as friend_request
@@ -22,13 +22,13 @@ from core.authors.login_view import login
 from core.authors.unfollow_author_view import handle_unfollow_request
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('users/', include('core.users.urls')),
-    path('author/', include('core.authors.urls')),
-    path('posts/', include('core.posts.urls')),
-    path('api-auth/', include('rest_framework.urls')),
-    path('docs/', include_docs_urls(title='API Documentation')),
-    path('friendrequest/', friend_request, name='friendrequest'),
-    path('login/', login, name='login'),
-    path('unfollow/', handle_unfollow_request, name='unfollow'),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^users/', include('core.users.urls')),
+    re_path(r'^author/', include('core.authors.urls')),
+    re_path(r'^posts/', include('core.posts.urls')),
+    re_path(r'^api-auth/', include('rest_framework.urls')),
+    re_path(r'^docs/', include_docs_urls(title='API Documentation')),
+    re_path(r'^friendrequest\/?', friend_request, name='friendrequest'),
+    re_path(r'^login/', login, name='login'),
+    re_path(r'^unfollow\/?', handle_unfollow_request, name='unfollow'),
 ]

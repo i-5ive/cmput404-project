@@ -8,6 +8,7 @@
 @import "home.scss";
 @import "discover.scss";
 @import "createPost";
+@import "postView.scss";
 
 .coreSpinner {
     font-size: 24pt;
@@ -20,6 +21,8 @@
 
 body {
     background-color: $background;
+    height: 100vh;
+    font-family: $font;
 }
 
 .tab-pane {

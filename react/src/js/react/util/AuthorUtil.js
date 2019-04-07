@@ -1,4 +1,4 @@
-import { SERVER_URL } from "../constants/ServerConstants";
+import { HOST_URL } from "../constants/ServerConstants";
 
 export const
     /**
@@ -7,7 +7,7 @@ export const
      * @return {boolean} - whether the author is external or not
      */
     isExternalAuthor = (authorId) => {
-        return authorId.includes("/author/") && authorId.split("/author/")[0] !== SERVER_URL;
+        return authorId.includes("/author/") && authorId.split("/author/")[0] !== HOST_URL;
     },
     /**
      * Creates a summary query used to represent an author
@@ -32,7 +32,7 @@ export const
         if (authorId.includes("http")) {
             return authorId;
         }
-        return `${SERVER_URL}/author/${authorId}`;
+        return `${HOST_URL}/author/${authorId}`;
     },
     /**
      * Gets the unique ID of an author
@@ -44,4 +44,12 @@ export const
             return authorId;
         }
         return authorId.includes("/author/") ? authorId.split("/author/")[1] : authorId;
+    },
+    /**
+     * Escapes the URL to make it compatible with our server
+     * @param {String} url - the url to escape
+     * @return {String} - an escaped version of the URL
+     */
+    escapeUrl = (url) => {
+        return window.btoa(url);
     };
