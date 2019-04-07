@@ -1,5 +1,6 @@
 import logging
 import json
+import base64
 
 from django.core.paginator import Paginator
 # Create your views here.
@@ -7,6 +8,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action, detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from django.http import HttpResponse
 
 from core.authors.models import Follow
 from core.authors.util import get_author_id, get_author_url
@@ -167,8 +169,10 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "message": "No post was found with that ID",
                 "query": "getImage"
             }, status=404)
-        data = "data:" + post.content
-        return Response(data, content_type=post.contentType)
+        data = post.content.split(",")[1]
+        data = data.encode()
+        data = base64.b64decode(data)
+        return HttpResponse(data, content_type="image/png")
 
     def update(self, request, pk):
         try:
