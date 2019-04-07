@@ -227,7 +227,7 @@ class Post extends Reflux.Component {
         }
 
         const post = this.props.post,
-            images = post.images;
+            images = post.images || [];
         return (
             <Thumbnail>
                 {
