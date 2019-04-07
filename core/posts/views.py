@@ -171,9 +171,15 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "message": "You are not authorized to view this post.",
                 "query": "post"
             }, status=status.HTTP_403_FORBIDDEN)
-        data = post.content.split(",")[1]
-        data = data.encode()
-        data = base64.b64decode(data)
+        if (post.visibility == "PUBLIC"):
+            if ("," in post.content):
+                data = post.content.split(",")[1]
+            else:
+                data = post.content
+            data = data.encode()
+            data = base64.b64decode(data)
+        else:
+            data = post.content
         return HttpResponse(data, content_type=post.contentType.split(";")[0])
 
     def update(self, request, pk):
