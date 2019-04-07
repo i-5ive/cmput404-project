@@ -20,7 +20,8 @@ class Post extends Reflux.Component {
         onDelete: PropTypes.func,
         onEdit: PropTypes.func,
         failedToDeletePost: PropTypes.bool,
-        isDeleting: PropTypes.bool
+        isDeleting: PropTypes.bool,
+		images: PropTypes.array
     }
 
     static defaultProps ={
@@ -36,7 +37,6 @@ class Post extends Reflux.Component {
         if (this.props.post.categories && this.props.post.categories.includes("github")) {
             return null;
         }
-        // TODO Add edit button
         const isCurrentUser = this.state.isLoggedIn && (this.props.post.author.id === this.state.userInfo.id);
         return (
             <div className="buttons">
@@ -97,13 +97,13 @@ class Post extends Reflux.Component {
             contentList.push(<span key={"text-key"} className="post-text">{content}</span>);
         }
 
-        // eslint-disable-next-line one-var
-        const imageLimit = this.props.isPostView ? images.length : 1;
-        for (let i = 0; i < imageLimit; i++) {
+        for (let i = 0; i < images.length; i++) {
             contentList.push(
                 <Fragment key={i}>
                     <br />
-                    <img className="post-image" key={`images-${i}`} src={images[i]} />
+					{
+						<img className="post-image" key={`images-${i}`} src={images[i]} />
+					}
                 </Fragment>
             );
         }
@@ -227,7 +227,7 @@ class Post extends Reflux.Component {
         }
 
         const post = this.props.post,
-            images = post.images || [];
+            images = (post.visibility === "PUBLIC" && post.images) || this.props.images || [];
         return (
             <Thumbnail>
                 {

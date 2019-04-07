@@ -208,10 +208,17 @@ export class PostsStore extends Reflux.Store {
             const post = (response.data && response.data.post) || (response.data && response.data.posts[0]) || response.data;
             this.setState({
                 fetchingPost: false,
-                currentPost: post,
-                currentPostImages: response.data.images
-
+                currentPost: post
             });
+			if (post.images) {
+				Promise.all(post.images.map((img) => {
+					return RestUtil.sendGET(img.split(".com/")[1] || img.split(":8000/")[1]);
+				})).then((allImgs) => {
+					this.setState({
+						currentPostImages: allImgs.map((res) => `data:${res.data}`)
+					});
+				});
+			}
         }).catch((err) => {
             this.setState({
                 fetchingPost: false,
