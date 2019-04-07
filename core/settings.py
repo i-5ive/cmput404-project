@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import environ
 import os
 import django_heroku
+from corsheaders.defaults import default_headers
 
 ROOT_DIR = environ.Path(__file__) - 2  # (cmput404-project/core/settings.py - 2 = cmput404-project/)
 APPS_DIR = ROOT_DIR.path('cmput404-project')
@@ -172,6 +173,7 @@ STATICFILES_DIRS = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = default_headers + ('X-Request-User-ID',)
 
 # MUST BE LAST LINE!!!!
 django_heroku.settings(locals())
