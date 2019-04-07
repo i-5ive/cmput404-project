@@ -1,5 +1,6 @@
 import logging
 import json
+import base64
 
 from django.core.paginator import Paginator
 # Create your views here.
@@ -7,6 +8,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action, detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from django.http import HttpResponse
 
 from core.authors.models import Follow
 from core.authors.util import get_author_id, get_author_url
@@ -145,16 +147,34 @@ class PostsViewSet(viewsets.ModelViewSet):
                 "message": "You are not authorized to view this post.",
                 "query": "post"
             }, status=status.HTTP_403_FORBIDDEN)
-        images = Posts.objects.filter(post_id=post.post_id).exclude(contentType__contains="text")
         serializer = PostsSerializer(post, context={'request': request})
-        img_serializer = PostsSerializer(images, many=True, context={'request': request})
         return Response({
             "query": "posts",
             "count": 1,
             "size": 1,
-            "posts": [serializer.data],
-            "images": img_serializer.data
+            "posts": [serializer.data]
         })
+
+    @action(detail=True, url_path='image', methods=["GET"])
+    def image(self, request, pk):
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "getImage"
+            }, status=404)
+        if not can_user_view(request.user, post):
+            return Response({
+                "success": False,
+                "message": "You are not authorized to view this post.",
+                "query": "post"
+            }, status=status.HTTP_403_FORBIDDEN)
+        data = post.content.split(",")[1]
+        data = data.encode()
+        data = base64.b64decode(data)
+        return HttpResponse(data, content_type=post.contentType.split(";")[0])
 
     def update(self, request, pk):
         try:

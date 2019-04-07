@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
 import { HOST_URL } from "../constants/ServerConstants";
@@ -17,7 +17,6 @@ class Post extends Reflux.Component {
     static propTypes = {
         post: PropTypes.object.isRequired,
         isPostView: PropTypes.bool,
-        images: PropTypes.array,
         onDelete: PropTypes.func,
         onEdit: PropTypes.func,
         failedToDeletePost: PropTypes.bool,
@@ -71,32 +70,44 @@ class Post extends Reflux.Component {
     }
 
     // From VinayC, https://stackoverflow.com/a/8499716
-    renderContent = (posts) => {
-        if (posts.length === 1 && !posts[0].content) {
+    renderContent = (post, images) => {
+        const { contentType, content } = post,
+            contentList = [];
+
+        if (!content && images.length === 0) {
             return (
                 <div className="empty">
 					This post has no content.
                 </div>
             );
         }
-        const contentList = [];
-        posts.forEach((post, index) => {
-            const { contentType, content } = post;
-            if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
-                // some servers store their image data with the proper contentType,
-                // so to integrate this we need to be able to detect and place it when necessary
-                let name = `data:${content}`;
-                if (content.startsWith("data")) {
-                    name = content;
-                }
-                contentList.push(<br key={`break-${index}`} />);
-                contentList.push(<img key={`image-${index}`} className="post-image" src={name} />);
-            } else if (contentType === "text/markdown") {
-                contentList.push(<ReactMarkdown key={post.id} source={content} />);
-            } else {
-                contentList.push(<span key={`text-${index}`} className="post-text">{content}</span>);
+
+        if (contentType === "image/png;base64" || contentType === "image/jpeg;base64") {
+            // some servers store their image data with the proper contentType,
+            // so to integrate this we need to be able to detect and place it when necessary
+            let name = `data:${content}`;
+            if (content.startsWith("data")) {
+                name = content;
             }
-        });
+            contentList.push(<br key={"br-key"} />);
+            contentList.push(<img key={"img-key"} className="post-image" src={name} />);
+        } else if (contentType === "text/markdown") {
+            contentList.push(<ReactMarkdown key={post.id} source={content} />);
+        } else {
+            contentList.push(<span key={"text-key"} className="post-text">{content}</span>);
+        }
+
+        // eslint-disable-next-line one-var
+        const imageLimit = this.props.isPostView ? images.length : 1;
+        for (let i = 0; i < imageLimit; i++) {
+            contentList.push(
+                <Fragment key={i}>
+                    <br />
+                    <img className="post-image" key={`images-${i}`} src={images[i]} />
+                </Fragment>
+            );
+        }
+
         return contentList;
     }
 
@@ -215,14 +226,8 @@ class Post extends Reflux.Component {
             );
         }
 
-        const post = this.props.post;
-        let posts = [post];
-        if (this.props.images) {
-            posts = posts.concat(this.props.images);
-        }
-        if (post) console.log(post);
-        if (post && post.author) console.log(post.author);
-        if (post && post.author && post.author.url) console.log(post.author.url);
+        const post = this.props.post,
+            images = post.images;
         return (
             <Thumbnail>
                 {
@@ -244,7 +249,7 @@ class Post extends Reflux.Component {
                 <hr />
                 <div className="post-body">
                     {
-                        this.renderContent(posts)
+                        this.renderContent(post, images)
                     }
                 </div>
                 <hr />
