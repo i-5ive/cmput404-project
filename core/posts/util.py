@@ -2,6 +2,8 @@ from core.authors.friends_util import get_friends_set, get_friends
 from core.posts.models import Posts
 from core.hostUtil import get_host_url
 
+from posixpath import join as urljoin
+
 ## Gets whether the specified user can view a specific post
 ## @param {User} user - the user to check
 ## @param {Posts} post - the post to check
@@ -76,7 +78,8 @@ def merge_posts_with_github_activity(posts_qs, github_activity):
 def get_images(postId):
     images = Posts.objects.filter(post_id=postId).exclude(contentType__contains="text")
     url = []
+    host_url = get_host_url()
     for img in images:
-        image_url = get_host_url() + "/posts/" + str(img.id) + "/image/"
+        image_url = urljoin(host_url, "posts", str(img.id), "image")
         url.append(image_url)
     return url
