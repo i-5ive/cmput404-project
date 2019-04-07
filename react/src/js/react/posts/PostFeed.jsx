@@ -50,7 +50,8 @@ export default class PostFeed extends React.Component {
                         onEdit={this.props.onEditPost}
                         isDeleting={this.props.deletingPost === post.id}
                         failedToDeletePost={this.props.errorDeletingPost === post.id}
-                        post={post} />
+                        post={post}
+                        images={post.images} />
                 ))}
                 {
                     this.props.isLoading && <LoadingComponent />

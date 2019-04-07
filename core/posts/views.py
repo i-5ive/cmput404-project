@@ -156,6 +156,20 @@ class PostsViewSet(viewsets.ModelViewSet):
             "images": img_serializer.data
         })
 
+    @action(detail=True)
+    def image(self, request, pk):
+        print(pk)
+        try:
+            post = Posts.objects.get(pk=pk)
+        except:
+            return Response({
+                "success": False,
+                "message": "No post was found with that ID",
+                "query": "getImage"
+            }, status=404)
+        data = "data:" + post.content
+        return Response(data, content_type=post.contentType)
+
     def update(self, request, pk):
         try:
             post = Posts.objects.get(pk=pk)

@@ -97,6 +97,12 @@ class Post extends Reflux.Component {
                 contentList.push(<span key={`text-${index}`} className="post-text">{content}</span>);
             }
         });
+        if (this.props.images) {
+            this.props.images.forEach((url, index) => {
+                contentList.push(<br key={`break-${index}`} />);
+                contentList.push(<img key={`images-${index}`} src={url} />);
+            });
+        }
         return contentList;
     }
 

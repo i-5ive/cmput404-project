@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from core.posts.models import Posts, Comments
+from core.posts.util import get_images
 from core.authors.serializers import get_summary, get_author_summary_from_url
 from core.hostUtil import get_host_url, is_external_host
 
@@ -12,12 +13,13 @@ class PostsSerializer(serializers.ModelSerializer):
     count = serializers.SerializerMethodField()
     next = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
+    images = serializers.ListField(default=list)
 
     class Meta:
         model = Posts
         fields = ('title', 'source', 'origin', 'description', 'contentType', 'content', 'author',
             'categories', 'count', 'size', 'next', 'comments', 'published', 'id', 'visibility',
-            'visibleTo', 'unlisted', 'post_id')
+            'visibleTo', 'unlisted', 'post_id', 'images')
 
     def get_count(self, instance):
         return instance.comments.count()
@@ -39,6 +41,7 @@ class PostsSerializer(serializers.ModelSerializer):
             representation["origin"] = get_host_url() + "/posts/" + str(instance.id)
         if (not instance.source):
             representation["source"] = representation["origin"]
+        representation['images'] = get_images(instance.post_id)
         del representation["post_id"]
         return representation 
         # Credit to Soufiaane and Tomas Walch for this: https://stackoverflow.com/a/35026359
