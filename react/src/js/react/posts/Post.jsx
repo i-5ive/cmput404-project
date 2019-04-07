@@ -21,7 +21,7 @@ class Post extends Reflux.Component {
         onEdit: PropTypes.func,
         failedToDeletePost: PropTypes.bool,
         isDeleting: PropTypes.bool,
-		images: PropTypes.array
+        images: PropTypes.array
     }
 
     static defaultProps ={
@@ -101,9 +101,9 @@ class Post extends Reflux.Component {
             contentList.push(
                 <Fragment key={i}>
                     <br />
-					{
-						<img className="post-image" key={`images-${i}`} src={images[i]} />
-					}
+                    {
+                        <img className="post-image" key={`images-${i}`} src={images[i]} />
+                    }
                 </Fragment>
             );
         }
