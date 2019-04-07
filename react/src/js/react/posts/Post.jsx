@@ -1,4 +1,4 @@
-import React, {Fragment} from "react";
+import React, { Fragment } from "react";
 import Reflux from "reflux";
 import PropTypes from "prop-types";
 import { HOST_URL } from "../constants/ServerConstants";
