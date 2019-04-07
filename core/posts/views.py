@@ -155,7 +155,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             "posts": [serializer.data]
         })
 
-    @action(detail=True)
+    @action(detail=True, url_path='image', methods=["GET"])
     def image(self, request, pk):
         try:
             post = Posts.objects.get(pk=pk)
