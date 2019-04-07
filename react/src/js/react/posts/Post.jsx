@@ -100,7 +100,12 @@ class Post extends Reflux.Component {
         // eslint-disable-next-line one-var
         const imageLimit = this.props.isPostView ? images.length : 1;
         for (let i = 0; i < imageLimit; i++) {
-            contentList.push(<Fragment key={i}><br /><img key={`images-${i}`} src={images[i]} /></Fragment>);
+            contentList.push(
+                <Fragment key={i}>
+                    <br />
+                    <img className="post-image" key={`images-${i}`} src={images[i]} />
+                </Fragment>
+            );
         }
 
         return contentList;
