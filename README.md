@@ -4,7 +4,7 @@
 
 CMPUT404 Wi19 Team Project
 
-We are making a distributed social network! Check out this version 1 video [here](https://youtu.be/oBdpFlbDGqc)!
+We are making a distributed social network! Check out our video [here](https://youtu.be/9pP6n_PdUaw)! Test out our website with this [User Manual](https://github.com/i-5ive/cmput404-project/wiki/User-Manual).
 
 # Setup
 
