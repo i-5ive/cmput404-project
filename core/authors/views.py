@@ -1,28 +1,26 @@
+import coreapi
 from django.core.paginator import Paginator
-
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, action
-from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.schemas import AutoSchema
 
-from core.authors.models import Author, Follow, FriendRequest
-from core.authors.serializers import AuthorSerializer, AuthorSummarySerializer
-from core.authors.friend_request_view import get_author_details
-
-from core.authors.util import get_author_url, get_author_summaries, get_author_id
-from core.authors.friends_view import handle_friends_get, handle_friends_post
-from core.hostUtil import get_host_url, is_encoded_external_host
-from core.authors.friends_util import get_friends, get_friends_from_pk
 from core.authors.external_author_posts_view import get_external_author_posts
-
+from core.authors.friend_request_view import get_author_details
+from core.authors.friends_util import get_friends, get_friends_from_pk
+from core.authors.friends_view import handle_friends_get, handle_friends_post
+from core.authors.models import Author, Follow, FriendRequest
+from core.authors.serializers import AuthorSerializer
+from core.authors.util import get_author_url, get_author_summaries, get_author_id
+from core.github_util import get_github_activity
+from core.hostUtil import get_host_url, is_encoded_external_host
+from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.models import Posts
 from core.posts.serializers import PostsSerializer
-from core.posts.constants import DEFAULT_POST_PAGE_SIZE
 from core.posts.util import add_page_details_to_response, merge_posts_with_github_activity
-
-from core.github_util import get_github_activity
-
 from core.servers.SafeServerUtil import ServerUtil
+
 
 def validate_friend_request_response(body, pk):
     success = True
@@ -42,7 +40,18 @@ def validate_friend_request_response(body, pk):
 
     return (success, message, friend_request, friend_data)
 
+
 class AuthorViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Get a specific authorgi
+
+    get_external_profile:
+    Get an external author profile
+
+    visible_posts:
+    return a list of all posts visible to the authenticated user
+    """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
@@ -85,10 +94,11 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
         server = ServerUtil(authorUrl=authorUrl)
         if not server.is_valid():
-            return Response("Could not find an external server in our database for the author url: "+authorUrl, status=404)
+            return Response("Could not find an external server in our database for the author url: " + authorUrl,
+                            status=404)
         success, profile = server.get_author_info(authorUrl.split("author/")[1])
         if not success:
-            return Response("Failed to connect with external server: "+server.get_base_url(), status=500)
+            return Response("Failed to connect with external server: " + server.get_base_url(), status=500)
         # for some reason we throw friends in here
         if "friends" not in profile:
             profile['friends'] = []
@@ -273,7 +283,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
         try:
             author = Author.objects.get(pk=pk)
             if (request.user != author.user):
-                return Response("Invalid authentication credentials" + str(request.user), status=status.HTTP_403_FORBIDDEN)
+                return Response("Invalid authentication credentials" + str(request.user),
+                                status=status.HTTP_403_FORBIDDEN)
         except:
             return Response("Invalid author ID specified", status=404)
 
@@ -287,7 +298,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
                     raise ValueError
                 author.user.email = request.data["email"]
             author.bio = request.data["bio"]
-            if (request.data["github"] and ("https://github.com/" not in request.data["github"] and "https://www.github.com/" not in request.data["github"])):
+            if (request.data["github"] and (
+                    "https://github.com/" not in request.data["github"] and "https://www.github.com/" not in
+                    request.data["github"])):
                 raise ValueError
             author.github = request.data["github"]
             author.user.full_clean()
@@ -334,7 +347,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path="posts")
     def author_posts(self, request, pk=None):
         print("test, hit: author_posts with:", request, pk)
-        page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
+        page = int(request.query_params.get("page", 0)) + 1  # Must offset page by 1
         if page < 1:
             return Response({
                 "query": "posts",
@@ -375,7 +388,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
         elif (request.user.author == author):
             posts = Posts.objects.all().filter(author=pk, unlisted=False)
         else:
-            requestingAuthor = request.user.author.id # Should be guaranteed because we checked above
+            requestingAuthor = request.user.author.id  # Should be guaranteed because we checked above
 
             # post_types will track what level of posts a user can see
             post_types = ["PUBLIC"]
@@ -390,17 +403,19 @@ class AuthorViewSet(viewsets.ModelViewSet):
             # Check if they are direct friends
             if requesterFriends.get(str(pk), False):
                 post_types += ["FRIENDS", "FOAF", "SERVERONLY"]
-            else: # They are not direct friends, so we should check if they share any friends
+            else:  # They are not direct friends, so we should check if they share any friends
                 for friend in get_friends_from_pk(pk):
                     friend = friend.split("/")[-1]
                     if requesterFriends.get(friend, False):
                         post_types += ["FOAF"]
-                        break # we don't need to check any more friends
+                        break  # we don't need to check any more friends
 
             try:
                 posts = Posts.objects.all().filter(author=pk, visibility__in=post_types, unlisted=False)
                 # TODO: requestingAuthor is the one it should be visibleTo
-                posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))], unlisted=False)
+                posts |= Posts.objects.all().filter(author=pk, visibility="PRIVATE",
+                                                    visibleTo__contains=[get_author_url(str(requestingAuthor))],
+                                                    unlisted=False)
             except:
                 print("got except!")
                 return Response(status=500)
@@ -426,7 +441,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     def visible_posts(self, request):
         print("visible_posts endpoint hit")
         xUser = request.META.get("HTTP_X_REQUEST_USER_ID")
-        page = int(request.query_params.get("page", 0)) + 1 # Must offset page by 1
+        page = int(request.query_params.get("page", 0)) + 1  # Must offset page by 1
         if page < 1:
             return Response({
                 "query": "posts",
@@ -452,10 +467,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 print("No xUser specified, sending all public posts")
                 posts = Posts.objects.all().filter(visibility__in=["PUBLIC"])
             elif not sUtil.author_from_this_server(xUser):
-                return Response("You're trying to access posts for a user that doesn't belong to you. user: " + xUser + " server: " + sUtil.get_base_url(), status=400)
+                return Response(
+                    "You're trying to access posts for a user that doesn't belong to you. user: " + xUser + " server: " + sUtil.get_base_url(),
+                    status=400)
             else:
                 followedByXUser = Follow.objects.values_list("followed", flat=True).filter(follower=xUser)
-                friendsOfXUser = Follow.objects.values_list("follower", flat=True).filter(followed=xUser, follower__in=followedByXUser)
+                friendsOfXUser = Follow.objects.values_list("follower", flat=True).filter(followed=xUser,
+                                                                                          follower__in=followedByXUser)
                 friends = []
                 friends += sUtil.get_friends_of(xUser.split("/author/")[1])
                 friends += friendsOfXUser
@@ -468,9 +486,11 @@ class AuthorViewSet(viewsets.ModelViewSet):
                     sUtil = ServerUtil(authorUrl=friend)
                     if sUtil.is_valid():
                         foafs += sUtil.get_friends_of(friend.split("/author/")[1])
-                    else: # it's not external (local), or we don't have that node anymore
-                        peopleFollowedByFriend = Follow.objects.values_list("followed", flat=True).filter(follower=friend)
-                        friendFriends = Follow.objects.values_list("follower", flat=True).filter(followed=friend, follower__in=peopleFollowedByFriend)
+                    else:  # it's not external (local), or we don't have that node anymore
+                        peopleFollowedByFriend = Follow.objects.values_list("followed", flat=True).filter(
+                            follower=friend)
+                        friendFriends = Follow.objects.values_list("follower", flat=True).filter(followed=friend,
+                                                                                                 follower__in=peopleFollowedByFriend)
                         foafs += friendFriends
                 baseUrl = get_host_url()
                 foafs = list(set(foafs))
@@ -481,16 +501,16 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 posts |= Posts.objects.all().filter(visibility="FOAF", author_id__in=foafs, unlisted=False)
                 posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[xUser], unlisted=False)
         else:
-            requestingAuthor = request.user.author.id # Should be guaranteed because not anon
+            requestingAuthor = request.user.author.id  # Should be guaranteed because not anon
             # Get direct friends and FOAFs into a dictionary
             requesterFriends = {}
             requesterFOAFs = {}
             for friend in get_friends_from_pk(requestingAuthor):
-                #friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                # friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                 requesterFriends[friend] = True
             for friend in requesterFriends:
                 for foaf in get_friends(friend):
-                    #friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
+                    # friend = friend.split("/")[-1] # these are actually "urls", so grab the uuid
                     # Ensure we don't add direct friends as an FOAF
                     if not requesterFriends.get(foaf, False):
                         requesterFOAFs[foaf] = True
@@ -504,15 +524,20 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 # Grab posts from direct friends
                 for friend in requesterFriends:
                     if not friend.startswith(host_url): continue
-                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FRIENDS", "FOAF", "SERVERONLY"], unlisted=False)
+                    posts |= Posts.objects.all().filter(author=get_author_id(friend),
+                                                        visibility__in=["FRIENDS", "FOAF", "SERVERONLY"],
+                                                        unlisted=False)
 
                 # Posts from FOAFs
                 for friend in requesterFOAFs:
                     if not friend.startswith(host_url): continue
-                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FOAF"], unlisted=False)
+                    posts |= Posts.objects.all().filter(author=get_author_id(friend), visibility__in=["FOAF"],
+                                                        unlisted=False)
 
                 # PRIVATE posts that the author can see
-                posts |= Posts.objects.all().filter(visibility="PRIVATE", visibleTo__contains=[get_author_url(str(requestingAuthor))], unlisted=False)
+                posts |= Posts.objects.all().filter(visibility="PRIVATE",
+                                                    visibleTo__contains=[get_author_url(str(requestingAuthor))],
+                                                    unlisted=False)
             except:
                 print("got except!")
                 return Response(status=500)
